@@ -152,6 +152,87 @@ policy($post)->update($user, $post)
 - Controller Authorization `$this->authorize('update', $post);`
 - For $user `$this->authorizeForUser($user, 'update', $post);`
 
+##### Blade
+- Show a section in a template
+    >   @yield('name') <br>
+        @extends('layout.name')
+- Begin a section
+    >   @section('name')
+- End a section
+    >   @stop
+- End a section and yield
+    >   
+        @section('sidebar') <br>
+        @show <br>
+        @parent <br>
+
+        @include('view.name')
+        @include('view.name', array('key' => 'value'));
+        @lang('messages.name')
+        @choice('messages.name', 1);
+
+        @if
+        @else
+        @elseif
+        @endif
+
+        @unless
+        @endunless
+
+        @for
+        @endfor
+
+        @foreach
+        @endforeach
+
+        @while
+        @endwhile
+
+- Echo content `{{ $var }}`
+- Echo escaped content `{{{ $var }}}`
+- Echo unescaped content; 5.0 feature `{!! $var !!}` `{{-- Blade Comment --}}`
+- Echoing Data After Checking For Existence `{{{ $name or 'Default' }}}`
+- Displaying Raw Text With Curly Braces `@{{ This will not be processed by Blade }}`
+
+##### Cache   
+    Cache::put('key', 'value', $minutes);
+    Cache::add('key', 'value', $minutes);
+    Cache::forever('key', 'value');
+    Cache::remember('key', $minutes, function(){ return 'value' });
+    Cache::rememberForever('key', function(){ return 'value' });
+    Cache::forget('key');
+    Cache::has('key');
+    Cache::get('key');
+    Cache::get('key', 'default');
+    Cache::get('key', function(){ return 'default'; });
+    Cache::tags('my-tag')->put('key','value', $minutes);
+    Cache::tags('my-tag')->has('key');
+    Cache::tags('my-tag')->get('key');
+    Cache::tags('my-tag')->forget('key');
+    Cache::tags('my-tag')->flush();
+    Cache::increment('key');
+    Cache::increment('key', $amount);
+    Cache::decrement('key');
+    Cache::decrement('key', $amount);
+    Cache::section('group')->put('key', $value);
+    Cache::section('group')->get('key');
+    Cache::section('group')->flush();
+    
+##### Composer
+    composer create-project laravel/laravel folder_name
+    composer install
+    composer update
+    composer dump-autoload [--optimize]
+    composer self-update
+    composer require [options] [--] [vender/packages]...
+
+##### Config
+    Config::get('app.timezone');
+    //get with Default value
+    Config::get('app.timezone', 'UTC');
+    //set Configuration
+    Config::set('database.default', 'sqlite');
+
 ## Laravel CMS tool install
 
 [Docs](https://laravel-admin.org/docs/)
