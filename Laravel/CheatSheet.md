@@ -493,6 +493,335 @@ DB::connection('connection_name');
 
         Event::listen('foor.bar', function($event){ return false; });
         Event::subscribe('UserEventHandler');
+        
+##### File
+
+    File::exists('path');
+    File::get('path');
+    File::getRemote('path');
+    
+- Get a file's contents by requiring it
+
+        File::getRequire('path');
+        
+- Require the given file once
+
+        File::requireOnce('path');
+        
+- Write the contents of a file
+
+        File::put('path', 'contents');
+- Append to a file
+
+        File::append('path', 'data');
+        
+- Delete the file at a given path
+
+        File::delete('path');
+        
+- Move a file to a new location
+        
+        File::move('path', 'target');
+
+- Copy a file to a new location
+        
+        File::copy('path', 'target');
+
+- Extract the file extension from a file path
+
+        File::extension('path');
+        
+- Get the file type of a given file
+        
+        File::type('path');
+
+- Get the file size of a given file
+        
+        File::size('path');
+
+- Get the file's last modification time
+        
+        File::lastModified('path');
+
+- Determine if the given path is a directory
+        
+        File::isDirectory('directory');
+
+- Determine if the given path is writable
+        
+        File::isWritable('path');
+
+- Determine if the given path is a file
+        
+        File::isFile('file');
+
+- Find path names matching a given pattern.
+        
+        File::glob($patterns, $flag);
+
+- Get an array of all files in a directory.
+        
+        File::files('directory');
+
+- Get all of the files from the given directory (recursive).
+        
+        File::allFiles('directory');
+
+- Get all of the directories within a given directory.
+        
+        File::directories('directory');
+
+- Create a directory
+        
+        File::makeDirectory('path',  $mode = 0777, $recursive = false);
+
+- Copy a directory from one location to another
+        
+        File::copyDirectory('directory', 'destination', $options = null);
+
+- Recursively delete a directory
+        
+        File::deleteDirectory('directory', $preserve = false);
+
+- Empty the specified directory of all files and folders
+        
+        File::cleanDirectory('directory');
+
+##### Form
+    Form::open(array('url' => 'foo/bar', 'method' => 'PUT'));
+    Form::open(array('route' => 'foo.bar'));
+    Form::open(array('route' => array('foo.bar', $parameter)));
+    Form::open(array('action' => 'FooController@method'));
+    Form::open(array('action' => array('FooController@method', $parameter)));
+    Form::open(array('url' => 'foo/bar', 'files' => true));
+    Form::close();
+    Form::token();
+    Form::model($foo, array('route' => array('foo.bar', $foo->bar)));
+- Form Elements
+
+        Form::label('id', 'Description');
+        Form::label('id', 'Description', array('class' => 'foo'));
+        Form::text('name');
+        Form::text('name', $value);
+        Form::text('name', $value, array('class' => 'name'));
+        Form::textarea('name');
+        Form::textarea('name', $value);
+        Form::textarea('name', $value, array('class' => 'name'));
+        Form::hidden('foo', $value);
+        Form::password('password');
+        Form::password('password', array('placeholder' => 'Password'));
+        Form::email('name', $value, array());
+        Form::file('name', array('class' => 'name'));
+        Form::checkbox('name', 'value');
+        
+- Generating a checkbox that is checked
+
+        Form::checkbox('name', 'value', true, array('class' => 'name'));
+        Form::radio('name', 'value');
+        
+- Generating a radio input that is selected
+        
+        Form::radio('name', 'value', true, array('class' => 'name'));
+        Form::select('name', array('key' => 'value'));
+        Form::select('name', array('key' => 'value'), 'key', array('class' => 'name'));
+        Form::selectRange('range', 1, 10);
+        Form::selectYear('year', 2011, 2015);
+        Form::selectMonth('month');
+        Form::submit('Submit!', array('class' => 'name'));
+        Form::button('name', array('class' => 'name'));
+        Form::macro('fooField', function()
+        {
+            return '<input type="custom"/>';
+        });
+        Form::fooField();
+
+##### HTML
+    HTML::macro('name', function(){});
+- Convert an HTML string to entities
+
+        HTML::entities($value);
+    
+- Convert entities to HTML characters
+
+        HTML::decode($value);
+        
+- Generate a link to a JavaScript file
+
+        HTML::script($url, $attributes);
+
+- Generate a link to a CSS file
+        
+        HTML::style($url, $attributes);
+
+- Generate an HTML image element
+        
+        HTML::image($url, $alt, $attributes);
+
+- Generate a HTML link
+        
+        HTML::link($url, 'title', $attributes, $secure);
+
+- Generate a HTTPS HTML link
+        
+        HTML::secureLink($url, 'title', $attributes);
+
+- Generate a HTML link to an asset
+        
+        HTML::linkAsset($url, 'title', $attributes, $secure);
+- Generate a HTTPS HTML link to an asset
+        
+        HTML::linkSecureAsset($url, 'title', $attributes);
+
+- Generate a HTML link to a named route
+        
+        HTML::linkRoute($name, 'title', $parameters, $attributes);
+
+- Generate a HTML link to a controller action
+        
+        HTML::linkAction($action, 'title', $parameters, $attributes);
+
+- Generate a HTML link to an email address
+        
+        HTML::mailto($email, 'title', $attributes);
+
+- Obfuscate an e-mail address to prevent spam-bots from sniffing it
+        
+        HTML::email($email);
+
+- Generate an ordered list of items
+        
+        HTML::ol($list, $attributes);
+
+- Generate an un-ordered list of items
+        
+        HTML::ul($list, $attributes);
+
+- Create a listing HTML element
+        
+        HTML::listing($type, $list, $attributes);
+
+- Create the HTML for a listing element
+        
+        HTML::listingElement($key, $type, $value);
+
+- Create the HTML for a nested listing attribute
+        
+        HTML::nestedListing($key, $type, $value);
+
+- Build an HTML attribute string from an array
+        
+        HTML::attributes($attributes);
+
+- Build a single attribute element
+        
+        HTML::attributeElement($key, $value);
+
+- Obfuscate a string to prevent spam-bots from sniffing it
+        
+        HTML::obfuscate($value);
+
+##### Helper
+- Arrays
+    - Adds a given key / value pair to the array if the given key doesn't already exist in the array `array_add($array, 'key', 'value');`
+    - Collapse an array of arrays into a single array `array_collapse($array);`
+    - Divide an array into two arrays. One with keys and the other with values `array_divide($array);`
+    - Flatten a multi-dimensional associative array with dots `array_dot($array);`
+    - Get all of the given array except for a specified array of items `array_except($array, array('key'));`
+    - Return the first element in an array passing a given truth test `array_first($array, function($key, $value){}, $default);`
+    - Strips keys from the array `array_flatten($array);`
+    - Remove one or many array items from a given array using "dot" notation `array_forget($array, 'foo');`
+    - Dot notation `array_forget($array, 'foo.bar');`
+    - Get an item from an array using "dot" notation
+        > array_get($array, 'foo', 'default'); <br>
+        > array_get($array, 'foo.bar', 'default');
+        
+    - Checks that a given item exists in an array using "dot" notation `array_has($array, 'products.desk');`
+    - Get a subset of the items from the given array `array_only($array, array('key'));`
+    - Return array of key => values `array_pluck($array, 'key');`
+    - Return and remove 'key' from array `array_pull($array, 'key');`
+    - Set an array item to a given value using "dot" notation `array_set($array, 'key', 'value');`
+    - Dot notation `array_set($array, 'key.subkey', 'value');`
+    - Sorts the array by the results of the given Closure `array_sort($array, function(){});`
+    - Recursively sorts the array using the sort function `array_sort_recursive();`
+    - Filters the array using the given Closure `array_where();`
+    - First element of an array `head($array);`
+    - Last element of an array `last($array);`
+              
+- Paths
+    - Fully qualified path to the app directory `app_path();`
+    - Get the path to the public folder `base_path();`
+    - Fully qualified path to the application configuration directory `config_path();`
+    - Fully qualified path to the application's database directory `database_path();`
+    - Gets the path to the versioned Elixir file: `elixir();`
+    - Fully qualified path to the public directory `public_path();`
+    - Get the path to the storage folder `storage_path();`
+              
+- Strings
+    - Convert a value to camel case `camel_case($value);`
+    - Get the class "basename" of the given object / class `class_basename($class);`
+    - Escape a string `e('<html>');`
+    - Determine if a given string starts with a given substring `starts_with('Foo bar.', 'Foo');`
+    - Determine if a given string ends with a given substring `ends_with('Foo bar.', 'bar.');`
+    - Convert a string to snake case `snake_case('fooBar');`
+    - Limits the number of characters in a string `str_limit();`
+    - Determine if a given string contains a given substring `str_contains('Hello foo bar.', 'foo');`
+    - Result: foo/bar/
+
+        str_finish('foo/bar', '/');
+        str_is('foo*', 'foobar');
+        str_plural('car');
+        str_random(25);
+        str_singular('cars');
+        str_slug("Laravel 5 Framework", "-");
+        
+    - Result: FooBar
+
+        studly_case('foo_bar');
+        trans('foo.bar');
+        trans_choice('foo.bar', $count);
+              
+    - URLs and Links `action('FooController@method', $parameters);`
+    - HTML Link `asset('img/photo.jpg', $title, $attributes);`
+    - HTTPS link
+
+        secure_asset('img/photo.jpg', $title, $attributes);
+        route($route, $parameters, $absolute = true);
+        url('path', $parameters = array(), $secure = null);
+              
+- Miscellaneous
+    - Authenticator instance (Auth) `auth()->user();`
+    - Generates a redirect response to the user's previous location `back();`
+    - Hashes the given value using Bcrypt (Hash) `bcrypt('my-secret-password');`
+    - Creates a collection instance from the supplied items `collect(['taylor', 'abigail']);`
+    - Gets the value of a configuration variable `config('app.timezone', $default);`
+    - Generates an HTML hidden input field containing the value of the CSRF token `{!! csrf_field() !!}`
+    - Retrieves the value of the current CSRF token `$token = csrf_token();`
+    - Dumps the given variable and ends execution of the script `dd($value);`
+    - Gets the value of an environment variable or returns a default value
+
+            $env = env('APP_ENV');
+            $env = env('APP_ENV', 'production');
+        
+    - Dispatches the given event to its listeners: `event(new UserRegistered($user));`
+    - Creates a model factory builder for a given class `$user = factory(App\User::class)->make();`
+    - Generates an HTML hidden input field containing the spoofed value of the form's HTTP verb `{!! method_field('delete') !!}`
+    - Retrieves an old input value flashed into the session
+
+            $value = old('value');
+            $value = old('value', 'default');
+        
+    - Returns an instance of the redirector to do redirects: `return redirect('/home');`
+    - Returns the current request instance or obtains an input item `$value = request('key', $default = null)`
+    - Creates a response instance or obtains an instance of the response factory `return response('Hello World', 200, $headers);`
+    - Used to get / set a session value
+
+            $value = session('key');
+            $value = session()->get('key');
+            session()->put('key', $value);
+        
+    - Will simply return the value it is given. `value(function(){ return 'bar'; });`
+    - Retrieves a view instance `return view('auth.login');`
+    - Returns the value it is given `$value = with(new Foo)->work();`
 
 ## Laravel CMS tool install
 
