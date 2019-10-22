@@ -48,7 +48,7 @@ function formatNumber(n) {
     if (isNaN(n) || n === '' || n === null) {
         return 0;
     }
-    return parseInt(n).toLocaleString();
+    return n.toString().replace(/,/g, '');
 }
 
 /**
@@ -94,7 +94,7 @@ function ucFirst(text) {
  * @returns {*}
  * Result 1000 → 1k
  */
-function formatN(num) {
+function formatKMG(num) {
     if (num >= 1000000000) {
         return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'G';
     }
@@ -103,6 +103,28 @@ function formatN(num) {
     }
     if (num >= 1000) {
         return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return num;
+}
+
+/**
+ * Revert format number follow standard K.M.G
+ * @param num
+ * @returns {*}
+ * Result 1k → 1000
+ */
+function revertFormatKMG(num) {
+    if (num.includes('G')) {
+        let new_num = num.replace('B', '');
+        return parseInt(new_num) * 1000000000;
+    }
+    if (num.includes('M')) {
+        let new_num = num.replace('M', '');
+        return parseInt(new_num) * 1000000;
+    }
+    if (num.includes('K')) {
+        let new_num = num.replace('B', '');
+        return parseInt(new_num) * 1000;
     }
     return num;
 }
