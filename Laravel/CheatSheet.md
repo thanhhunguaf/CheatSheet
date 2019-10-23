@@ -823,6 +823,735 @@ DB::connection('connection_name');
     - Retrieves a view instance `return view('auth.login');`
     - Returns the value it is given `$value = with(new Foo)->work();`
 
+##### Input
+    Input::get('key');
+- Default if the key is missing
+        
+        Input::get('key', 'default');
+        Input::has('key');
+        Input::all();
+
+- Only retrieve 'foo' and 'bar' when getting input
+        
+        Input::only('foo', 'bar');
+
+-  Disregard 'foo' when getting input
+
+        Input::except('foo');
+        Input::flush();
+              
+- Session Input (flash)
+        
+        // Flash input to the session
+        Input::flash();
+
+- Flash only some of the input to the session
+        
+        Input::flashOnly('foo', 'bar');
+- Flash only some of the input to the session
+
+        Input::flashExcept('foo', 'baz');
+        
+- Retrieve an old input item
+
+        Input::old('key','default_value');
+        
+##### Lang
+    App::setLocale('en');
+    Lang::get('messages.welcome');
+    Lang::get('messages.welcome', array('foo' => 'Bar'));
+    Lang::has('messages.welcome');
+    Lang::choice('messages.apples', 10);
+    // Lang::get alias
+    trans('messages.welcome');
+        
+##### Log
+- The logger provides the seven logging levels defined in RFC 5424: **debug, info, notice, warning, error, critical, and alert.**
+    
+        Log::info('info');
+        Log::info('info',array('context'=>'additional info'));
+        Log::error('error');
+        Log::warning('warning');
+    
+- Get monolog instance
+        
+        Log::getMonolog();
+        
+- Add listener
+
+        Log::listen(function($level, $message, $context) {});
+              
+- Query Logging 
+        
+        // enable the log
+        DB::connection()->enableQueryLog();
+        // get an array of the executed queries
+        DB::getQueryLog();
+        
+##### Mail
+    Mail::send('email.view', $data, function($message){});
+    Mail::send(array('html.view', 'text.view'), $data, $callback);
+    Mail::queue('email.view', $data, function($message){});
+    Mail::queueOn('queue-name', 'email.view', $data, $callback);
+    Mail::later(5, 'email.view', $data, function($message){});
+
+- Write all email to logs instead of sending
+        
+        Mail::pretend();
+              
+- Messages
+    - These can be used on the $message instance passed into Mail::send() or Mail::queue()
+        
+            $message->from('email@example.com', 'Mr. Example');
+            $message->sender('email@example.com', 'Mr. Example');
+            $message->returnPath('email@example.com');
+            $message->to('email@example.com', 'Mr. Example');
+            $message->cc('email@example.com', 'Mr. Example');
+            $message->bcc('email@example.com', 'Mr. Example');
+            $message->replyTo('email@example.com', 'Mr. Example');
+            $message->subject('Welcome to the Jungle');
+            $message->priority(2);
+            $message->attach('foo\bar.txt', $options);
+            
+    - This uses in-memory data as attachments
+            
+            $message->attachData('bar', 'Data Name', $options);
+    
+    - Embed a file in the message and get the CID
+            
+            $message->embed('foo\bar.txt');
+            $message->embedData('foo', 'Data Name', $options);
+    
+    - Get the underlying Swift Message instance
+            
+            $message->getSwiftMessage();
+            
+##### Model
+- Basic Usage 
+    - Defining An Eloquent Model `class User extends Model {}`
+    - generate Eloquent models `php artisan make:model User`
+    - specify a custom table name
+            
+            class User extends Model {
+                protected $table = 'my_users';
+            }
+          
+- More
+            
+            Model::create(array('key' => 'value'));
+    
+    - Find first matching record by attributes or create
+        > Model::firstOrCreate(array('key' => 'value'));
+    - Find first record by attributes or instantiate
+        > Model::firstOrNew(array('key' => 'value'));
+    - Create or update a record matching attibutes, and fill with values
+        > Model::updateOrCreate(array('search_key' => 'search_value'), array('key' => 'value'));
+    - Fill a model with an array of attributes, beware of mass assignment!
+        
+            Model::fill($attributes);
+            Model::destroy(1);
+            Model::all();
+            Model::find(1); 
+    
+    - Find using dual primary key
+        > Model::find(array('first', 'last'));
+    - Throw an exception if the lookup fails
+        > Model::findOrFail(1);
+    - Find using dual primary key and throw exception if the lookup fails
+            
+            Model::findOrFail(array('first', 'last'));
+            Model::where('foo', '=', 'bar')->get();
+            Model::where('foo', '=', 'bar')->first();
+- Dynamic
+    > Model::whereFoo('bar')->first();
+- Throw an exception if the lookup fails
+            
+            Model::where('foo', '=', 'bar')->firstOrFail();
+            Model::where('foo', '=', 'bar')->count();
+            Model::where('foo', '=', 'bar')->delete();
+            
+- Output raw query
+            
+            Model::where('foo', '=', 'bar')->toSql();
+            Model::whereRaw('foo = bar and cars = 2', array(20))->get();
+            Model::remember(5)->get();
+            Model::remember(5, 'cache-key-name')->get();
+            Model::cacheTags('my-tag')->remember(5)->get();
+            Model::cacheTags(array('my-first-key','my-second-key'))->remember(5)->get();
+            Model::on('connection-name')->find(1);
+            Model::with('relation')->get();
+            Model::all()->take(10);
+            Model::all()->skip(10);
+
+- Default Eloquent sort is ascendant
+            
+            Model::all()->orderBy('column');
+            Model::all()->orderBy('column','desc');
+              
+- Soft Delete 
+    > Model::withTrashed()->where('cars', 2)->get();
+- Include the soft deleted models in the results
+            
+            Model::withTrashed()->where('cars', 2)->restore();
+            Model::where('cars', 2)->forceDelete();
+
+- Force the result set to only included soft deletes
+    > Model::onlyTrashed()->where('cars', 2)->get();
+              
+- Events
+            
+            Model::creating(function($model){});
+            Model::created(function($model){});
+            Model::updating(function($model){});
+            Model::updated(function($model){});
+            Model::saving(function($model){});
+            Model::saved(function($model){});
+            Model::deleting(function($model){});
+            Model::deleted(function($model){});
+            Model::observe(new FooObserver);
+              
+- Eloquent Configuration
+    - Disables mass assignment exceptions from being thrown from model inserts and updates
+        > Eloquent::unguard();
+    - Renables any ability to throw mass assignment exceptions
+        > Eloquent::reguard();
+
+##### Pagination
+- Auto-Magic Pagination
+        
+        Model::paginate(15);
+        Model::where('cars', 2)->paginate(15);
+
+- "Next" and "Previous" only
+        
+        Model::where('cars', 2)->simplePaginate(15);
+
+- Manual Paginator
+        
+        Paginator::make($items, $totalItems, $perPage);
+
+- Print page navigators in view
+        
+        $variable->links();
+        
+##### Queue
+    Queue::push('SendMail', array('message' => $message));
+    Queue::push('SendEmail@send', array('message' => $message));
+    Queue::push(function($job) use $id {});
+
+- Same payload to multiple workers
+    > Queue::bulk(array('SendEmail', 'NotifyUser'), $payload);
+- Starting the queue listener
+        
+        php artisan queue:listen
+        php artisan queue:listen connection
+        php artisan queue:listen --timeout=60
+- Process only the first job on the queue
+    > php artisan queue:work
+- Start a queue worker in daemon mode
+    > php artisan queue:work --daemon
+- Create migration file for failed jobs
+    > php artisan queue:failed-table
+- Listing failed jobs
+    > php artisan queue:failed
+- Delete failed job by id
+    > php artisan queue:forget 5
+- Delete all failed jobs
+    > php artisan queue:flush
+
+##### Redirect
+    return Redirect::to('foo/bar');
+    return Redirect::to('foo/bar')->with('key', 'value');
+    return Redirect::to('foo/bar')->withInput(Input::get());
+    return Redirect::to('foo/bar')->withInput(Input::except('password'));
+    return Redirect::to('foo/bar')->withErrors($validator);
+- Create a new redirect response to the previous location
+    > return Redirect::back();
+- Create a new redirect response to a named route
+        
+        return Redirect::route('foobar');
+        return Redirect::route('foobar', array('value'));
+        return Redirect::route('foobar', array('key' => 'value'));
+- Create a new redirect response to a controller action
+        
+        return Redirect::action('FooController@index');
+        return Redirect::action('FooController@baz', array('value'));
+        return Redirect::action('FooController@baz', array('key' => 'value'));
+- If intended redirect is not defined, defaults to foo/bar.
+    > return Redirect::intended('foo/bar');
+
+##### Request
+- Url: http://xx.com/aa/bb
+    > Request::url();
+- Path: /aa/bb
+    > Request::path();
+- GetRequestUri: /aa/bb/?c=d
+    > Request::getRequestUri();
+- Returns user's IP
+    > Request::getClientIp();
+- GetUri: http://xx.com/aa/bb/?c=d
+    > Request::getUri();
+- GetQueryString: c=d
+    > Request::getQueryString();
+- Get the port scheme of the request (e.g., 80, 443, etc.)
+    > Request::getPort();
+- Determine if the current request URI matches a pattern
+    > Request::is('foo/*');
+- Get a segment from the URI (1 based index)
+    > Request::segment(1);
+- Retrieve a header from the request
+    > Request::header('Content-Type');
+- Retrieve a server variable from the request
+    > Request::server('PATH_INFO');
+- Determine if the request is the result of an AJAX call
+    > Request::ajax();
+- Determine if the request is over HTTPS
+    > Request::secure();
+- Get the request method
+    > Request::method();
+- Checks if the request method is of specified type
+    > Request::isMethod('post');
+- Get raw POST data
+    > Request::instance()->getContent();
+- Get requested response format
+    > Request::format();
+- True if HTTP Content-Type header contains */json
+    > Request::isJson();
+- True if HTTP Accept header is application/json
+    > Request::wantsJson();
+
+##### Response
+    return Response::make($contents);
+    return Response::make($contents, 200);
+    return Response::json(array('key' => 'value'));
+    return Response::json(array('key' => 'value'))->setCallback(Input::get('callback'));
+    return Response::download($filepath);
+    return Response::download($filepath, $filename, $headers);
+    
+- Create a response and modify a header value
+        
+        $response = Response::make($contents, 200);
+        $response->header('Content-Type', 'application/json');
+        return $response;
+- Attach a cookie to a response
+        
+        return Response::make($content)->withCookie(Cookie::make('key', 'value'));
+
+##### Route
+    Route::get('foo', function(){});
+    Route::get('foo', 'ControllerName@function');
+    Route::controller('foo', 'FooController');
+              
+- RESTful Controllers 
+    
+        Route::resource('posts','PostsController');
+        //Specify a subset of actions to handle on the route
+        Route::resource('photo', 'PhotoController',['only' => ['index', 'show']]);
+        Route::resource('photo', 'PhotoController',['except' => ['update', 'destroy']]);
+              
+- Triggering Errors 
+        
+        App::abort(404);
+        $handler->missing(...) in ErrorServiceProvider::boot();
+        throw new NotFoundHttpException;
+              
+- Route Parameters 
+        
+        Route::get('foo/{bar}', function($bar){});
+        Route::get('foo/{bar?}', function($bar = 'bar'){});
+              
+- HTTP Verbs
+        
+        Route::any('foo', function(){});
+        Route::post('foo', function(){});
+        Route::put('foo', function(){});
+        Route::patch('foo', function(){});
+        Route::delete('foo', function(){});
+- RESTful actions
+        
+        Route::resource('foo', 'FooController');
+- Registering A Route For Multiple Verbs
+        
+        Route::match(['get', 'post'], '/', function(){});
+              
+- Secure Routes(TBD)
+        
+        Route::get('foo', array('https', function(){}));
+              
+- Route Constraints
+        
+        Route::get('foo/{bar}', function($bar){})->where('bar', '[0-9]+');
+        Route::get('foo/{bar}/{baz}', function($bar, $baz){})->where(array('bar' => '[0-9]+', 'baz' => '[A-Za-z]'))
+              
+- Set a pattern to be used across routes
+        
+        Route::pattern('bar', '[0-9]+')
+              
+- HTTP Middleware 
+        
+        // Assigning Middleware To Routes
+        Route::get('admin/profile', ['middleware' => 'auth', function(){}]);
+              
+- Named Routes
+        
+        Route::currentRouteName();
+        Route::get('foo/bar', array('as' => 'foobar', function(){}));
+        Route::get('user/profile', [
+            'as' => 'profile', 'uses' => 'UserController@showProfile'
+        ]);
+        $url = route('profile');
+        $redirect = redirect()->route('profile');
+              
+- Route Prefixing
+        
+        Route::group(['prefix' => 'admin'], function()
+        {
+            Route::get('users', function(){
+                return 'Matches The "/admin/users" URL';
+            });
+        });
+              
+- Route Namespacing
+        
+        // This route group will carry the namespace 'Foo\Bar'
+        Route::group(array('namespace' => 'Foo\Bar'), function(){})
+              
+- Sub-Domain Routing
+        
+        // {sub} will be passed to the closure
+        Route::group(array('domain' => '{sub}.example.com'), function(){});
+        
+##### SSH
+- Executing Commands
+        
+        SSH::run(array $commands);
+        SSH::into($remote)->run(array $commands); 
+        // specify remote, otherwise assumes default
+        SSH::run(array $commands, function($line)
+        {
+            echo $line.PHP_EOL;
+        });
+              
+- Tasks
+    - Define
+            
+            SSH::define($taskName, array $commands);
+    - Execute
+            
+            SSH::task($taskName, function($line)
+            {
+              echo $line.PHP_EOL;
+            });
+              
+- SFTP Uploads
+            
+            SSH::put($localFile, $remotePath);
+            SSH::putString($string, $remotePath);
+
+##### Schema
+- Indicate that the table needs to be created
+    
+        Schema::create('table', function($table)
+        {
+          $table->increments('id');
+        });
+- Specify a Connection
+    > Schema::connection('foo')->create('table', function($table){});
+- Rename the table to a given name
+    > Schema::rename($from, $to);
+- Indicate that the table should be dropped
+    > Schema::drop('table');
+- Indicate that the table should be dropped if it exists
+    > Schema::dropIfExists('table');
+- Determine if the given table exists
+    > Schema::hasTable('table');
+- Determine if the given table has a given column
+    > Schema::hasColumn('table', 'column');
+- Update an existing table
+    > Schema::table('table', function($table){});
+- Indicate that the given columns should be renamed
+    > $table->renameColumn('from', 'to');
+- Indicate that the given columns should be dropped
+    > $table->dropColumn(string|array);
+- The storage engine that should be used for the table
+    > $table->engine = 'InnoDB';
+- Only work on MySQL
+    > $table->string('name')->after('email');
+              
+- Indexes
+        
+        $table->string('column')->unique();
+        $table->primary('column');
+        // Creates a dual primary key
+        $table->primary(array('first', 'last'));
+        $table->unique('column');
+        $table->unique('column', 'key_name');
+        // Creates a dual unique index
+        $table->unique(array('first', 'last'));
+        $table->unique(array('first', 'last'), 'key_name');
+        $table->index('column');
+        $table->index('column', 'key_name');
+        // Creates a dual index
+        $table->index(array('first', 'last'));
+        $table->index(array('first', 'last'), 'key_name');
+        $table->dropPrimary('table_column_primary');
+        $table->dropUnique('table_column_unique');
+        $table->dropIndex('table_column_index');
+              
+- Foreign Keys
+        
+        $table->foreign('user_id')->references('id')->on('users');
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'|'restrict'|'set null'|'no action');
+        $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade'|'restrict'|'set null'|'no action');
+        $table->dropForeign('posts_user_id_foreign');
+              
+- Column Types
+        
+        // Increments
+        $table->increments('id');
+        $table->bigIncrements('id');
+
+- Numbers
+        
+        $table->integer('votes');
+        $table->tinyInteger('votes');
+        $table->smallInteger('votes');
+        $table->mediumInteger('votes');
+        $table->bigInteger('votes');
+        $table->float('amount');
+        $table->double('column', 15, 8);
+        $table->decimal('amount', 5, 2);
+
+- String and Text
+        
+        $table->char('name', 4);
+        $table->string('email');
+        $table->string('name', 100);
+        $table->text('description');
+        $table->mediumText('description');
+        $table->longText('description');
+
+- Date and Time
+        
+        $table->date('created_at');
+        $table->dateTime('created_at');
+        $table->time('sunrise');
+        $table->timestamp('added_on');
+- Adds created_at and updated_at columns
+        
+        $table->timestamps();
+        $table->nullableTimestamps();
+
+- Others
+        
+        $table->binary('data');
+        $table->boolean('confirmed');
+- Adds deleted_at column for soft deletes
+        
+        $table->softDeletes();
+        $table->enum('choices', array('foo', 'bar'));
+- Adds remember_token as VARCHAR(100) NULL
+        
+        $table->rememberToken();
+- Adds INTEGER parent_id and STRING parent_type
+        
+        $table->morphs('parent')->nullable()->default($value)->unsigned()
+
+##### Security
+- Hashing 
+        
+        Hash::make('secretpassword');
+        Hash::check('secretpassword', $hashedPassword);
+        Hash::needsRehash($hashedPassword);
+              
+- Encryption
+        
+        Crypt::encrypt('secretstring');
+        Crypt::decrypt($encryptedString);
+        Crypt::setMode('ctr');
+        Crypt::setCipher($cipher);
+        
+##### Session
+    Session::get('key');
+    // Returns an item from the session
+    Session::get('key', 'default');
+    Session::get('key', function(){ return 'default'; });
+    // Get the session ID
+    Session::getId();
+    // Put a key / value pair in the session
+    Session::put('key', 'value');
+    // Push a value into an array in the session
+    Session::push('foo.bar','value');
+    // Returns all items from the session
+    Session::all();
+    // Checks if an item is defined
+    Session::has('key');
+    // Remove an item from the session
+    Session::forget('key');
+    // Remove all of the items from the session
+    Session::flush();
+    // Generate a new session identifier
+    Session::regenerate();
+    // Flash a key / value pair to the session
+    Session::flash('key', 'value');
+    // Reflash all of the session flash data
+    Session::reflash();
+    // Reflash a subset of the current flash data
+    Session::keep(array('key1', 'key2'));
+    
+##### String
+    // Transliterate a UTF-8 value to ASCII
+    Str::ascii($value)
+    Str::camel($value)
+    Str::contains($haystack, $needle)
+    Str::endsWith($haystack, $needles)
+    // Cap a string with a single instance of a given value.
+    Str::finish($value, $cap)
+    Str::is($pattern, $value)
+    Str::length($value)
+    Str::limit($value, $limit = 100, $end = '...')
+    Str::lower($value)
+    Str::words($value, $words = 100, $end = '...')
+    Str::plural($value, $count = 2)
+    // Generate a more truly "random" alpha-numeric string.
+    Str::random($length = 16)
+    // Generate a "random" alpha-numeric string.
+    Str::quickRandom($length = 16)
+    Str::upper($value)
+    Str::title($value)
+    Str::singular($value)
+    Str::slug($title, $separator = '-')
+    Str::snake($value, $delimiter = '_')
+    Str::startsWith($haystack, $needles)
+    // Convert a value to studly caps case.
+    Str::studly($value)
+    Str::macro($name, $macro)
+    
+##### URL
+    URL::full();
+    URL::current();
+    URL::previous();
+    URL::to('foo/bar', $parameters, $secure);
+    URL::action('NewsController@item', ['id'=>123]);
+    // need be in appropriate namespace
+    URL::action('Auth\AuthController@logout');
+    URL::action('FooController@method', $parameters, $absolute);
+    URL::route('foo', $parameters, $absolute);
+    URL::secure('foo/bar', $parameters);
+    URL::asset('css/foo.css', $secure);
+    URL::secureAsset('css/foo.css');
+    URL::isValidUrl('http://example.com');
+    URL::getRequest();
+    URL::setRequest($request);
+    
+##### UnitTest
+- Install and run
+        
+        // add to composer and update:
+        "phpunit/phpunit": "4.0.*"
+        // run tests (from project root)
+        ./vendor/bin/phpunit
+              
+- Asserts
+        
+        $this->assertTrue(true);
+        $this->assertEquals('foo', $bar);
+        $this->assertCount(1,$times);
+        $this->assertResponseOk();
+        $this->assertResponseStatus(403);
+        $this->assertRedirectedTo('foo');
+        $this->assertRedirectedToRoute('route.name');
+        $this->assertRedirectedToAction('Controller@method');
+        $this->assertViewHas('name');
+        $this->assertViewHas('age', $value);
+        $this->assertSessionHasErrors();
+        // Asserting the session has errors for a given key...
+        $this->assertSessionHasErrors('name');
+        // Asserting the session has errors for several keys...
+        $this->assertSessionHasErrors(array('name', 'age'));
+        $this->assertHasOldInput();
+              
+- Calling routes
+        
+        $response = $this->call($method, $uri, $parameters, $files, $server, $content);
+        $response = $this->callSecure('GET', 'foo/bar');
+        $this->session(['foo' => 'bar']);
+        $this->flushSession();
+        $this->seed();
+        $this->seed($connection);
+        
+##### Validation
+    Validator::make(
+        array('key' => 'Foo'),
+        array('key' => 'required|in:Foo')
+    );
+    Validator::extend('foo', function($attribute, $value, $params){});
+    Validator::extend('foo', 'FooValidator@validate');
+    Validator::resolver(function($translator, $data, $rules, $msgs)
+    {
+        return new FooValidator($translator, $data, $rules, $msgs);
+    });
+              
+- Rules
+        
+        accepted
+        active_url
+        after:YYYY-MM-DD
+        before:YYYY-MM-DD
+        alpha
+        alpha_dash
+        alpha_num
+        array
+        between:1,10
+        confirmed
+        date
+        date_format:YYYY-MM-DD
+        different:fieldname
+        digits:value
+        digits_between:min,max
+        boolean
+        email
+        exists:table,column
+        image
+        in:foo,bar,...
+        not_in:foo,bar,...
+        integer
+        numeric
+        ip
+        max:value
+        min:value
+        mimes:jpeg,png
+        regex:[0-9]
+        required
+        required_if:field,value
+        required_with:foo,bar,...
+        required_with_all:foo,bar,...
+        required_without:foo,bar,...
+        required_without_all:foo,bar,...
+        same:field
+        size:value
+        timezone
+        unique:table,column,except,idColumn
+        url
+        
+##### View
+    View::make('path/to/view');
+    View::make('foo/bar')->with('key', 'value');
+    View::make('foo/bar')->withKey('value');
+    View::make('foo/bar', array('key' => 'value'));
+    View::exists('foo/bar');
+    // Share a value across all views
+    View::share('key', 'value');
+    // Nesting views
+    View::make('foo/bar')->nest('name', 'foo/baz', $data);
+    // Register a view composer
+    View::composer('viewname', function($view){});
+    //Register multiple views to a composer
+    View::composer(array('view1', 'view2'), function($view){});
+    // Register a composer class
+    View::composer('viewname', 'FooComposer');
+    View::creator('viewname', function($view){});
+
 ## Laravel CMS tool install
 
 [Docs](https://laravel-admin.org/docs/)

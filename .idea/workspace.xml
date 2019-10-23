@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Javascript/Utilities.js" beforeDir="false" afterPath="$PROJECT_DIR$/Javascript/Utilities.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Laravel/CheatSheet.md" beforeDir="false" afterPath="$PROJECT_DIR$/Laravel/CheatSheet.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -33,6 +33,7 @@
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
@@ -90,7 +91,8 @@
       <updated>1559978718740</updated>
       <workItem from="1559978720364" duration="8084000" />
       <workItem from="1571650339855" duration="2157000" />
-      <workItem from="1571711842942" duration="4463000" />
+      <workItem from="1571711842942" duration="12179000" />
+      <workItem from="1571797542151" duration="3475000" />
     </task>
     <servers />
   </component>
@@ -109,5 +111,8 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>
