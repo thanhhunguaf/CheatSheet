@@ -1,0 +1,388 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/interview-nghia-tran-proxyman.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:18:57 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Phỏng vấn tác giả Proxyman: Từ side project thành full-time business | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='img/interview/proxyman/feature.png'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Phỏng vấn tác giả Proxyman: Từ side project thành full-time business</span></h1>
+<p><em>Bắt đầu từ một pet product để giải quyết những vấn đề cá nhân gặp phải trong
+quá trình làm việc, bạn Nghĩa Trần đã dày công theo đuổi và xây dựng
+<a href="https://proxyman.io/">Proxyman</a>
+trở thành một sản phẩm chuyên nghiệp thu hút được hàng nghìn user đến từ khắp
+nơi trên thế giới, đem về doanh thu cực khủng.</em></p>
+<p><em>Bài phỏng vấn dưới đây là những chia sẻ hết sức thú vị và bổ ích của Nghĩa về
+kinh nghiệm cũng như quá trình xây dựng và phát triển <a href="https://proxyman.io/">Proxyman</a>.</em></p>
+<img src="img/interview/proxyman/top.png" style="max-width: 900px; margin-left: -190px" />
+<p><strong>Xin chào Nghĩa, cảm ơn Nghĩa đã nhận lời mời phỏng vấn ngày hôm nay. Nghĩa có thể giới thiệu qua một tí về bản thân cũng như về Proxyman với các độc giả được không?</strong></p>
+<p>Mình là Nghĩa Trần. Hiện tại mình đang là macOS Developer ở Toggl.com</p>
+<p>Cơ bản thì ý tưởng về Proxyman chỉ đơn giản là giải quyết cái ức chế của mình khi xài Charles Proxy mà mình “bị”, “phải” xài hằng ngày lúc mình còn ở Zalora Vietnam.</p>
+<ul>
+<li>Nếu bạn đã từng xài Charles Proxy, Wireshark hay Fiddler để bắt được HTTP/HTTPS traffic từ mac hoặc iPhone để debug dễ dàng thì bạn sẽ biết Proxyman là gì ;]</li>
+<li>Còn nếu chưa, thì Proxyman là một HTTP Debugging Proxy app, dùng dễ capture / intercept / manipulate HTTP / HTTPS requests / response từ macOS, iPhone, Android và cả Simulator.</li>
+</ul>
+<p>Một vài selling-point của Proxyman là:</p>
+<ul>
+<li>Native macOS app</li>
+<li>Dễ xài, không cần Google để setup certificates.</li>
+<li>Đầy đủ features như Charles Proxy (Hopefully)</li>
+<li>Và phải nhanh (ai cũng muốn nhanh nên app phải nhanh ;]</li>
+</ul>
+<p><strong>Bạn build Proxyman lâu chưa? Trước Proxyman thì bạn có product nào khác nữa không? Bạn làm team hay một mình?</strong></p>
+<p>Proxyman là pet product mà mình theo đuổi lâu nhất : D hơn 1 năm và vẫn chưa có ý định chán =)) (Hy vọng là thế)</p>
+<p>Version Prototype đầu tiên của Proxyman được ra mắt vào ngày Aug 3, 2018, và bản Stable gần nhất là Proxyman 1.7.2 Oct 24, 209. Tổng cộng có tất cả 46 releases.</p>
+<p>Ngày launch app bất ngờ trên Product Hunt là hôm March 31st, 2019. Do một bạn nào đó tự post và tag mình vào :D nên phải cuốn theo chiều gió và coi như làm hôm launch chính thức, dù mình vẫn định delay thêm vài tháng cho để có thêm thời gian fix thêm một mớ bugs.</p>
+<p>Launch trên Setapp ngày Jun 1st, 2019 và cũng là ngày launch cái licensing system.</p>
+<p>Trước Proxyman thì mình chỉ build vài product chơi, chủ yếu là học code macOS. Ví dụ</p>
+<ul>
+<li>Artify: <a href="https://github.com/NghiaTranUIT/artify-macos">GitHub - NghiaTranUIT/artify-macos: 🌎 18th century Arts for everyone</a></li>
+<li>Uber for macOS: <a href="https://github.com/NghiaTranUIT/Unofficial-Uber-macOS">GitHub - NghiaTranUIT/Unofficial-Uber-macOS: Unofficial Uber 🚗 for macOS.</a></li>
+</ul>
+<p>Cả 2 project hiện tại đã stop, vì Uber không còn ở VN và Artify cũng đã gần xong :D</p>
+<p>Proxyman thì mình là người build từ những ngày đầu tiên. Hiện tại thì có bạn gái mình tham gia viết blog và đảm nhiệm phần users acquisition, Huy - TablePlus là co-founder sau này giúp mình có thêm business insight về users và SaaS product.</p>
+<p><strong>Về pricing model thì bạn dựa vào đâu để định mức giá? Và việc distribute nó trên Setapp có khiến bác thay đổi gì về pricing không?</strong></p>
+<p>Về Pricing thì mình tham khảo đối thủ chính của Proxyman là</p>
+<ul>
+<li>Charles Proxy (<a href="https://www.charlesproxy.com/">https://www.charlesproxy.com</a>)</li>
+<li>Một số apps (Sketch, NSSurge, TablePlus, Postico) có customer chủ yếu là individual / SMEs.</li>
+</ul>
+<p>Giá License thường tầm <span>$</span>49 / năm nên mình chọn mức này. Fun fact là với giá <span>$</span>49 này, mình cũng bị một vài users complain về việc quá mắc, mà feature lại chưa đầy đủ :)) nhưng kệ, cứ ra feature và giữ standard cao.</p>
+<p>Ngoài ra vẫn có kha khá users (developers) có 2 máy, và việc mua 2 license (<span>$</span>90) thì không khả thi, nên mình offer thêm Combo với mức giá <span>$</span>59. Team license (&gt;= 3) thì <span>$</span>39.</p>
+<p>Ngoài ra, vẫn có những đối thủ cộm cán như Fiddler, Wiresharke, Debookee …. tuy nhiên customers chủ yếu là enterprise.</p>
+<p>Việc distribute lên Setapp không ảnh hưởng gì tới mức license hiện tại cả. Vì 80% users của mình không xài Setapp. User vẫn thích mua license và được support trực tiếp từ mình khi có bug hay feature request. Mục đích của việc distribute lên Setapp là giúp tăng độ trust của Proxyman.</p>
+<p><strong>Bạn có run ads hay gì để marketing cho nó không? Hay để… hữu xạ tự nhiên hương?</strong></p>
+<p>Hiện tại mình không run ads. Tất cả chi phí dành cho ads hay marketing hiện là 0. Tất cả điều nhờ &quot;word of mouth&quot;.</p>
+<p>Approach này có thể sẽ chậm lúc ban đầu, nhưng khá hiệu quả để build trust của users. Vì thường mọi người sẽ thích xài app khi bạn bè mình giới thiệu hơn là xài một cái app thấy trên Ads. Cách này cũng rất dễ convert một user thành loyaty user (purchased license, cuồng app, tweet Proxyman và khoe với mọi người). Họ đã trờ thành local influencers, và Proxyman cũng từ từ được biết tới.</p>
+<p>Ngoài ra mình cũng chú trọng tới viết blogs và trả lời nhiều câu hỏi liên quan tới SSL Proxying, debugging trên StackOverflow, … và có link lại Proxyman.</p>
+<p>Ngoài ra, 1 chiến thuật khác để acquire users là quick responsiveness. Mình sẽ support trong vòng 1-2 tiếng. Nếu user report 1 bug trên Github, Twitter, Gitter, thì mình sẽ fix và gửi bản hotfix cho user ngay lập tức. Cách này rất hiệu quả ở giai đoạn đầu của product, vì chứng tỏ product mình rất active, có hot-fix build thì user nó có thể tiếp tục job của nó mà không cần phải đợi qua tuần cho bản Stable release.</p>
+<p>Kết quả là có rất nhiều users appreciated, và họ rất thích được chat với founder của products. Chắc vì họ cũng painful khi Charles Proxy (product họ đang xài) không có 1 kênh chính thức nào để support họ. Và cũng kha khá user mua license để cảm ơn sau khi mình support họ 😄</p>
+<p>Tất cả những điều trên điều giúp mình acquire nhiều users hơn và cũng là go-to-market strategies của Proxyman hiện tại.</p>
+<p><strong>Về tình hình revenue thì hiện tại như nào, nếu tiện thì Nghĩa có thể chia sẻ một tí được không?</strong></p>
+<p>Revenue hiện tại tầm &quot;chưa đến <span>$</span>5K MRR&quot; từ License + Setapp. Cũng không nhiều so với những app SaaS khác, nhưng cũng đủ cho thời điểm hiện tại.</p>
+<p>Plan của Proxyman là long term nên mình vẫn tin là Proxyman sẽ bump lên được vài năm tới. Thực tế là, Charles Proxy cũng mất 15 năm mới lên được vị trí như bây giờ, và Charles Proxy team chỉ có 1 người :D</p>
+<p><strong>Khi build sản phẩm này thì bạn có từng cân nhắc giữa chuyện có nên open source nó for free và kiếm tiền từ nó không?</strong></p>
+<p>Kha khá users email hỏi về việc mình Open Source, tuy nhiên mình không cân nhắc approach này. trong thời điểm hiện tại (Cả founder của Insomnia cũng khuyên mình OSS).</p>
+<p>Thật ra mục đích đầu tiên ở Proxyman là thử sức với những technical challenges mới. Mình có vài năm code iOS, cơ bản công việc vẫn chỉ là app listing, social apps, mọi thứ đã có sẵn và điều này khiến mình cảm thấy rất boring.</p>
+<p>Charles Proxy không có alternative nào và có rất nhiều người đang tìm alternative, nhưng bất lực, nên mình nghĩ có thể đây là cơ hội để mình disrupt, kiểu Trello vs Jira :D</p>
+<p>Mình cũng cân nhắc chuyện bán license. Vì đó là cách để thuyết phục users là Author của Proxyman là nghiêm túc trong việc làm product.</p>
+<p>OSS sợ mọi người thấy code dỏm, user bỏ đi 😄</p>
+<p><strong>Nói về technical challenges, Nghĩa có thể chia sẻ thêm về những challenge bạn đã gặp phải trong quá trình làm Proxyman được không?</strong></p>
+<p>Một vài challenges trong Proxyman là:</p>
+<ul>
+<li>Build 1 app macOS native, developer tool.</li>
+<li>Làm sao để buit được Intuitive UI? Không cần train vẫn mà naive users vẫn có thể xem được HTTPS Response? In fact, những ngày đầu mình xài Charles Proxy và Wireshark, thì gần như user phải biết mình phải làm gì, 90% (cả mình) cũng phải google cách sử dụng. Xài app mà cũng phải google cách xài LOL.</li>
+<li>Làm sao build được 1 cái Proxy server? Làm sao parse được Raw HTTP Message?</li>
+<li>Làm sao biết được request đó đi ra từ client nào?</li>
+<li>Làm sao xem được HTTP Response? Cả HTTPS?</li>
+<li>Làm sao trở thành MitM app, và không bị client reject the certificates?</li>
+<li>Làm sao generate chain certificate on the fly?</li>
+<li>Làm sao xem được requests từ iPhone, iOS Simulator và Android?</li>
+<li>SSL Handshake?</li>
+<li>Làm sao implement được “Privileged Helper Tool” để override system HTTP/HTTPS Proxy trên macOS?</li>
+<li>WebSocket debugging, Advanced features (Local Map, Breakpoint, External Proxy, Network Throttling, …)?</li>
+<li>Và rất rất nhiều thứ mình không có cơ hội làm nếu là iOS dev :D</li>
+</ul>
+<p>Tóm lại, code developer tool nó nhều challenges và hẳn là fun hơn :D</p>
+<p><strong>Khi quyết định hướng kiếm tiền từ nó, bạn có từng phải cân nhắc giữa chuyện &quot;bao nhiêu là đủ&quot; cho việc xài free và bản trả phí không? Bạn có nghĩ tới chuyện sẽ bị user nó abuse cái free trial không?</strong></p>
+<p>Mình cũng cân nhắc rất nhiều về Business Model cho Proxyman: Premium, Freemium hay Trial.</p>
+<p>Cuối cùng thì mình chọn Freemium. Cơ bản tất cả features (basic và advanced features) điều free và xài thoải mái để hoàn thành công việc hơn là phải mua license trước.</p>
+<p>Bản Paid Proxyman chỉ unlock một vài cái cơ bản như Multiple-Tabs, số pin item, số rule trong Local Map, Breakpoint, …</p>
+<p>Mục đích là để users cho dù xài bản free, vẫn có thể hoàn thành công việc của họ mà không có bất kỳ cản trở nào. Khi họ enjoy, làm được việc, thì họ sẽ thích app và mua license. Hạn chế việc làm user cảm thấy ức chế khi xài.</p>
+<p>Một vài ví dụ, Charles Proxy bản free sẽ tự kill cái session trong 30p, nghĩa là sau 30p, sẽ mất hết :D rất ức chế.</p>
+<p>Kha khá users mua app ngày từ đầu, vì họ vui mừng tìm được 1 app thay thế Charles Proxy mà họ đã xài một cách &quot;chịu đựng&quot; vài năm.</p>
+<p><strong>Với kinh nghiệm từ Proxyman, thì bạn đánh giá tỉ lệ giữa free user và paid user là như nào? và conversion rate ở đây như nào? Thị trường nào có tỉ lệ paid user cao nhất? Và so với thị trường VN thì sao?</strong></p>
+<p>Convert rate của Proxyman hiện tại là 1-2%. US và EU là 2 thị trường có user mua nhiều nhất. VN và ASIA nói chung chỉ có free users, không có paid users hiện tại.</p>
+<p>Proxyman có khoảng 4k monthly users và khoảng 250-350 daily user. Returned user là ~80% users. US + EU chiếm khoảng 95%, còn lại China và một chút Southern-ASIA.</p>
+<img src="img/interview/proxyman/intuitive.jpg" style="max-width: 900px; margin-left: -190px" />
+<p><strong>Có vài điểm mình để ý là Nghĩa có đề cập đến trong quá trình build và marketing cho Proxyman, nghe có vẻ khá thú vị và mình muốn đào sâu vào khía cạnh này một tí như việc làm thế nào để build được intuitive UI, hay như việc tập trung quảng bá bằng cách educate người dùng thông qua blog, hay trả lời câu hỏi trên StackOverflow. Nghĩa có thể chia sẻ về con đường mà bạn đã trải qua để có được những kinh nghiệm này được không?</strong></p>
+<p>Để trả lời được câu hỏi làm sao build được intuitive UI thì rất khó trả lời, vì nó không có câu trả lời cuối cùng nào cả:</p>
+<ul>
+<li>Mình chỉ xài nhiều modern native app như TablePlus, Dropbox, Paw, Sublime, … và hiểu được cái Common-sense của những app native đó. Nó cũng giống như việc để design một app iOS thì cách đơn giản nhất là download nhiều features iOS app trên AppStore và xài hằng ngày. Về lâu dài gì mình sẽ hiệu được kha khá common-sense và biết được trend hiện tại.</li>
+<li>Đọc Human Interface Guidelines của platform mà mình đang build. Ở macOS là <a href="https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/">https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/</a></li>
+<li>Có 1 người high standard ở cạnh và debate về UI.</li>
+<li>Những feature nào users xài nhiều nhất thì mình để ra toolbar, còn lại sẽ được hide trong Context Menu. Để users không bị choáng nếu app mình có quá nhiều buttons. Lấy ví dụ một số app theo style Windows như Pycharm, Wireshare,... sẽ có rất nhiều feature và buttons trên toolbars.</li>
+<li>UI Đơn giản là quan trọng nhất.</li>
+<li>Và may mắn???</li>
+</ul>
+<p>Bởi vì plan của Proxyman là không dùng Ads nên cách duy nhất để reachout tới users là thông qua nhưng channels như Blog, StackOverFlow, Reddit, … Trả lời giúp mấy bạn đang bí trên StackOverflow và offer họ 1 solution tốt hơn là cách mình đang áp dụng.</p>
+<p><strong>Có một vấn đề mà mình và nhiều người khác cũng hay gặp phải, đó là việc giữ cho bản thân mình tập trung và có thêm động lực trong quá trình build ý tưởng của mình thành một sản phẩm hoàn chỉnh, nhất là khi gặp phải những trở ngại trong quá trình build, nó khiến chúng ta rất dễ nản chí và thậm chí là bỏ cuộc. Nghĩa nghĩ sao về điều này? Chắc bạn cũng đã từng gặp vấn đề này trong quá trình làm Proxyman?</strong></p>
+<p>Việc này là điều hiển nhiên nếu bạn build SaaS product và việc duy nhất có thể làm được là chấp nhận nó tiếp tục làm.</p>
+<p>Ko có silver-bullet cho việc này. Tất cả chỉ là từ phía bạn và chỉ là bạn có muốn tiếp tục hay ko?</p>
+<p>Mình nhớ có tới 3 giai đoạn mình cũng rơi vào thế bí toàn cục khi làm Proxyman. Ví dụ</p>
+<ul>
+<li>Làm sao build được native Proxyman Core (MitM) và có thể xem được HTTPS Request/Response?</li>
+<li>Làm sao làm được Local Map hay Breakpoint feature? Mà có thể can thiệp và chỉnh được Message on-the-fly?</li>
+<li>Làm sao design được UI vừa đẹp mà cũng vừa dễ xài?</li>
+</ul>
+<p>Để trả lời được mấy câu hỏi trên thì mình cũng phải làm 3-4 prototype versions cho từng vấn đề. Google đủ kiểu, đọc OSS, và code prototype. Bí quá thì tìm cách khác hoặc đi hỏi bạn bè.</p>
+<p>Ngoài ra mình còn 1 lời khuyên là nên build MVP version cho từng feature. Đừng bao giờ expect là mình có thể làm 100% feature rồi mới release vì sẽ rất lâu, và cũng không có cái gọi là 100% hoàn hảo.</p>
+<p>MVP version, log lại hành trình của mình lên Twitter, và làm hài lòng một nhóm nhỏ user trước khi tiếp tục code tiếp v2 là cách dễ dàng nhất để có thêm động lực làm tiếp. Vì user họ khoái, họ support mình : D</p>
+<ul>
+<li>UI hiện tại mình là version 4. Tạm coi là được nhưng mình đang improve v5 cho phần Filter bar.</li>
+<li>Proxyman core của mình cũng là 3 version, hiện tại khá stable.</li>
+</ul>
+<p><strong>Có rất nhiều bạn độc giả cũng gửi mail và message cho mình rằng họ rất quan tâm đến việc tự phát triển và phát hành sản phẩm, như những gì mà Nghĩa đã làm với Proxyman. Là một người đi trước và cũng nếm trải đủ nhiều, Nghĩa có lời khuyên gì cho các bạn không?</strong></p>
+<p>Mình cũng không chắc là lời khuyên của mình có hợp với mọi người hay ko. Nhưng đây là những gì mình đã và đang làm:</p>
+<ul>
+<li>Nếu mục tiêu của product là học hỏi, thử nghiệm framework, language mới thì bạn có thề start từ ngay bây giờ. Open Source, và nếu được bạn có thể viết blog kể về journey của bạn. Hướng đi này rất hay vì bạn có thể build được reputation cho chính bạn, vừa có cả quality product để apply job sau này.</li>
+<li>Nếu muốn build một product nghiêm túc thì theo mình tìm cái pain point và validate cái idea này ở global market ngày từ những ngày đầu tiên.</li>
+</ul>
+<p>Có rất nhiều cách reach tới global market là bạn publish app lên Product Hunt, Reddit, Hackernews, Markerlog hoặc một kênh distributions nào đó như Setapp.</p>
+<p>Twitter + Github làm channel chính mà make connection với những authors khác. Ví dụ Insomnia, NativeConnect, Chime, …</p>
+<p><strong>Rất cảm ơn Nghĩa đã dành thời gian tham gia cuộc phỏng vấn này. Chúc Nghĩa sẽ ngày càng thành công hơn nữa với <a href="https://proxyman.io/">Proxyman</a> cũng như với các sản phẩm của bạn trong tương lai nhé 😀</strong></p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/interview.html'>interview</a><a class='topic-tag' href='../tags/indiehacker.html'>indiehacker</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/interview-nghia-tran-proxyman.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/interview-nghia-tran-proxyman.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:18:59 GMT -->
+</html>

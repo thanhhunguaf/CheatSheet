@@ -1,0 +1,407 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/guess-runi-two-factor-authentication.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:36 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Bảo mật 2 lớp và ứng dụng | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Bảo mật 2 lớp và ứng dụng</span></h1>
+<p><a href="../tags/guest.html">Khách mời</a> tuần này của chúng ta là một bạn trai giấu tên, có tên là <a href="http://runikitkat.com/">Runi</a>. Trong bài này, tác giả giới thiệu cho cho chúng ta những khái niệm cơ bản về bảo mật 2 lớp (Two Factor Authentication - 2FA), và cách tích hợp 2FA vào hệ thống sẵn có, với code minh họa bằng Golang.</p>
+<p>Bài viết được đăng lại với sự đồng ý của tác giả, các bạn cũng có thể <a href="http://runikitkat.com/post/2fa/">xem bài viết gốc tại đây</a>.</p>
+<hr />
+<p>Trong thế giới của việc thông tin cá nhân đang ngày càng bị xâm phạm và tấn công, đến thời điểm này đã có gần <a href="https://breachlevelindex.com/">10 tỷ</a> accounts bị leaked thì chuyện phải implement một phương pháp đăng nhập có tính bảo mật cao hơn là một chuyện bất cứ cá nhân/tổ chức nào cũng aware được.</p>
+<p>Two-factor Authentication là một trong số đó. Trong bài này mình sẽ chia sẻ những kiến thức đã tổng hợp được trong quá trình làm việc với 2FA.</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/7gklibkwls_image.png" alt="alt text" /></p>
+<h2><a href="#two-factor-authentication-2fa)-là-gì?" aria-hidden="true" class="anchor" id="two-factor-authentication-2fa)-là-gì?"></a>Two-Factor Authentication (2FA) là gì?</h2>
+<p>Two-Factor Authentication (2FA) hay còn gọi là Bảo mật 2 lớp, là một phương thức để chứng thực user bằng việc combine 2 factors khác nhau từ bộ source:</p>
+<ul>
+<li>
+<p>Một cái gì đó bạn biết.</p>
+</li>
+<li>
+<p>Một cái gì đó bạn có.</p>
+</li>
+<li>
+<p>Một cái gì đó mà nó mặc nhiên như vậy.</p>
+</li>
+</ul>
+<p>Một ví dụ khá cơ bản của 2FA đó là khi bạn rút tiền ở ATM, bạn cần 2 thứ, một là cái thẻ (bạn có) và mã PIN (bạn biết) mới có khả năng thực hiện rút tiền.</p>
+<p>Như vậy nó áp dụng trong online authentication như thế nào?</p>
+<p>Với bảo mật thông thường, bạn chỉ cần nhập username và password để đăng nhập tài khoản của mình, thứ bảo vệ duy nhất của bạn là mật khẩu. Đây là cái mà &quot;bạn biết&quot;. 2FA sẽ thêm một extra layer để bạn cần provide cái mà &quot;bạn có&quot; nữa.</p>
+<h2><a href="#các-loại-2fa" aria-hidden="true" class="anchor" id="các-loại-2fa"></a>Các loại 2FA</h2>
+<ul>
+<li>
+<p>Hardware Token</p>
+</li>
+<li>
+<p>SMS/Voice based</p>
+</li>
+<li>
+<p>Software Token</p>
+</li>
+<li>
+<p>Push notification</p>
+</li>
+<li>
+<p>Các loại khác</p>
+</li>
+</ul>
+<p>Như bạn thấy, có rất nhiều cách để mô phỏng cái mà &quot;bạn có&quot;.</p>
+<p>Chẳng hạn, SMS là một sự lựa chọn không tồi, server gửi SMS về cho user để đăng nhập. Nhưng SMS lại ko quá an toàn (có thể bị intercepted), và bị vấn đề về network, việc delay có thể làm ảnh hưởng tới authentication process.</p>
+<p>Vì nhiều lí do khác nhau nên team quyết định chọn dùng Software Token cho 2FA. Và từ bây giờ trong bài viết mình 2FA cũng được ám chỉ tới phương pháp sử dụng cryptographically key của Software Token.</p>
+<h2><a href="#2fa-hoạt-động-như-thế-nào" aria-hidden="true" class="anchor" id="2fa-hoạt-động-như-thế-nào"></a>2FA hoạt động như thế nào?</h2>
+<p>Mình lấy ví dụ gitlab.</p>
+<p>Đây là lúc đăng nhập, mình sẽ provide user và password.</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/qg21xb61c9_Screen%20Shot%202018-05-25%20at%203.15.24%20PM.png" alt="alt text" /></p>
+<p>Sau khi đăng nhập xong, vì mình có enable 2FA nên nó sẽ redirect mình tới trang điền code (soft token).</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/wi0hndhayn_Screen%20Shot%202018-05-25%20at%203.15.33%20PM.png" alt="alt text" /></p>
+<p>Code này sẽ được lấy từ Authentication application, có thể là Authy, Google authenticator ...</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/mui8qfsb9c_Screen%20Shot%202018-05-25%20at%204.43.50%20PM.png" alt="alt text" /></p>
+<p>Ví dụ như mình dùng Authy để lấy được code. Mỗi code sẽ được thay đổi sau 30s.</p>
+<p>Với code này mình sẽ đăng nhập thành công.</p>
+<h2><a href="#cơ-chế-hoạt-động-internally-của-2fa" aria-hidden="true" class="anchor" id="cơ-chế-hoạt-động-internally-của-2fa"></a>Cơ chế hoạt động internally của 2FA</h2>
+<p>Khi bạn enable 2FA cho tài khoản của mình, bạn sẽ nhận được một secret key based 32. Tùy vào mức độ security, độ dài của secret key có thể là 80, 128 hoặc 160 bit.</p>
+<p>Các authenticator application sẽ scan secret này dưới dạng QR code (hoặc manually) và dùng nó để generate ra một HMAC-SHA1. Chuỗi HMAC này có thể là một trong 2 dạng:</p>
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm">TOTP</a></p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/HMAC-based_One-time_Password_algorithm">HOTP</a></p>
+</li>
+</ul>
+<p>Sau đó HMAC này sẽ được extracted và lấy ra 1 số int 4 byte, đó chính là code.</p>
+<p>Một mã code sẽ valid trong 30 giây. Tuy nhiên không phải ai cũng có clock synced giống nhau, vì network latency các kiểu nên thường mọi người hay cho phép ở phạm vi cộng trừ 1 code, tức là 1 code sẽ valid trong 1 phút 30 giây. Điều này có thể giảm tính an toàn, nhưng lại tăng sự trải nghiệm đáng kể.</p>
+<h3><a href="#backup-codes" aria-hidden="true" class="anchor" id="backup-codes"></a>Backup codes</h3>
+<p>Backup codes hay recovery codes sẽ được sử dụng trong trường hợp bạn không thể sử dụng điện thoại, bạn có thể dùng chúng để đăng nhập. Có 2 loại backup codes:</p>
+<ul>
+<li>
+<p>Multiple backup codes: Ví dụ github sẽ cho bạn 10 codes, và mỗi code sẽ được sử dụng 1 lần.</p>
+</li>
+<li>
+<p>Single backup code: Bạn dùng cái code này đồng nghĩa với việc bạn có thể đăng nhập, nhưng phải setup lại 2FA (nó assume bạn bị mất điện thoại).</p>
+</li>
+</ul>
+<h2><a href="#làm-thế-nào-để-apply-2fa-vào-dự-án-của-mình" aria-hidden="true" class="anchor" id="làm-thế-nào-để-apply-2fa-vào-dự-án-của-mình"></a>Làm thế nào để apply 2FA vào dự án của mình?</h2>
+<p>Khá đơn giản, hầu hết ngôn ngữ đều open source implementation của mình. Mình code Go, library mà mình chọn là <code>github.com/dgryski/dgoogauth</code> được viết bởi Damian Gryski, một gopher rất nổi tiếng.</p>
+<p>Flow chương trình</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/hnxlni0dqr_Screen%20Shot%202018-05-25%20at%206.07.49%20PM.png" alt="alt text" /></p>
+<p>Khi một user muốn enable 2FA, App sẽ gọi <code>RequestGenerate2FA</code> API.</p>
+<p>Trong API này sẽ generate ra một temporary secret và lưu vào redis, trong thời gian expire 5 phút.</p>
+<p>GenerateSecret thì khá đơn giản thôi.</p>
+<pre><code class="language-go">
+// GenerateSecret generates a 10 byte secret string.
+
+func GenerateSecret() (string, error) {
+
+    random := make([]byte, 10)
+
+    _, err := rand.Read(random)
+
+    if err != nil {
+
+        return &quot;&quot;, err
+
+    }
+
+    return base32.StdEncoding.EncodeToString(random), nil
+
+}
+
+</code></pre>
+<p>Sau khi app nhận được secret, sẽ turn thành QR code và đưa cho user. QR code này sẽ được user dùng Authenticator application để quét.</p>
+<p>Khi đã có code, user input vào và app sẽ tiếp tục make request lên API <code>Generate2FA</code>. Nếu thành công thì user đã được enable 2FA.</p>
+<p>Trong hàm <code>Generate2FA</code> chúng ta cần verify được code gửi lên và secret lấy từ redis có valid hay không. Sử dụng library trên như sau:</p>
+<pre><code class="language-go">
+otpc := &amp;dgoogauth.OTPConfig{
+
+      Secret:      info.Secret,
+
+      WindowSize:  3,
+
+      HotpCounter: 0,
+
+}
+
+valid, err := otpc.Authenticate(req.Code)
+
+if err != nil || !valid {
+
+    return errors.New(&quot;Invalid authenticate code&quot;)
+
+}
+
+// success validation
+
+</code></pre>
+<p>(Các bạn có thể đọc thêm source code để biết function Authenticate hoạt động như thế nào, chỉ có 1 file go thôi).</p>
+<p>Sau khi validate xong thì mình trả về Recovery codes luôn (cho tiện ở phía application).</p>
+<p>Còn đây thì flow khi login, nếu cần thêm 2FA thì sẽ require code từ user, sau đó upgrade cái access token đó (simply add thêm 1 fields <code>2fa: true</code>) để nhận dạng là đã 2FA authenticated rồi.</p>
+<p><img src="../../s3-ap-southeast-1.amazonaws.com/kipalog.com/gvri4aj6di_Screen%20Shot%202018-05-25%20at%206.11.36%20PM.png" alt="alt text" /></p>
+<h2><a href="#kết-luận" aria-hidden="true" class="anchor" id="kết-luận"></a>Kết luận</h2>
+<p>2FA là một kĩ thuật dùng để enhance security layer của một application. Hay nói cách khác, bạn khóa 1 cửa bằng 2 cái khóa luôn an toàn hơn 1 cái. Trong xã hội đầy loạn lạc này thì ứng dụng nào quan trọng, chứa nhiều sensitive data và liên quan tới tiền bạc thì cứ auto bật 2FA thôi.</p>
+<h2><a href="#references" aria-hidden="true" class="anchor" id="references"></a>References</h2>
+<ul>
+<li>
+<p><a href="https://engineering.gosquared.com/building-two-factor-authentication">https://engineering.gosquared.com/building-two-factor-authentication</a></p>
+</li>
+<li>
+<p><a href="https://authy.com/what-is-2fa/">https://authy.com/what-is-2fa/</a></p>
+</li>
+</ul>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/guest.html'>guest</a><a class='topic-tag' href='../tags/golang.html'>golang</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/guess-runi-two-factor-authentication.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/guess-runi-two-factor-authentication.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:38 GMT -->
+</html>

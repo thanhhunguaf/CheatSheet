@@ -1,0 +1,408 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/dynamic-programming.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:51 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Phân tích và tiếp cận bài toán Quy hoạch động | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Phân tích và tiếp cận bài toán Quy hoạch động</span></h1>
+<p>Với sự hỗ trợ của anh <a href="https://github.com/linxGnu">@linxGnu</a> (là dân competitive programming thứ thiệt <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>) cùng với các anh em trong nhóm <code>#algorithm</code> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> của <a href="http://chat.ruby.org.vn/">Cộng đồng Ruby Việt Nam</a>, mình (là dân copypáste programming thứ thiệt) tổng hợp lại qua các trao đổi, thảo luận, nhằm mục đích giới thiệu với bạn đọc các dạng thuật toán thường gặp và cách phân tích, tiếp cận các dạng bài đó.</p>
+<hr />
+<p>Bài đầu tiên của series, chúng ta nghiên cứu về một kĩ thuật khá phổ biến và cũng khá là &quot;xương&quot;, đó là phương pháp <strong>Quy hoạch động</strong> (Dynamic Programming), thông qua một bài tập trên Leetcode.</p>
+<p>Đó là bài <strong>Delete and Earn</strong>, tại địa chỉ <a href="https://leetcode.com/problems/delete-and-earn/description/">https://leetcode.com/problems/delete-and-earn/description/</a></p>
+<h2><a href="#problem" aria-hidden="true" class="anchor" id="problem"></a>Problem</h2>
+<p>Cho một mảng số nguyên $\texttt{nums}$, bạn có thể thực hiện những thao tác sau đây trên mảng:</p>
+<ul>
+<li>Chọn một số $\texttt{nums[i]}$ bất kỳ thì để kiếm được $\texttt{nums[i]}$ điểm.</li>
+<li>Đồng thời cũng phải xóa đi <strong>tất cả</strong> các giá trị $\texttt{nums[i] - 1}$ hoặc $\texttt{nums[i] + 1}$ ngay sau đó.</li>
+</ul>
+<p>Ban đầu bạn có 0 điểm, cho biết số điểm cao nhất mà bạn có thể kiếm được.</p>
+<p><strong>Ví dụ 1:</strong></p>
+<pre>Input: nums = [3, 4, 2]
+Output: 6
+
+Chọn 4 để kiếm 4 điểm, như vậy 3 sẽ bị xóa.
+Tiếp theo, chọn 2 để kiếm 2 điểm. Như vậy tổng cộng kiếm được 6 điểm.
+</pre>
+<p><strong>Ví dụ 2:</strong></p>
+<pre>Input: nums = [2, 2, 3, 3, 3, 4]
+Output: 9
+
+Đầu tiên, chọn 3 để kiếm được 9 điểm, như vậy tất cả các phần tử có giá trị
+2 và 4 đều sẽ bị xóa.
+</pre>
+<p><strong>Lưu ý:</strong></p>
+<ul>
+<li>Độ dài tối đa của $\texttt{nums}$ là $20000$.</li>
+<li>Mỗi phần tử $\texttt{nums[i]}$ là một số nguyên trong phạm vi $[1, 10000]$.</li>
+</ul>
+<h2><a href="#solution" aria-hidden="true" class="anchor" id="solution"></a>Solution</h2>
+<p>Ta thấy, mỗi khi chọn tất cả các phần tử có giá trị $\texttt{nums[i]}$ để cộng vào tổng điểm, thì ta không thể chọn các phần tử có giá trị $\texttt{nums[i] + 1}$ hay $\texttt{nums[i] - 1}$ được nữa, nên phải xóa nó đi (cái này hay gọi là <em>ăn không được thì đạp đổ</em> đấy).</p>
+<p>Đề bài bảo tìm giá trị lớn nhất có thể có của tổng điểm, tức là dạng tìm giá trị tối ưu, theo như kinh nghiệm trận mạc, ta có thể giải nó bằng phương pháp Quy hoạch động.</p>
+<p>Đối với một giá trị $x$ bất kỳ, ta có $F(x)$ là tổng điểm lớn nhất mà ta có thể thu được, có hai trường hợp có thể xảy ra:</p>
+<ul>
+<li>
+<p><strong>Trường hợp 1:</strong> Chọn $x$ để cộng vào tổng.</p>
+<p>Để dễ hình dung, thì ta lấy giá trị $x$ lớn nhất có thể có mà đề bài cho luôn, là số $x = 10000$. Khi đó, số điểm mà ta sẽ được cộng thêm là $10000 * n$, với $n$ là số lượng các phần tử có cùng giá trị $10000$ ở trong mảng. Đồng thời, ta phải xóa đi tất cả các phần tử có giá trị lân cận, đó là $9999$.</p>
+<p>Như vậy, tổng điểm lớn nhất mà chúng ta có thể thu được đối với giá trị $10000$, chính là $10000 * n$ cộng với tổng điểm lớn nhất mà chúng ta có thể thu được với giá trị $9998$ (không có $9999$ vì nó đã bị xóa rồi).</p>
+<pre class='math'>$$
+F(10000) = F(9998) + (10000 * n)
+$$</pre>
+<p>Giá trị của $F(9998)$ là bao nhiêu thì chúng ta vẫn chưa biết. Cứ để đó đã.</p>
+</li>
+<li>
+<p><strong>Trường hợp 2:</strong> Không chọn $x = 10000$ để cộng vào tổng. Khi đó chắc chắn chúng ta sẽ phải chọn một giá trị lân cận của $x$, đó là $9999$.</p>
+<pre class='math'>$$
+F(10000) = F(9999)
+$$</pre>
+</li>
+</ul>
+<p>Việc chọn trường hợp 1 hay 2 tùy thuộc vào kết quả tốt nhất mà nó mang lại, ở đây là <strong>trường hợp nào cho kết quả lớn hơn</strong>:</p>
+<pre class='math'>$$
+F(10000) = max\Big(F(9999), F(9998) + (10000 * n)\Big)
+$$</pre>
+<p>Thế là ta đã tìm được công thức truy hồi để tính $F(10000)$ từ $F(9999)$ và $F(9998)$. Hay viết tổng quát ra thành:</p>
+<pre class='math'>$$
+F(x) = max\Big(F(x-1), F(x-2) + x * count(x)\Big)
+$$</pre>
+<h2><a href="#implementation" aria-hidden="true" class="anchor" id="implementation"></a>Implementation</h2>
+<p>Có công thức truy hồi rồi thì ta dễ dàng implement được thuật toán để giải bài này. Sau đây là bài giải bằng JavaScript của mình, và bằng Golang của anh linxGnu.</p>
+<p>Mấu chốt của việc giải một bài toán Quy hoạch động chính là việc tìm ra công thức truy hồi, hoặc dạng đệ quy của bài toán (thường là thể hiện tính chất của bài toán từ phương án tổng quát đến cụ thể - top-down), sau đó, ta chỉ việc implement lại công thức đó theo thứ tự ngược lại (từ trường hợp cụ thể đến tổng quát - bottom-up) <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup>.</p>
+<p><strong>JavaScript</strong></p>
+<pre><code class="language-javascript">const deleteAndEarn = (nums) =&gt; {
+  if (!nums.length) {
+    return 0;
+  }
+
+  let maxPossible = 10000;
+
+  let points = Array.from(Array(maxPossible + 1)).map(x =&gt; 0);
+  for (let i = 0; i &lt; nums.length; i++) {
+    points[nums[i]] += nums[i];
+  }
+  
+  let F = Array.from(Array(maxPossible + 1)).map((x, i) =&gt; points[i]);
+  for (let i = 2; i &lt;= maxPossible; i++) {
+    F[i] = Math.max(F[i-1], F[i-2] + points[i]);
+  }
+
+  return F[maxPossible];
+};
+</code></pre>
+<p>Bài giải bằng Golang có sử dụng một vài trick khá hay.</p>
+<p><strong>Golang</strong></p>
+<pre><code class="language-go">func deleteAndEarn(nums []int) int {
+    if nums == nil || len(nums) == 0 {
+        return 0
+    }
+    
+    // use counter sort instead
+    counter := make([]int, 10001)
+    for _, v := range nums {
+        counter[v]++
+    }
+    
+    // using counter for Dynamic Programing formula
+    // f[i] = max(f[i-2] + counter[i] * i, f[i-1])
+    if counter[2] &lt;&lt;= 1; counter[2] &lt; counter[1] {
+        counter[2] = counter[1]
+    }
+    for i := 3; i &lt;= 10000; i++ {
+        if counter[i] = counter[i-2] + counter[i] * i; counter[i] &lt; counter[i-1] {
+            counter[i] = counter[i-1]
+        }
+    }
+    
+    return counter[10000]
+}
+</code></pre>
+<h2><a href="#comments" aria-hidden="true" class="anchor" id="comments"></a>Comments</h2>
+<p>Thay cho phần kết luận, mình xin trích dẫn một vài ý từ cuốn <strong>The Algorithm Design Manual</strong> về Quy hoạch động mà mình cho là rất có ích:</p>
+<ul>
+<li>Dynamic programming is best learned by carefully studying examples until things start to click.</li>
+<li>Ultil you understand dynamic programming, it seems like magic.</li>
+<li>You must figure out the trick before you can use it.</li>
+</ul>
+<p>Và đây là trick:</p>
+<ul>
+<li>Dynamic programming is a technique for efficiently implementing a <strong>recursive algorithm</strong> by <strong>storing partial results</strong>.</li>
+<li>The trick is: seeing whether the naive recursive algorithm computes the same subproblems over and over again.</li>
+<li>If so, storing the answer for each subproblem in a table to lookup instead of recomputing.</li>
+<li>Start with a recursive algorithm or definition. Only once we have a correct recursive algorithm, do we worry about speeding it up by using a result matrix.</li>
+</ul>
+<hr />
+<p><strong>Notes</strong></p>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>Nghe đồn ông này từng đi ra đề thi quốc gia lận đó. Nguồn: tin đồn <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<p>Nhóm này có rule rất đáng ghét, ví dụ như trong 1 tuần mà ông nào không làm bài thì coi như mất toi 10 USD, trích từ <a href="https://github.com/ruby-vietnam/hardcore-rule/tree/master/algorithms">rule của nhóm</a>. Không nghiêm túc thì không tiến bộ được. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn3">
+<p>Nên đọc thêm Chương 8 của quyển <a href="http://www.algorist.com/">The Algorithm Design Manual</a>, phần giới thiệu về Dynamic Programming có nói rất rõ về tính chất này và rất dễ hiểu. <a href="#fnref3" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/algorithm.html'>algorithm</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/dynamic-programming.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/dynamic-programming.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:51 GMT -->
+</html>

@@ -1,0 +1,522 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/tu-viet-emulator.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:22:06 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Tự viết Emulator: CHIP-8 Interpreter | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Tự viết Emulator: CHIP-8 Interpreter</span></h1>
+<p>Nhắc đến game giả lập, chắc không ai lạ gì và ai cũng từng chơi qua (giả lập NES, Gameboy, PS1, PS2,...)</p>
+<p>Và chắc hẳn, cũng có không ít bạn nung nấu ý định tự viết một bộ emulator cho riêng mình nhưng không biết bắt đầu từ đâu.</p>
+<p>Mình cũng vậy, luôn mơ có một ngày sẽ tự viết được một bộ giả lập cho NES, Gameboy hay thậm chí là Play Station :)) nhưng vẫn dậm chân tại chỗ trong nhiều năm trời chỉ vì không biết phải bắt đầu như thế nào.</p>
+<p>Những tài liệu, bài viết nói về giả lập NES hay Gameboy tràn lan trên mạng rất nhiều, nhưng đa số đều bị mình vứt qua một bên vì đọc không hiểu gì cả :sweat_smile: thế nên mình quyết định sẽ tạm gác ý định giả lập máy NES hay Gameboy sang một bên và bắt đầu với một loại đơn giản hơn - đó là <strong>CHIP-8</strong>.</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/pong.png_d4gokk7w44" alt="alt text" /></p>
+<p>Loạt bài này sẽ có 3 phần:</p>
+<ol>
+<li><strong>Phần 1:</strong> Giới thiệu CHIP-8 và các khái niệm cơ bản</li>
+<li><strong>Phần 2:</strong> Tập lệnh của CHIP-8</li>
+<li><strong>Phần 3:</strong> Implement</li>
+</ol>
+<p>Các bạn chỉ thực sự đụng đến code từ phần 3, dục tốc bất đạt, vậy nên, cứ bình tĩnh và từ từ mà nuốt trôi hết cái đống khái niệm này. Không thừa đâu :D</p>
+<hr />
+<h1><a href="#phần-1-giới-thiệu-chip-8-và-các-khái-niệm-cơ-bản" aria-hidden="true" class="anchor" id="phần-1-giới-thiệu-chip-8-và-các-khái-niệm-cơ-bản"></a>Phần 1: Giới thiệu CHIP-8 và các khái niệm cơ bản</h1>
+<hr />
+<p>Vậy CHIP-8 là cái gì? tại sao không phải NES, Gameboy mà lại là CHIP-8?</p>
+<h1><a href="#phần-1-một-số-khái-niệm-cơ-bản" aria-hidden="true" class="anchor" id="phần-1-một-số-khái-niệm-cơ-bản"></a>Phần 1: Một số khái niệm cơ bản</h1>
+<h2><a href="#giả-lập-là-gì" aria-hidden="true" class="anchor" id="giả-lập-là-gì"></a>Giả lập là gì?</h2>
+<p>Thực ra chắc không ai thắc mắc cái này đâu, nhưng đề phòng lỡ có ai thắc mắc thì: Giả lập là một phần mềm mô phỏng lại hoạt động của một cái gì đó. Trong trường hợp này, chúng ta đang chuẩn bị viết phần mềm mô phỏng hoạt động của trình thông dịch CHIP-8 (CHIP-8 interpreter)</p>
+<h2><a href="#chip-8-là-gì" aria-hidden="true" class="anchor" id="chip-8-là-gì"></a>CHIP-8 là gì?</h2>
+<p>CHIP-8 là một ngôn ngữ thông dịch (interpreted programming language), thiết kế bởi Joseph Weisbecker, được dùng cho các máy tính 8-bit COSMAC VIP và Telmac 1800 vào những năm 1970.</p>
+<p><img src="../../www.chip8.com/telmac1800/telmac1800_1.jpg" alt="Máy tính Telmac 1800" /></p>
+<p>Các máy tính này có đầy đủ các thành phần như màn hình (2 màu đen trắng), âm thanh và bàn phím (nhưng không phải bàn phím QWERTY như bây giờ).</p>
+<p><img src="../../static.hugedomains.com/images/logo_huge_domains.gif" alt="COSMAC VIP 4 và quả bàn phím khác người của nó" /></p>
+<p>Ngày nay, CHIP-8 vẫn còn được sử dụng trong cộng đồng hobby, với sự đơn giản về cấu trúc cũng như tập lệnh nhỏ (chỉ có 36 lệnh), CHIP-8 Interpreter (thường bị nhầm lẫn là CHIP-8 Emulator) đã trở thành ứng dụng được đa số các lập trình viên lựa chọn khi muốn bắt đầu con đường lập trình emulator của mình.</p>
+<h2><a href="#tại-sao-lại-chọn-chip-8" aria-hidden="true" class="anchor" id="tại-sao-lại-chọn-chip-8"></a>Tại sao lại chọn CHIP-8?</h2>
+<p>Sở dĩ chọn CHIP-8 thay vì NES hay Gameboy là vì cấu trúc đơn giản của nó. Cấu trúc chỉ có một bộ xử lý và số tập lệnh cực kì ít, chưa kể đến khi làm việc với các hệ máy khác, bạn còn phải đau đầu với việc giả lập những module khác, không hề thích hợp cho người mới bắt đầu.</p>
+<p>Ngược lại, sau khi hoàn thành được một bản CHIP-8 emulator cho riêng mình, bạn sẽ có đủ kiến thức <strong>cơ bản</strong> để tiếp tục nghiên cứu các hệ máy khác như NES hay Gameboy.</p>
+<h2><a href="#chuẩn-bị-kiến-thức" aria-hidden="true" class="anchor" id="chuẩn-bị-kiến-thức"></a>Chuẩn bị kiến thức</h2>
+<p>Để bắt đầu con đường lập trình Emulator, bạn chắc chắn cần phải có các kiến thức về:</p>
+<ul>
+<li>Các phép toán thao tác bit (bitwise operation)</li>
+<li>Mã máy (Assembly)</li>
+</ul>
+<p>Nếu đọc đến đây mà bạn đã bắt đầu thấy ngại vì không có những kiến thức này thì cũng không sao. Cứ đọc tiếp, trong bài mình sẽ cố gắng giải thích thật kĩ các khái niệm cần thiết. <i class='em em-trollface'></i></p>
+<h2><a href="#rom-và-nguyên-lý-hoạt-động-của-chip-8" aria-hidden="true" class="anchor" id="rom-và-nguyên-lý-hoạt-động-của-chip-8"></a>ROM và nguyên lý hoạt động của CHIP-8</h2>
+<h3><a href="#rom-là-gì" aria-hidden="true" class="anchor" id="rom-là-gì"></a>ROM là gì?</h3>
+<p>Khi sử dụng bất cứ một phần mềm giả lập cho bất kì hệ mày gì, chúng ta đều nhắc đến khái niệm ROM.</p>
+<p>Hiểu đơn giản, ROM là một tập hợp các lệnh thực thi, còn gọi là <strong>opcode</strong> (operation code). Các opcode này là các lệnh được hỗ trợ bởi bộ xử lý.</p>
+<p>Ví dụ, đối với CHIP-8, opcode có mã hex là <em>0x00E0</em> làm nhiệm vụ xoá toàn bộ màn hình, opcode có mã hex <em>0xD123</em> có nhiệm vụ vẽ cái gì đó ra màn hình.</p>
+<h3><a href="#nguyên-lý-hoạt-động-của-chip-8" aria-hidden="true" class="anchor" id="nguyên-lý-hoạt-động-của-chip-8"></a>Nguyên lý hoạt động của CHIP-8</h3>
+<p>Khi hoạt động, trình thông dịch (intepreter) CHIP-8 sẽ đọc các opcode từ ROM, đưa vào bộ nhớ (RAM) rồi CPU sẽ chạy qua từng opcode đã đọc được và thực thi chúng. Dữ liệu nếu cần sẽ được ghi trở lại vào RAM.</p>
+<p>Tóm tắt có thể xem trong hình sau:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/fetchexecute.png_zf61jmls9a" alt="" /></p>
+<p>Giả lập mà chúng ta sắp viết, sẽ mô phỏng đúng y quá trình này.</p>
+<h2><a href="#các-thành-phần-cơ-bản-của-một-thiết-bị-chip-8" aria-hidden="true" class="anchor" id="các-thành-phần-cơ-bản-của-một-thiết-bị-chip-8"></a>Các thành phần cơ bản của một thiết bị CHIP-8</h2>
+<p>Một thiết bị sử dụng CHIP-8 có các thành phần cơ bản sau:</p>
+<ul>
+<li>Bộ nhớ (memory)</li>
+<li>Các thanh ghi (registers)</li>
+<li>Màn hình hiển thị</li>
+<li>Bàn phím, Timers.</li>
+</ul>
+<p>Và nhiệm vụ của chúng ta là mô phỏng các thành phần này. Vì thế, chúng ta phải biết cấu trúc, nhiệm vụ, chức năng của mỗi phần.</p>
+<h3><a href="#memory" aria-hidden="true" class="anchor" id="memory"></a>Memory</h3>
+<p>Bộ nhớ cần dùng của một thiết bị CHIP-8 là 4KB (4096 bytes). Được đánh số từ 0x000 (0) đến 0xFFF (4095).</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/memoryMap.png_wonyqqhp6c" alt="alt text" /></p>
+<p>512 bytes đầu tiên (từ 0x000 đến 0x1FF) là vị trí của trình thông dịch (interpreter) và chương trình của chúng ta không thể truy xuất đến các địa chỉ này.</p>
+<p>Bắt đầu từ vị trí 0x200 cho đến 0xFFF là nơi mà chương trình của chúng ta được nạp vào.</p>
+<p>Và interpreter sẽ bắt đầu chạy chương trình từ vị trí 0x200 (trên các máy ETI 660 thì điểm bắt đầu sẽ là 0x600)</p>
+<h3><a href="#registers" aria-hidden="true" class="anchor" id="registers"></a>Registers</h3>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/REGISTERS.png_4bexqwfunq" alt="" /></p>
+<p>CHIP-8 có 16 thanh ghi đa dụng (general purpose registers) 8 bit, thường được đánh số là Vx, với x là các số hexa từ 0 đến F.</p>
+<p>Thanh ghi VF mặc dù tồn tại nhưng chương trình không thể sử dụng vì nó được dùng làm cờ (flag) cho một số lệnh. Cái này mình sẽ giải thích ở bài sau, khi đi vào chi tiết các lệnh.</p>
+<p>Tiếp đến là thanh ghi <strong>I</strong>, được dùng để lưu các địa chỉ trong bộ nhớ. Ở phần sau chúng ta sẽ hiểu rõ cơ chế hoạt động của thanh ghi này hơn.</p>
+<p>Ngoài ra còn có 2 timer đặc biệt là Delay Timer và Sound Timer, sẽ nói ở bên dưới. Các register này chứa một giá trị 8 bit.</p>
+<h3><a href="#keyboard" aria-hidden="true" class="anchor" id="keyboard"></a>Keyboard</h3>
+<p>Bàn phím của máy tính sử dụng CHIP-8 thường có dạng 16 phím hexa. Khi viết emulator, chúng ta nên map các phím này vào bàn phím máy tính bây giờ. Như hình sau:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/keymapping.png_5tx79z88xo" alt="Bên trái là bàn phím hexa, bên phải là bàn phím máy tính thời bây giờ" />
+<em>(Bên trái là bàn phím hexa thời cổ đại, bên phải là bàn phím máy tính thời bây giờ)</em></p>
+<p>Việc map phím như thế nào là tuỳ ý các bạn, nhưng trong bài viết này sẽ map như vậy, nên code cũng sẽ theo layout này.</p>
+<h2><a href="#display" aria-hidden="true" class="anchor" id="display"></a>Display</h2>
+<p>Màn hình trên các thiết bị CHIP-8 là màn hình đơn sắc (monochrome), có độ phân giải 64x32 pixel.</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/display.png_ac5l516r70" alt="alt text" /></p>
+<p>Một số máy ETI 660 có độ phân giải 64x48 hoặc 64x64 pixel.</p>
+<p>CHIP-8 vẽ các hình ảnh lên màn hình thông qua các sprites. Sprite là một tập hợp nhiều bytes chuyển từ dữ liệu binary tương ứng với hình ảnh mà chúng ta cần vẽ. Mỗi byte có 8 bit, như vậy một sprite sẽ có kích thước 8x<strong>N</strong> (trong đó N là tuỳ ý, từ 1 đến 15)</p>
+<p>Các CHIP-8 interpreter thường có một bộ font cài đặt sẵn (built-in), được lưu trong memory (ở vùng 0x000 - 0x1FF) mỗi kí tự trong bộ font này thực chất là các sprite có kích thước 8x5 (tức là có 5 bytes).</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/hexfont.png_kaigppiffk" alt="alt text" /></p>
+<h2><a href="#timers-và-sound" aria-hidden="true" class="anchor" id="timers-và-sound"></a>Timers và Sound</h2>
+<p>Timer, đúng theo tên gọi của nó, thì là một cái bộ đếm (bên điện tử nhiều người gọi là <strong>bộ định thời</strong>). Chức năng của nó đơn giản là: khi được kích hoạt, nó sẽ bắt đầu đếm ngược theo một chu kì thời gian nào đó, đến một lúc nào đó nó sẽ ngừng.</p>
+<p>Trong CHIP-8, chúng ta có 2 timers: <strong>Delay timer</strong> và <strong>Sound timer</strong></p>
+<p><strong>Delay timer</strong> là một bộ đếm được kích hoạt khi giá trị của thanh ghi Delay Timer (DT) - đã đề cập ở phần Register, xem hình - là khác 0. Giá trị này sẽ tự động giảm (trừ 1) liên tục theo chu kì có tần số 60Hz (60 lần 1 giây). Khi nào nó về 0 thì timer sẽ ngưng hoạt động.</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/delayTimer.png_hdj9rkqc88" alt="alt text" /></p>
+<p>Mục đích của Delay timer là làm cho chương trình ngừng lại trong một khoảng thời gian, giống như các hàm <code>Delay()</code> hay <code>Sleep()</code> ở các ngôn ngữ lập trình khác.</p>
+<p><strong>Sound timer</strong> cũng tương tự như Delay timer, khi giá trị của thanh ghi Sound Timer (ST) khác 0 thì nó sẽ tự động kích hoạt, và giảm giá trị này theo chu kì tần số 60Hz, rồi ngưng khi nó về 0. Nhưng điểm khác biệt là, chừng nào giá trị trong thanh ghi ST khác 0 thì cái loa (buzzer) của máy sẽ hú :))</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/soundTimer.png_uqkre5l3e6" alt="alt text" /></p>
+<hr />
+<p>Phù!!! Thế là cũng xong phần lý thuyết. Dài quá nhưng đề nghị các bạn đừng có nhảy cóc. Vì trên đây là những khái niệm rất quan trọng cần phải có trước khi bắt tay vào viết Emulator.</p>
+<p>Hy vọng các bạn đã hiểu được cơ chế hoạt động và phần nào hình dung ra được hướng đi mà chúng ta đang thực hiện.</p>
+<p>Tiếp theo, mình sẽ giới thiệu và giải thích tập lệnh (instruction set) của CHIP-8, và nói sơ về công dụng của chúng trong thực tế.</p>
+<h1><a href="#phần-2-tập-lệnh-của-chip-8" aria-hidden="true" class="anchor" id="phần-2-tập-lệnh-của-chip-8"></a>Phần 2: Tập lệnh của CHIP-8</h1>
+<hr />
+<h1><a href="#cấu-trúc-opcode" aria-hidden="true" class="anchor" id="cấu-trúc-opcode"></a>Cấu trúc opcode</h1>
+<p>Như đã nói, một chương trình CHIP-8 là một tập hợp các <code>opcode</code> dưới dạng hexa. Ví dụ, đây là một đoạn nội dung khi đọc file rom game PONG:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/opcodestruct.png_rvtgccz886" alt="alt text" /></p>
+<p>Mỗi <code>opcode</code> có độ dài 2 byte và dược thể hiện bởi 4 kí tự hexa. Chúng ta sẽ đọc 2 byte này và chuyển về mã Assembly đơn giản để dễ hình dung, và công việc sẽ là: implement các chức năng mà các câu lệnh Assembly này thực hiện.</p>
+<p>Để lưu vị trí của opcode hiện tại, chúng ta dùng một giá trị gọi là <code>Program Counter</code> (PC)</p>
+<p>Ví dụ, lệnh đơn giản nhất là <code>0x00E0</code>, gồm có 2 byte <code>00</code> và <code>E0</code>, dịch ra mã máy là <code>CLS</code> có nhiệm vụ xoá toàn bộ nội dung màn hình. Hay như hình trên, chúng ta có opcode là <code>0x82E4</code>, trong đó có 2 giá trị <code>x = 2</code> và <code>y = E</code> (sẽ giải thích bên dưới), dịch ra mã máy sẽ là <code>ADD V2, VE</code>, có nhiệm vụ cộng giá trị của thanh ghi <code>VE</code> vào <code>V2</code> (<code>V2 = V2 + VE</code>).</p>
+<h3><a href="#thứ-tự-cao-thấp-của-các-bit-byte" aria-hidden="true" class="anchor" id="thứ-tự-cao-thấp-của-các-bit-byte"></a>Thứ tự cao thấp của các bit, byte</h3>
+<p>Mỗi byte có <code>8 bit</code>, trong đó theo thứ tự từ phải qua trái, các bit sẽ được gọi tên từ thấp đến cao. Và opcode có 2 byte, như vậy là <code>16 bit</code>, và theo thứ tự này, ta có cách gọi tên như hình sau:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/highlowbyte.png_3adbxv1u1d" alt="alt text" /></p>
+<p>Bit thấp là các bit về phía bên phải, và bit cao là các bit về phía bên trái. Bit cao nhất là bit thứ 1, bit thấp nhất là bit thứ 16.</p>
+<p>Byte đầu tiên (1st Byte) được gọi là <code>Byte cao</code> (High byte). Byte thứ 2 (2nd byte) được gọi là <code>Byte thấp</code> (low byte)</p>
+<p>Chúng ta có thể gọi mỗi <strong>4 bit</strong> là một <strong>nibble</strong>.</p>
+<h3><a href="#lọc-giá-trị-bằng-phép-toán-and" aria-hidden="true" class="anchor" id="lọc-giá-trị-bằng-phép-toán-and"></a>Lọc giá trị bằng phép toán AND</h3>
+<p>Trong các phép toán thao tác bit, phép toán mà chúng ta cần sử dụng nhiều nhất trong quá trình viết Emulator là phép toán <code>AND</code>.</p>
+<p>Chi tiết về phép toán <code>AND</code> bạn có thể xem tại: <a href="https://vi.wikipedia.org/wiki/Phép_toán_thao_tác_bit">https://vi.wikipedia.org/wiki/Phép_toán_thao_tác_bit</a></p>
+<p>Nếu dài quá nhác đọc thì phép toán này có thể tóm tắt như hình sau:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/andop.png_5xt4hz78x5" alt="alt text" /></p>
+<p>Một giá trị khi thực hiện <code>AND</code> với <code>0</code> thì trả về <code>0</code>, và với <code>F</code> thì trả về chính nó. Chúng ta dùng đặc tính này để lọc và lấy ra các giá trị cần thiết tại các vị trí mong muốn bên trong một opcode.</p>
+<p>Ví dụ:</p>
+<p><img src="https://s3-ap-southeast-1.amazonaws.com/kipalog.com/andopsample.png_cmi9maz49x" alt="alt text" /></p>
+<h1><a href="#các-tham-số-trong-opcode" aria-hidden="true" class="anchor" id="các-tham-số-trong-opcode"></a>Các tham số trong OPCODE</h1>
+<p>Ở ví dụ trên, ta thấy opcode <code>0x82E4</code> nhận vào 2 tham số <code>x = 2</code> và <code>y = E</code>, có tất cả 4 loại tham số mà chúng ta cần lấy ra từ opcode, tuỳ theo từng loại/chức năng của opcode.</p>
+<ul>
+<li>
+<p><strong>n</strong>: Tham số <code>n</code> là <strong>4 bit cuối cùng</strong> (thấp nhất) của toàn bộ opcode, có thể lấy bằng cách sử dụng phép toán <code>opcode &amp; 0x000F</code>:</p>
+<pre><code>// Giả sử: opcode = 0x8C74
+var n = opcode &amp; 0x000F;
+// Kết quả: n = 4
+</code></pre>
+</li>
+<li>
+<p><strong>nnn</strong>: Tham số <code>nnn</code> là <strong>12 bit thấp nhất</strong> của opcode, là kết quả của phép tính <code>opcode &amp; 0x0FFF</code>:</p>
+<pre><code>// Giả sử: opcode = 0x8C74
+var nnn = opcode &amp; 0x0FFF;
+// Kết quả: nnn = C74
+</code></pre>
+</li>
+<li>
+<p><strong>kk</strong>: Tham số <code>kk</code> là <strong>8 bit thấp nhất</strong> của opcode, tính bằng: <code>opcode &amp; 0x00FF</code>:</p>
+<pre><code>// Giả sử: opcode = 0x8C74
+var kk = opcode &amp; 0x00FF;
+// Kết quả: kk = 74
+</code></pre>
+</li>
+<li>
+<p><strong>x</strong>: Tham số x được xác định bởi <strong>4 bit thấp</strong> nhất của <strong>Byte cao</strong> trong opcode, tức là các bit 5, 6, 7, 8 . Như vậy, ta có thể thực hiện phép toán AND: <code>opcode &amp; 0x0F00</code> kết hợp phép toán <code>dịch bit</code> (shift) để tìm ra <code>x</code>:</p>
+<pre><code>// Giả sử: opcode = 0x8C74
+var x = (opcode &amp; 0x0F00) &gt;&gt; 8;
+// Kết quả của phép (opcode &amp; 0x0F00) sẽ trả về 0x0C00
+// và ta cần dịch chuyển giá trị trên 8 bit về bên phải (&gt;&gt; 8)
+// để thu được giá trị 0x000C = C, là giá trị ta cần tìm
+// Kết quả: x = C
+</code></pre>
+</li>
+<li>
+<p><strong>y</strong>: Tham số <code>y</code> được xác định bằng <strong>4 bit cao</strong> của <strong>Byte thấp</strong> trong opcode, tức là các bit 9, 10, 11, 12. Và ta có thể thực hiện phép toán <code>opcode &amp; 0x00F0</code> và <code>shift</code> để tìm <code>y</code>:</p>
+<pre><code>// Giả sử: opcode = 0x8C74
+var y = (opcode &amp; 0x00F0) &gt;&gt; 4;
+// Kết quả của (opcode &amp; 0x00F0) là 0x0070, nên ta cần
+// dịch chuyển giá trị trên 4 bit về bên trái (&gt;&gt; 4)
+// để thu được giá trị 0x0007 = 7
+// Kết quả: y = 7
+</code></pre>
+</li>
+</ul>
+<h1><a href="#tập-lệnh-của-chip-8" aria-hidden="true" class="anchor" id="tập-lệnh-của-chip-8"></a>Tập lệnh của CHIP-8</h1>
+<p>Bây giờ, chúng ta sẽ cùng tìm hiểu chức năng của từng opcode. Chi tiết cách implement cho từng opcode sẽ có ở bài sau.</p>
+<p>Nếu bạn thắc mắc là chúng ta cần biết chức năng của những lệnh này làm gì, thì: bằng cách implement từng lệnh riêng lẽ, chúng ta sẽ tạo được một trình thông dịch mà dựa vào những tập lệnh đó, các lập trình viên có thể kết hợp và viết thành một chương trình hoặc một trò chơi hoàn chỉnh.</p>
+<p>Bạn sẽ cần tập lệnh này để tham khảo khi impement.</p>
+<h2><a href="#các-lệnh-về-xử-lý-logic" aria-hidden="true" class="anchor" id="các-lệnh-về-xử-lý-logic"></a>Các lệnh về xử lý logic</h2>
+<h3><a href="#00e0---cls" aria-hidden="true" class="anchor" id="00e0---cls"></a>00E0 - CLS</h3>
+<p>Opcode có giá trị <code>0x00E0</code> có thể chuyển thành mã assembly tương ứng là <code>CLS</code>, có nhiệm vụ xoá toàn bộ mần hình.</p>
+<h3><a href="#1nnn---jp-addr" aria-hidden="true" class="anchor" id="1nnn---jp-addr"></a>1nnn - JP addr</h3>
+<p>Opcode có dạng <code>0x1nnn</code> có mã assembly tương ứng là <code>JP nnn</code>, có nhiệm vụ đưa <code>program counter</code> đến địa chỉ <code>nnn</code> (tức là nhảy đến một đoạn nào đó trong chương trình)</p>
+<h3><a href="#2nnn---call-addr" aria-hidden="true" class="anchor" id="2nnn---call-addr"></a>2nnn - CALL addr</h3>
+<p>Opcode có dạng <code>0x2nnn</code> có mã assembly tương ứng là <code>CALL nnn</code>, có nhiệm vụ gọi một <code>subroutine</code> (có thể hiểu là chương trình con) bắt đầu tại vị trí <code>nnn</code>. Vị trí hiện tại của <code>progam counter</code> trước khi thực hiện việc gọi <code>subroutine</code> sẽ được lưu vào <code>stack</code></p>
+<h3><a href="#00ee---ret" aria-hidden="true" class="anchor" id="00ee---ret"></a>00EE - RET</h3>
+<p>Opcode có giá trị <code>0x00EE</code> có mã assembly tương ứng là <code>RET</code>. Khi gặp lệnh này, interpreter sẽ đưa <code>program counter</code> về vị trí cuối cùng lưu trong <code>stack</code> (tức lf thoát khỏi <code>sobroutine</code>/chương trình con)</p>
+<h3><a href="#3xkk---se-vx-byte" aria-hidden="true" class="anchor" id="3xkk---se-vx-byte"></a>3xkk - SE Vx, byte</h3>
+<p>Gồm có 2 tham số <code>x</code> và <code>kk</code>, có nhiệm vụ so sánh giá trị của <code>Vx</code> và <code>kk</code>, nếu chúng bằng nhau thì bỏ qua (skip) lệnh tiếp theo bằng cách tăng giá trị của <code>program counter</code> lên 2.</p>
+<h3><a href="#4xkk---sne-vx-byte" aria-hidden="true" class="anchor" id="4xkk---sne-vx-byte"></a>4xkk - SNE Vx, byte</h3>
+<p>Tương tự như lệnh trên, nếu giá trị của <code>Vx</code> khác <code>kk</code> thì skip lệnh tiếp theo (tăng <code>program counter</code> lên 2)</p>
+<h3><a href="#5yx0---se-vx-vy" aria-hidden="true" class="anchor" id="5yx0---se-vx-vy"></a>5yx0 - SE Vx, Vy</h3>
+<p>So sánh giá trị của <code>Vx</code> và <code>Vy</code>, nếu bằng nhau thì skip lệnh tiếp theo.</p>
+<h3><a href="#6xkk---ld-vx-byte" aria-hidden="true" class="anchor" id="6xkk---ld-vx-byte"></a>6xkk - LD Vx, byte</h3>
+<p>Gán giá trị của <code>Vx</code> thành <code>kk</code></p>
+<h3><a href="#7xkk---add-vx-byte" aria-hidden="true" class="anchor" id="7xkk---add-vx-byte"></a>7xkk - ADD Vx, byte</h3>
+<p>Đặt giá trị của <code>Vx</code> bằng <code>Vx + kk</code></p>
+<h3><a href="#8xy0---ld-vx-vy" aria-hidden="true" class="anchor" id="8xy0---ld-vx-vy"></a>8xy0 - LD Vx, Vy</h3>
+<p>Lưu giá trị của <code>Vy</code> vào <code>Vx</code></p>
+<h3><a href="#8xy1---or-vx-vy" aria-hidden="true" class="anchor" id="8xy1---or-vx-vy"></a>8xy1 - OR Vx, Vy</h3>
+<p><code>Vx</code> = <code>Vx</code> OR <code>Vy</code></p>
+<p>Thực hiện phép tính <code>OR</code> giữa 2 giá trị <code>Vx</code> và <code>Vy</code> rồi lưu kết quả vào <code>Vx</code></p>
+<h3><a href="#8xy2---and-vx-vy" aria-hidden="true" class="anchor" id="8xy2---and-vx-vy"></a>8xy2 - AND Vx, Vy</h3>
+<p><code>Vx</code> = <code>Vx</code> AND <code>Vy</code></p>
+<p>Thực hiện phép tính <code>AND</code> giữa 2 giá trị <code>Vx</code> và <code>Vy</code> rồi lưu kết quả vào <code>Vx</code></p>
+<h3><a href="#8xy3---xor-vx-vy" aria-hidden="true" class="anchor" id="8xy3---xor-vx-vy"></a>8xy3 - XOR Vx, Vy</h3>
+<p><code>Vx</code> = <code>Vx</code> XOR <code>Vy</code></p>
+<p>Thực hiện phép tính <code>XOR</code> giữa <code>Vx</code> và <code>Vy</code> rồi lưu kết quả vào <code>Vx</code></p>
+<h3><a href="#8xy4---add-vx-vy" aria-hidden="true" class="anchor" id="8xy4---add-vx-vy"></a>8xy4 - ADD Vx, Vy</h3>
+<p>Gán <code>Vx</code> = <code>Vx</code> + <code>Vy</code>, gán <code>VF</code> = <code>carry</code> (nhớ)</p>
+<p>Giá trị của <code>Vx</code> và <code>Vy</code> được cộng lại với nhau và lưu vào <code>Vx</code>, nếu kết quả lớn hơn <code>8 bit</code> (vd: &gt; 255) thì <code>VF</code> sẽ được đặt là <code>1</code>, ngược lại sẽ là <code>0</code>.</p>
+<h3><a href="#8xy5---sub-vx-vy" aria-hidden="true" class="anchor" id="8xy5---sub-vx-vy"></a>8xy5 - SUB Vx, Vy</h3>
+<p>Gán <code>Vx</code> = <code>Vx</code> - <code>Vy</code>, gán <code>VF</code> = <code>NOT borrow</code> (không mượn)</p>
+<p>Nếu <code>Vx</code> &gt; <code>Vy</code> hiệu số của <code>Vx - Vy</code> là không âm, nên <code>VF</code> sẽ được gán bằng <code>1</code>, ngược lại thì bằng <code>0</code>. Kết quả lưu vào <code>Vx</code></p>
+<h3><a href="#8xy6---shr-vx-,-vy}" aria-hidden="true" class="anchor" id="8xy6---shr-vx-,-vy}"></a>8xy6 - SHR Vx {, Vy}</h3>
+<p>Gán <code>Vx</code> = <code>Vx SHR 1</code></p>
+<p>Nếu bit thấp nhất của <code>Vx</code> là 1 thì gán <code>VF</code> thàh <code>1</code>, ngược lại thì gán bằng <code>0</code>.
+Gán <code>Vx</code> = <code>Vx / 2</code></p>
+<h3><a href="#8xy7---subn-vx-vy" aria-hidden="true" class="anchor" id="8xy7---subn-vx-vy"></a>8xy7 - SUBN Vx, Vy</h3>
+<p>Gán <code>Vx</code> = <code>Vy</code> - <code>Vx</code>, gán <code>VF</code> = <code>NOT borrow</code> (không mượn)</p>
+<p>Nếu <code>Vy</code> &gt; <code>Vx</code> thì gán <code>VF</code> thành <code>1</code>, ngược lại gán thành <code>0</code>. Hiệu số lưu vào <code>Vx</code>.</p>
+<h3><a href="#8xye---shl-vx-,-vy}" aria-hidden="true" class="anchor" id="8xye---shl-vx-,-vy}"></a>8xyE - SHL Vx {, Vy}</h3>
+<p>Gán <code>Vx</code> = <code>Vx SHL 1</code></p>
+<p>Nếu bit cao nhất của <code>Vx</code> là <code>1</code> thì gán <code>VF</code> thành <code>1</code>, ngược lại, gán thành <code>0</code>. Cuối cùng gán <code>Vx = Vx * 2</code></p>
+<h3><a href="#9xy0---sne-vx-vy" aria-hidden="true" class="anchor" id="9xy0---sne-vx-vy"></a>9xy0 - SNE Vx, Vy</h3>
+<p>Skip lệnh tiếp theo nếu <code>Vx</code> != <code>Vy</code></p>
+<h3><a href="#annn---ld-i-addr" aria-hidden="true" class="anchor" id="annn---ld-i-addr"></a>Annn - LD I, addr</h3>
+<p>Lưu giá trị <code>nnn</code> vào thanh ghi <code>I</code></p>
+<h3><a href="#bnnn---jp-v0-addr" aria-hidden="true" class="anchor" id="bnnn---jp-v0-addr"></a>Bnnn - JP V0, addr</h3>
+<p>Đưa <code>program counter</code> tới vị trí <code>nnn + V0</code></p>
+<h3><a href="#cxkk---rnd-vx-byte" aria-hidden="true" class="anchor" id="cxkk---rnd-vx-byte"></a>Cxkk - RND Vx, byte</h3>
+<p>Gán giá trị <code>Vx</code> = <code>random byte</code> AND <code>kk</code></p>
+<p>Interpreter sẽ khởi tạo một số ngẫu nhiên (random) có giá trị từ <code>0</code> đến <code>255</code>, sau đó <code>AND</code> với giá trị của <code>kk</code>. Kết quả lưu vào <code>Vx</code></p>
+<h2><a href="#các-lệnh-tương-tác-display,-keyboard,-sound...)" aria-hidden="true" class="anchor" id="các-lệnh-tương-tác-display,-keyboard,-sound...)"></a>Các lệnh tương tác (display, keyboard, sound...)</h2>
+<h3><a href="#dxyn---drw-vx-vy,-nibble" aria-hidden="true" class="anchor" id="dxyn---drw-vx-vy,-nibble"></a>Dxyn - DRW Vx, Vy, nibble</h3>
+<p><strong>Vẽ ra màn hình - Đây là lệnh quan trọng nhất trong số tất cả các lệnh</strong></p>
+<p>Interpreter sẽ đọc <code>n</code> byte từ bộ nhớ, bắt đầu từ địa chỉ được lưu trong thanh ghi <code>I</code>. Các byte này sẽ được hiển thị dưới dạng một <code>sprite</code> trên màn hình từ toạ độ (<code>Vx</code>, <code>Vy</code>).</p>
+<p>Sprite được vẽ ra màn hình theo phép <code>XOR</code>, nếu có pixel nào bị xoá vì phép toán này thì <code>VF</code> sẽ được gán là <code>1</code>, ngược lại thì gán bằng <code>0</code>.</p>
+<p>Nếu các điểm của sprite nằm ở bên ngoại phạm vi hiển thị của màn hình thì sẽ được vẽ ra ngay tại các cạnh biên của màn hình gần với nó nhất.</p>
+<h3><a href="#ex9e---skp-vx" aria-hidden="true" class="anchor" id="ex9e---skp-vx"></a>Ex9E - SKP Vx</h3>
+<p>Skip lệnh tiếp theo nếu phím có giá trị của <code>Vx</code> được nhấn.</p>
+<p>Kiểm tra bàn phím, nếu phím được nhấn có giá trị (key code) bằng vơi giá trị của <code>Vx</code> thì <code>program counter</code> sẽ được tăng lên <code>2</code>.</p>
+<h3><a href="#exa1---sknp-vx" aria-hidden="true" class="anchor" id="exa1---sknp-vx"></a>ExA1 - SKNP Vx</h3>
+<p>Skip lệnh tiếp theo nếu phím có giá trị của <code>Vx</code> không được nhấn.</p>
+<p>Tương tự như lệnh trên, nhưng lệnh này tăng <code>PC</code> lên <code>2</code> nếu phím có key code là <code>Vx</code> không được nhấn xuống.</p>
+<h3><a href="#fx0a---ld-vx-k" aria-hidden="true" class="anchor" id="fx0a---ld-vx-k"></a>Fx0A - LD Vx, K</h3>
+<p>Chờ bắt sự kiện nhấn phím, lưu <code>key code</code> vào <code>Vx</code></p>
+<p>Lệnh này sẽ ngừng chương trình cho tới khi có phím được nhấn.</p>
+<h3><a href="#fx07---ld-vx-dt" aria-hidden="true" class="anchor" id="fx07---ld-vx-dt"></a>Fx07 - LD Vx, DT</h3>
+<p>Gán <code>Vx</code> = <code>delay timer value</code></p>
+<p>Lưu giá trị của thanh ghi <code>DT</code> vào thanh ghi <code>Vx</code></p>
+<h3><a href="#fx15---ld-dt-vx" aria-hidden="true" class="anchor" id="fx15---ld-dt-vx"></a>Fx15 - LD DT, Vx</h3>
+<p>Gán <code>delay timer</code> = <code>Vx</code></p>
+<p>Gán giá trị của thanh ghi <code>DT</code> là <code>Vx</code> để bắt đầu thực hiện việc chờ (delay), xem giải thích về <code>Delay Timer</code> ở bài trước.</p>
+<h3><a href="#fx18---ld-st-vx" aria-hidden="true" class="anchor" id="fx18---ld-st-vx"></a>Fx18 - LD ST, Vx</h3>
+<p>Gán <code>sound timer</code> = <code>Vx</code></p>
+<p>Gán giá trị của thanh ghi <code>ST</code> thành <code>Vx</code> để bắt đầu thực hiện phát âm thanh, xem giải thích về <code>Sound Timer</code> ở bài trước.</p>
+<h3><a href="#fx1e---add-i-vx" aria-hidden="true" class="anchor" id="fx1e---add-i-vx"></a>Fx1E - ADD I, Vx</h3>
+<p>Gán <code>I</code> = <code>I</code> + <code>Vx</code></p>
+<p>Lưu tổng số của <code>I</code> và <code>Vx</code> vào <code>Vx</code></p>
+<h3><a href="#fx29---ld-f-vx" aria-hidden="true" class="anchor" id="fx29---ld-f-vx"></a>Fx29 - LD F, Vx</h3>
+<p>Gán <code>I</code> = <code>vị trí của sprite kí tự Vx</code></p>
+<p>Gán giá trị của thanh ghi <code>I</code> thành vị trí của kí tự hex font dựng sẵn tương ứng với <code>Vx</code>.</p>
+<h3><a href="#fx33---ld-b-vx" aria-hidden="true" class="anchor" id="fx33---ld-b-vx"></a>Fx33 - LD B, Vx</h3>
+<p>Interpreter lấy giá trị thập phân của <code>Vx</code>, lưu các số hàng trăm vào bộ nhớ ở vị trí <code>I</code>, các số hàng chục vào vị trí <code>I + 1</code>, các số hàng đơn vị ở vị trí <code>I + 2</code></p>
+<h3><a href="#fx55---ld-i],-vx" aria-hidden="true" class="anchor" id="fx55---ld-i],-vx"></a>Fx55 - LD [I], Vx</h3>
+<p>Lưu giá trị từ thanh ghi <code>V0</code> vào các thanh ghi <code>Vx</code> trong bộ nhớ, bắt đầu từ địa chỉ trong <code>I</code>. Sang phần sau sẽ rõ hơn trong quá trình implement.</p>
+<h3><a href="#fx65---ld-vx-[i]" aria-hidden="true" class="anchor" id="fx65---ld-vx-[i]"></a>Fx65 - LD Vx, [I]</h3>
+<p>Đọc giá trị từ các thanh ghi <code>Vx</code>, bắt đầu từ <code>I</code> vào <code>V0</code></p>
+<hr />
+<p>Trên đây là toàn bộ các opcode mà chúng ta sẽ implement ở phần sau. Sau khi implement tất cả các opcode này thì chúng ta có thể load một ROM game mẫu và chơi thử.</p>
+<p>Có một số lệnh của Super CHIP-8 nhưng để bài viết đơn giản, mình sẽ không đề cập đến. Sau này nếu có thời gian thì chúng ta sẽ implement thêm sau.</p>
+<h1><a href="#phần-3-implement" aria-hidden="true" class="anchor" id="phần-3-implement"></a>Phần 3: Implement</h1>
+<hr />
+<p>Chi tiết về cách implement các bạn có thể tham khảo mã nguồn tại: <a href="https://github.com/huytd/js-chip8-emulator">https://github.com/huytd/js-chip8-emulator</a></p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/emulator.html'>emulator</a><a class='topic-tag' href='../tags/javascript.html'>javascript</a><a class='topic-tag' href='../tags/bitwise.html'>bitwise</a><a class='topic-tag' href='../tags/assembly.html'>assembly</a><a class='topic-tag' href='../tags/hacking.html'>hacking</a><a class='topic-tag' href='../tags/hardware.html'>hardware</a><a class='topic-tag' href='../tags/game.html'>game</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+ <div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/tu-viet-emulator.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/tu-viet-emulator.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:22:29 GMT -->
+</html>

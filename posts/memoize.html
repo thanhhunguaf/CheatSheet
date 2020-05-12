@@ -1,0 +1,386 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/memoize.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:32 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Kĩ thuật Memoize cải thiện performance | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Kĩ thuật Memoize cải thiện performance</span></h1>
+<p>Memoize là một kĩ thuật cache lại giá trị trả về của các hàm dựa trên tham số truyền vào nó.</p>
+<p>Kĩ thuật này có thể áp dụng trên mọi ngôn ngữ lập trình, trong bài viết này mình chỉ lấy JavaScript ra làm ví dụ.</p>
+<h2><a href="#đặt-vấn-đề-bài-toán-tìm-số-fibonacci" aria-hidden="true" class="anchor" id="đặt-vấn-đề-bài-toán-tìm-số-fibonacci"></a>Đặt vấn đề: Bài toán tìm số Fibonacci</h2>
+<p>Đối với bài toán tìm số Fibonacci, chúng ta đều biết thuật toán đơn giản nhất để implement nó là sử dụng đệ quy:</p>
+<pre class='math'>$$
+F_{n}=F_{n-1}+F_{n-2}
+$$</pre>
+<p>Hay diễn giải bằng code như sau:</p>
+<pre><code>const fibo = (n) =&gt; {
+  if (n === 0) return 0;
+  if (n === 1) return 1;
+  return fibo(n - 1) + fibo(n - 2);
+}
+</code></pre>
+<p>Nhược điểm của giải pháp trên rất rõ ràng, đó là thời gian tính toán. Đối với mỗi lần tính toán, hàm <code>fibo</code> phải thực hiện tính toán lại từ đầu (từ <code>n = 0</code>) đến <code>n</code>. Trong quá trình đó một giá trị <code>fibo(n)</code> sẽ bị tính đi tính lại liên tục, một sự lãng phí không hề nhỏ.</p>
+<p>Thời gian chạy của thuật toán trên cho kết quả <code>fibo(50)</code>:</p>
+<pre><code>// fibo(50);
+➜  time node fibo.js
+
+193.97s user 
+0.56s   system 
+99%     cpu 
+3:15.24 total
+</code></pre>
+<p>Và như ta đã nhận thấy, thì phần lớn thời gian tiêu tốn vào việc tính đi tính lại các giá trị trùng lặp, vậy để cải thiện, ta cần tìm một cách nào đó để lưu lại giá trị của từng phép tính <code>fibo(n)</code>, và tránh việc tính lại từ đầu mỗi khi chạy. Cách này gọi là <strong>caching</strong>.</p>
+<p>Vì đối với mỗi số <code>n</code> bất kì, ta luôn luôn chỉ có duy nhất một giá trị sau khi tính toán với hàm <code>fibo(n)</code>. Vậy nên ta có thể tạo ra một mảng tên là <code>cache</code> để lưu lại các giá trị <code>fibo(n)</code> đã tính toán, ở lần chạy tiếp theo, chỉ việc lấy nó ra và sử dụng, không cần phải tính lại.</p>
+<pre><code>const cache = [];
+
+const fibo = (n) =&gt; {
+  if (n === 0) 
+    cache[n] = 0;
+  else if (n === 1) 
+    cache[n] = 1;
+  else 
+    cache[n] = cache[n] || (fibo(n - 1) + fibo(n - 2));
+  return cache[n];
+}
+</code></pre>
+<p>Kết quả thời gian chạy <code>fibo(50)</code> được cải thiện đáng kể:</p>
+<pre><code>// fibo(50);
+➜  time node fibo.js
+
+0.05s user 
+0.02s system 
+98%   cpu 
+0.072 total
+</code></pre>
+<h2><a href="#memoize" aria-hidden="true" class="anchor" id="memoize"></a>Memoize</h2>
+<p>Ví dụ trên cho chúng ta thấy được tầm quan trọng của việc cache trong việc cải thiện tốc độ xử lý của một ứng dụng.</p>
+<p>Tuy nhiên, cứ phải tạo một biến toàn cục <code>cache</code> một cách thủ công như vậy không phải là một giải pháp hay, chưa kể đến việc cần cache nhiều thứ trong một ứng dụng, chúng ta cần một phương pháp tổng quát hơn, và hiệu quả hơn. Đó là memoize.</p>
+<p>Memoize khác với các kĩ thuật cache thông thường ở chỗ: <strong>Nó được dùng để cache giá trị trả về của một hàm, và cache được tạo ra dựa trên tham số của hàm đó.</strong></p>
+<p>Sau đây là một cách implement đơn giản cho hàm <code>memoize</code>:</p>
+<pre><code>const memoize = (func) =&gt; {
+  let cache = {};
+  let that = this;
+  return (...args) =&gt; {
+    let key = JSON.stringify(args);
+    if(cache[key]) {
+      return cache[key];
+    }
+    else {
+      let val = func.apply(that, args);
+      cache[key] = val;
+      return val;
+    }
+  }
+};
+</code></pre>
+<p>Hàm <code>memozie</code> nhận vào tham số là một hàm, tạo cache dựa trên các tham số truyền vào của hàm đó. Khi được gọi thì nó sẽ trả về giá trị được cache nếu có, nếu chưa có giá trị cache thì chạy chính hàm được truyền vào và lưu lại giá trị trả về.</p>
+<p>Cực kì đơn giản đúng không? Giờ chúng ta thử implement lại hàm <code>fibo</code> ở đầu bài dùng <code>memoize</code>:</p>
+<pre><code>const memfibo = memoize((n) =&gt; {
+  if (n === 0) return 0;
+  if (n === 1) return 1;
+  return memfibo(n - 1) + memfibo(n - 2);
+});
+</code></pre>
+<p>Phần logic vẫn được giữ nguyên so với cách implement đầu tiên, nhưng vẫn sử dụng được cache, đó là ưu điểm của việc dùng <code>memoize</code>.</p>
+<p>Chạy thử hàm <code>memfibo</code> vừa tạo với tham số <code>n = 100</code> luôn coi sao:</p>
+<pre><code>// memfibo(100);
+➜  time node fibo.js
+
+0.06s user 
+0.02s system 
+97%   cpu 
+0.077 total
+</code></pre>
+<p>Quá xịn :D</p>
+<h2><a href="#các-implement-khác-của-memoize" aria-hidden="true" class="anchor" id="các-implement-khác-của-memoize"></a>Các implement khác của memoize</h2>
+<p>Trong thực tế, có thể bạn sẽ không đủ tự tin để sử dụng hàm <code>memoize</code> do chính mình implement, hoặc team/sếp không tin tưỏng bạn, ok, không sao, mặc dù bị tổn thưong nhưng không nên vì thế mà nản.</p>
+<p>Chúng ta có thể sử dụng một vài implement khác như:</p>
+<ul>
+<li>Lodash Memoize (<a href="https://npmjs.com/package/lodash.memoize">https://npmjs.com/package/lodash.memoize</a>)</li>
+<li>Fast-memoize (<a href="https://npmjs.com/package/fast-memoize">https://npmjs.com/package/fast-memoize</a>)</li>
+</ul>
+<p>Ngoài ra, các bạn có thể tham khảo thêm bài viết <a href="https://community.risingstack.com/the-worlds-fastest-javascript-memoization-library/">How I wrote the fastest JavaScript memoization library</a> để có cái nhìn sâu hơn về các kĩ thuật implement/tối ưu hóa cho memoize.</p>
+<h2><a href="#bonus-sử-dụng-memoize-trong-angular-filter" aria-hidden="true" class="anchor" id="bonus-sử-dụng-memoize-trong-angular-filter"></a>Bonus: Sử dụng memoize trong Angular filter</h2>
+<p>Một trưòng hợp mà bạn có thể sử dụng memoize khá là hiệu quả đó là khi implement một <code>filter</code> trong Angular. Ví dụ:</p>
+<pre><code>angular.module('app').filter('evenNumbers', function() {
+  return function(items) {
+    return items.reduce(function(result, item) {
+      return (item % 2 === 0);
+    }, []);
+  };
+});
+</code></pre>
+<p>Filter trên nhận vào một mảng và trả về một mảng mới, nhưng khi sử dụng filter trên bạn sẽ gặp lỗi:</p>
+<pre><code>Error: [$rootScope:infdig] 10 $digest() iterations reached. Aborting!
+</code></pre>
+<p>Nguyên nhân của lỗi trên là vì: hàm <code>reduce</code> trả về một mảng mới mỗi lần bạn chạy filter <code>evenNumbers</code>, khiến cho Angular &quot;hiểu lầm&quot; kết quả trả về đã đưọc thay đổi và nó phải chạy một digest cycle mới để kiểm tra, và việc chạy này xảy ra liên tục.</p>
+<p>Khi gặp những trưòng hợp như vậy, bản chỉ cần đặt hàm filter vào bên trong <code>memoize</code> để cache lại giá trị trả về là xong:</p>
+<pre><code>angular.module('app').filter('evenNumbers', function() {
+  return memoize(function(items) {
+    return items.reduce(function(result, item) {
+      return (item % 2 === 0);
+    }, []);
+  });
+});
+</code></pre>
+<h2><a href="#lời-cuối-đồ-xịn-nhưng-dùng-nhiều-thì-hết-xịn" aria-hidden="true" class="anchor" id="lời-cuối-đồ-xịn-nhưng-dùng-nhiều-thì-hết-xịn"></a>Lời cuối: đồ xịn nhưng dùng nhiều thì hết xịn</h2>
+<p>Có một trưòng hợp mà dù có sử dụng memoize thì cũng vô dụng, đó là khi dữ liệu trả về của một hàm nó thay đổi không phụ thuộc vào tham số truyền vào của hàm đó. Ví dụ dữ liệu tracking dạng time series, hay giá chứng khoán, hay danh sách status trên tưòng nhà đứa bạn thích trên Facebook chẳn hạn.</p>
+<p>Và thêm nữa, vì memoize cũng là caching, tức là dữ liệu tính toán xong được lưu lại và nằm đó luôn, không mất đi đâu cả, cho nên bạn phải nghĩ tới vấn đề khi app chạy trong một khoản thời gian dài, thì dung lưọng bộ nhớ cũng vì thế mà tăng lên. Cho nên cần phải giải phóng bộ nhớ cache của hàm memoize sau một khoản thời gian nhất định, nếu không sẽ dẫn tới tràn bộ nhớ hoặc memleak.</p>
+<p>Vì sử dụng memoize tức là bạn đang đánh đổi memory để lấy tốc độ, chứ không có cái gì là free cả, nên nếu biết chừng mực và dùng đúng lúc đúng chỗ thì sẽ đem lại hiệu quả cao, còn ngược lại, lạm dụng quá mức thì hậu quả sẽ khó lường. Cho nên gì gì thì cũng phải hiểu để xài nhau cho tốt hơn, nhé :D</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/javascript.html'>javascript</a><a class='topic-tag' href='../tags/memoize.html'>memoize</a><a class='topic-tag' href='../tags/performance.html'>performance</a><a class='topic-tag' href='../tags/algorithm.html'>algorithm</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+ </div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/memoize.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/memoize.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:33 GMT -->
+</html>

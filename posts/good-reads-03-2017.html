@@ -1,0 +1,331 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/good-reads-03-2017.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:33 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Weekend Reading - 03/2017 | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Weekend Reading - 03/2017</span></h1>
+<p>Bài viết này tổng hợp lại một vài vấn đề hay ho mà mình đọc được trong cuối tuần này. Từ giờ mình sẽ cố gắng note lại những nội dung mình đọc được trong những cái weekend như này, một phần để cho khỏi bị quên, một phần hy vọng có thể chia sẽ được cho những ai quan tâm.</p>
+<h2><a href="#a-tutorial-introduction-to-the-lambda-calculus" aria-hidden="true" class="anchor" id="a-tutorial-introduction-to-the-lambda-calculus"></a><a href="https://arxiv.org/abs/1503.09060">A Tutorial Introduction to the Lambda Calculus</a></h2>
+<p>Paper này được giới thiệu là một &quot;painless introduction về $\lambda$-calculus&quot;. Trước khi đọc thì cũng nghe nhiều ae nói qua về lambda calculus nhưng vẫn chưa hình dung ra được nó là gì và tại sao nó lại khá hay ho.</p>
+<p>Lamda calculus là &quot;ngôn ngữ lập trình&quot; dựa trên việc tạo ra các annonymous function, có dạng:</p>
+<pre class='math'>$$
+\lambda x.x
+$$</pre>
+<p>Trong đó $\lambda$ là ký hiệu định nghĩa hàm, kí hiệu $x$ đầu tiên giúp xác định biến truyền vào hàm và kí hiệu $x$ thứ hai là phần thân hàm.</p>
+<p>Ví dụ rõ ràng hơn, ta có thể viết lại hàm số $f(x) = x^2$ dưới dạng cú pháp của lambda calculus như sau:</p>
+<pre class='math'>$$
+f = \lambda x.x^2
+$$</pre>
+<p>Thao tác &quot;sử dụng&quot; hàm này được gọi là <em>apply</em>, ví dụ:</p>
+<pre class='math'>$$
+f(7) = (\lambda x.x^2) 7 = 7^2 = 49
+$$</pre>
+<p>Ở ví dụ trên ta <em>apply</em> giá trị số 7 vào hàm $\lambda x.x^2$ bằng cách thay thế toàn bộ kí hiệu $x$ ở phần thân hàm thành số 7.</p>
+<p>Các tài liệu liên quan (có cả những cái mình chưa đọc :)) note lại để khi nào có thời gian lại lôi ra đọc)</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1503.09060">A Tutorial Introduction to the Lambda Calculus</a>, Raul Rojas, 2015.</li>
+<li><a href="http://wiki.c2.com/?LambdaCalculus">Lambda Calculus</a>, Ward Cunningham, 2013.</li>
+<li><a href="http://www.cse.chalmers.se/research/group/logic/TypesSS05/Extra/geuvers.pdf">Introduction to Lambda Calculus</a>, Henk Barendregt &amp; Erik Barendsen, 2000.</li>
+<li><a href="https://brilliant.org/wiki/lambda-calculus/">Lambda Calculus</a>, Brilliant.org, 2017.</li>
+<li><a href="http://dev.stephendiehl.com/fun/lambda_calculus.html">Lambda Calculus Implement in Haskell</a>, Stephen Diehl</li>
+</ul>
+<h2><a href="#regular-expression-matching-with-a-trigram-index" aria-hidden="true" class="anchor" id="regular-expression-matching-with-a-trigram-index"></a><a href="https://swtch.com/~rsc/regexp/regexp4.html">Regular Expression Matching with a Trigram Index</a></h2>
+<p>Bài này nói về cơ chế tìm kiếm sử dụng regex trên một lương dữ liệu cực kì lớn (ví dụ source code của toàn bộ các project open source trên toàn thế giới) bằng cách build một bộ <em>n</em>-grams index dựa trên toàn bộ nội dung đống source đó, mà ở đây bài báo chọn <em>3</em>-grams.</p>
+<p>Ví dụ có 3 document sau:</p>
+<pre><code>(1) Google Code Search
+(2) Google Code Project Hosting
+(3) Google Web Search
+</code></pre>
+<p>Bộ trigram index sẽ có dạng:</p>
+<pre><code>_Co: {1, 2}     Sea: {1, 3}     e_W: {3}        ogl: {1, 2, 3}
+_Ho: {2}        Web: {3}        ear: {1, 3}     oje: {2}
+_Pr: {2}        arc: {1, 3}     eb_: {3}        oog: {1, 2, 3}
+_Se: {1, 3}     b_S: {3}        ect: {2}        ost: {2}
+_We: {3}        ct_: {2}        gle: {1, 2, 3}  rch: {1, 3}
+Cod: {1, 2}     de_: {1, 2}     ing: {2}        roj: {2}
+Goo: {1, 2, 3}  e_C: {1, 2}     jec: {2}        sti: {2}
+Hos: {2}        e_P: {2}        le_: {1, 2, 3}  t_H: {2}
+Pro: {2}        e_S: {1}        ode: {1, 1}     tin: {2}
+</code></pre>
+<p>Là một bảng tham chiếu dựa trên từng cụm substring 3 kí tự của mỗi từ trong từng document, giá trị tham chiếu là số thứ tự của tài liệu có chứa trigram đó.</p>
+<p>Khi tìm kiếm thì chúng ta sẽ build một query sử dụng các phép <em>AND</em> hoặc <em>OR</em> để tìm kiếm, ví dụ với input là <code>/Google.*Search/</code>, ta build được query sau:</p>
+<pre><code>Goo AND oog AND ogl AND gle AND Sea AND ear AND arc AND rch
+</code></pre>
+<p>Kết quả tìm kiếm sẽ là kết quả thu được từ việc thực hiện các phép <code>AND</code> trên các tập hợp tương ứng ở index.</p>
+<p>Khi đọc title thì mình mang một cái thắc mắc là: Tại sao lại là 3 mà không phải là một con số khác? Tác giả trả lời trong bài: vì 2 là quá ít, 4 thì lại quá nhiều, nên cứ lấy số 3 thôi...</p>
+<h2><a href="#method-syntax-self,-&self-và-&mut-self-trong-rust" aria-hidden="true" class="anchor" id="method-syntax-self,-&self-và-&mut-self-trong-rust"></a><a href="https://doc.rust-lang.org/book/method-syntax.html">Method Syntax: self, &amp;self và &amp;mut self trong Rust</a></h2>
+<p>Trong Rust, khi implement một method cho một <code>struct</code> với từ khóa <code>impl</code>, chúng ta có 3 chỉ định tham số <code>self</code> (tương tự như <code>this</code> trong các ngôn ngữ khác) vào cho một method là:</p>
+<ul>
+<li><code>self</code>: khi chúng ta cần sử dụng <code>self</code> bên trong hàm như là giá trị của chính nó trên stack (take luôn ownership).</li>
+<li><code>&amp;self</code>: khi chúng ta cần <code>self</code> là một reference (borrow thôi, không take ownership).</li>
+<li><code>&amp;mut self</code>: khi chúng ta cần <code>self</code> là một mutable reference.</li>
+</ul>
+<p>Và mặc định thì chúng ta nên sử dụng <code>&amp;self</code>.</p>
+<h2><a href="#applications-of-tree-discrete-mathematics-and-its-applications" aria-hidden="true" class="anchor" id="applications-of-tree-discrete-mathematics-and-its-applications"></a><a href="https://www.amazon.com/Discrete-Mathematics-Its-Applications-Seventh/dp/0073383090/ref=pd_sbs_14_t_0?_encoding=UTF8&amp;psc=1&amp;refRID=1TCGJV0XWWWJ9QSHSNNH">Applications of Tree, Discrete Mathematics and Its Applications</a></h2>
+<p>Vì đang làm một ứng dụng liên quan đến kiểu dữ liệu cây (Tree) nên mình cũng muốn tìm hiểu bài bản về nó một tí, nên đọc qua chương này trong cuốn <em>Discrete Mathematics and Its Applications</em>.</p>
+<p>Mặc dù đã đọc một vài phiên bản tiếng Việt, dịch ra từ cuốn này như cuốn <em>&quot;Toán rời rạc ứng dụng trong tin học&quot;, NXB Giáo Dục</em> hay các cuốn có nội dung tương tự như <em>&quot;Thuật toán trong Máy tính&quot;, NXB Thống Kê</em>, nhưng mình thật sự bất ngờ vì lượng kiến thức mà bản gốc này cung cấp, bên cạnh việc trình bày các khái niệm lý thuyết rất khoa học, cuốn sách còn đưa thêm rất nhiều ví dụ cụ thể, từ đơn giản đến phức tạp.</p>
+<p>Quay trở lại vụ Tree, phần <em>&quot;Applications of Tree&quot;</em> trong cuốn sách có đưa ra các ví dụ minh họa như xây dựng cây tìm kiếm nhị phân cho một tập hợp các chuỗi (string) dựa trên thứ tự alphabet, sử dụng cây quyết định (decision tree) để giải bài toán cân 8 đồng xu, giới thiệu thuật toán Huffman coding, cây trò chơi,... một cách cực kì chi tiết và dễ hiểu.</p>
+<h2><a href="#koudan-miyamoto-musashi" aria-hidden="true" class="anchor" id="koudan-miyamoto-musashi"></a>Koudan: Miyamoto Musashi</h2>
+<p>Không tìm thấy link sách gốc, tuy nhiên bản dịch tiếng Việt thì rất nhiều trên mạng, các bạn có thể tìm đọc.</p>
+<p>Koudan (講談) là lối kể chuyện truyền thống của Nhật Bản dưới hình thức diễn thuyết, diễn giả ngồi trên một bục cao và sử dụng giọng đọc truyền cảm của mình để kể lại các giai thoại lịch sử, thường là những mẫu truyện có thêm bớt vài phần hư cấu và chỉ dùng các yếu tố lịch sử để làm bối cảnh, tình tiết cho câu chuyện.</p>
+<p>Bản dịch <em>&quot;Koudan: Miyamoto Musashi&quot;</em> là phiên bản &quot;viết&quot; được nhà xuất bản Kodansha đóng lại thành sách từ bản koudan của diễn giả Ito Ryocho thời kì trước Thế chiến thứ II.</p>
+<p>Quyển sách kể về cuộc đời của Miyamoto Musashi, một nhân vật lịch sử có thật và cực kì nổi tiếng, được đông đảo người Việt nam biết đến qua các ấn phẩm văn hóa Nhật như tiểu thuyết, truyện tranh, phim ảnh,...</p>
+<p>Mặc dù người dịch đã khuyến cáo là thể loại Koudan rất khó để dịch ra thứ ngôn ngữ khác, vì nó sử dụng các âm điệu, vần, từ ngữ cổ của Nhật Bản, dịch ra sẽ mất hầu hết những cái tinh hoa đặc sắc của Koudan, tuy nhiên mình thấy đây là một bản dịch không tồi, thật tình là rất cảm phục người dịch giả, bỏ công sức ra dịch miễn phí nhưng từng câu từng chữ đều được viết ra một cách rất cẩn thận và có đầu tư, không như vô số các dịch giả khác, dịch xong nhiều khi phá hỏng luôn cả bộ truyện :D</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/random.html'>random</a><a class='topic-tag' href='../tags/algorithm.html'>algorithm</a><a class='topic-tag' href='../tags/review.html'>review</a><a class='topic-tag' href='../tags/math.html'>math</a><a class='topic-tag' href='../tags/rust.html'>rust</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/good-reads-03-2017.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/good-reads-03-2017.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:33 GMT -->
+</html>

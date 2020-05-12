@@ -1,0 +1,548 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/frontend-algorithm-001.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:01 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Algorithm in Frontend - Kỳ 1: Xử lý dữ liệu trên Frontend | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='img/frontend-algorithm-001-code-monkey-2.png'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Algorithm in Frontend - Kỳ 1: Xử lý dữ liệu trên Frontend</span></h1>
+<p>Đối với lĩnh vực Frontend nói riêng, chuyện học hay luyện các kĩ năng phân tích thiết kế thuật toán là một kĩ năng bị xem nhẹ nhất. Vì lý do đơn giản, chúng ta không thấy nhiều về tính ứng dụng của nó vào công việc thực tế.</p>
+<p><img src="img/frontend-algorithm-001-code-monkey.png" alt="" /></p>
+<p>Nhưng đây là sai lầm lớn nhất của đại đa số Frontend Developers.</p>
+<p>Trên thực tế, chúng ta phải đối mặt với các vấn đề cần phải sử dụng thuật toán, và cần phải vận dụng các kĩ năng phân tích thiết kế thuật toán gần như là hằng ngày. Nhưng rất ít khi chúng ta nhận ra.</p>
+<p>Đây cũng là lý do mà mình viết sê-ri <strong>Algorithm in Frontend</strong> này, xoay quanh những kinh nghiệm thực tế mà mình đã gặp phải trong thời gian làm việc, phần lớn là trong hai lĩnh vực sản phẩm mình đã/đang làm là Realtime Infrastructure Monitoring (theo dõi hạ tầng CNTT thời gian thực) và Health Care (chăm sóc sức khỏe).</p>
+<p>Bài đầu tiên nói về vấn đề <strong>Xử lý dữ liệu trên Frontend</strong>.</p>
+<h2><a href="#đặt-vấn-đề" aria-hidden="true" class="anchor" id="đặt-vấn-đề"></a>Đặt vấn đề</h2>
+<p>Nếu các bạn có đọc bài <a href="https://toidicodedao.com/2017/07/06/phong-van-anh-huy-tran-silicon-valley/">phỏng vấn</a> của mình trên blog Tôi Đi Code Dạo, thì có lẽ các bạn đã biết, công việc chính của mình hiện nay ngoài việc fix bug <del>cũ</del> ra thì còn phải phối hợp với các team khác nhau để <del>tạo ra bug mới</del> xây dựng feature mới cho sản phẩm của công ty.</p>
+<p>Một trong những chức năng mới nhất mà team mình vừa ship thành công đó là cung cấp khả năng <strong>thống kê tình trạng sức khỏe của bệnh nhân</strong> cho các bác sĩ.</p>
+<p>Dạng đơn giản nhất của chức năng này, thì các bạn có thể hình dung thông qua hình minh họa sau (lấy từ bảng thống kê của Fitbit, không phải sản phẩm công ty mình, NDA đã ký, up bậy lên là thành homeless ngay, cũng xin các bạn đừng phán xét về mức độ siêng năng đi bộ của mình :v).</p>
+<p><img src="img/fitbit-tracking.png" alt="" /></p>
+<p>Đây là tính năng thống kê dữ liệu theo từng khoản $n$ ngày tính từ ngày hiện tại (ở đây $n = 7$). Lưu ý là không phải thống kê theo tuần nhé.</p>
+<p>Như vậy, nếu hôm nay là thứ 5 bác sĩ muốn xem tình trạng sức khỏe trong 7 ngày gần đây của bênh nhân thì phía Frontend phải hiển thị được dữ liệu trong khung thời gian như hình sau:</p>
+<pre class='math'>$$
+\dots, \texttt{T5}, \overbrace{\texttt{T6}, \texttt{T7}, \texttt{CN}, \texttt{T2}, \texttt{T3}, \texttt{T4}, \underbrace{\texttt{T5}}_\texttt{today}}^{n = 7}, \texttt{T6}, \texttt{T7}, \dots
+$$</pre>
+<p>Từ phía frontend, một request có dạng như sau sẽ được gửi lên để lấy dữ liệu:</p>
+<pre><code>GET /api/v0/tracker?from=14-09-2017&amp;to=08-09-2017
+</code></pre>
+<p>Bất kỳ ngày nào có dữ liệu thì sẽ được gửi trả về, không có dữ liệu thì không xuất hiện luôn:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Date</th>
+<th align="center">Steps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Fri 08-09-2017</td>
+<td align="center">5123</td>
+</tr>
+<tr>
+<td align="left">Mon 11-09-2017</td>
+<td align="center">1734</td>
+</tr>
+<tr>
+<td align="left">Tue 12-10-2017</td>
+<td align="center">5000</td>
+</tr>
+<tr>
+<td align="left">Wed 13-10-2017</td>
+<td align="center">4985</td>
+</tr>
+<tr>
+<td align="left">Thu 14-10-2017</td>
+<td align="center">3220</td>
+</tr></tbody></table>
+<p>Và để vẽ được biểu đồ lên màn hình theo đúng $n$ ngày thì nội dung đầu vào phải đúng $n$ records. Thiếu hay thừa 1 record đều sẽ dẫn đến kết quả hiển thị bị sai.</p>
+<p>Phía frontend phải làm công việc xử lý dữ liệu để với mỗi record bị thiếu, chèn vào một record mới với một giá trị mặc định, đảm bảo tính đúng đắn này.</p>
+<p>Ví dụ với bảng dữ liệu trên, sẽ phải chèn thêm 2 record mới là:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Date</th>
+<th align="center">Steps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Sat 09-09-2017</td>
+<td align="center">0</td>
+</tr>
+<tr>
+<td align="left">Sun 10-09-2017</td>
+<td align="center">0</td>
+</tr></tbody></table>
+<h2><a href="#bài-toán-cần-giải-quyết" aria-hidden="true" class="anchor" id="bài-toán-cần-giải-quyết"></a>Bài toán cần giải quyết</h2>
+<p>Để dễ hình dung hơn, ta có thể đơn giản hóa bài toán cần giải quyết cho vấn đề trên là:</p>
+<p>Cho một mảng $I$ gồm $m$ phần tử ($m &gt; 0$), với mỗi phần tử là một ngày trong tuần, không liên tục, và một số $n$ (với $m \leqslant n$), implement thuật toán trả về mảng $O$ gồm $n$ ngày liên tục, tính từ phần tử đầu tiên của $I$, và vẫn giữ được thứ tự xuất hiện trong mảng.</p>
+<p>Ví dụ:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Input [I;n]</th>
+<th align="left">Output [O]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">[Mon; 7]</td>
+<td align="left">[Mon, Tue, Wed, Thu, Fri, Sat, Sun]</td>
+</tr>
+<tr>
+<td align="left">[Mon; 10]</td>
+<td align="left">[Mon, Tue, Wed, Thu, Fri, Sat, Sun, Mon, Tue, Wed]</td>
+</tr>
+<tr>
+<td align="left">[Fri, Sun; 5]</td>
+<td align="left">[Fri, Sat, Sun, Mon, Tue]</td>
+</tr>
+<tr>
+<td align="left">[Mon, Thu, Sat; 5]</td>
+<td align="left">[Mon, Tue, Wed, Thu, Fri]</td>
+</tr></tbody></table>
+<h2><a href="#phân-tích-và-implement-thuật-toán" aria-hidden="true" class="anchor" id="phân-tích-và-implement-thuật-toán"></a>Phân tích và implement thuật toán</h2>
+<p>Có thể thấy đây là một bài toán hết sức đơn giản, việc cần làm chỉ là tạo ra một mảng $n$ phần tử và lần lượt đưa vào mảng này các ngày tương ứng, tính từ ngày đầu tiên trong mảng $I$. Nếu một phần tử đã tồn tại ở mảng $I$ thì chúng ta sẽ đưa phần tử đó vào mảng kết quả.</p>
+<p>Ta cũng chú ý đến tính chất xoay vòng của các ngày trong tuần, nếu cho $i$ là một giá trị tăng dần, với $i = 0$ là thứ hai (Monday), $i = 1$ là thứ ba (Tuesday), tiếp tục tăng, đến $i = 6$ sẽ là Chủ nhật (Sunday). Tương đương với một mảng có 7 phần tử, như sau:</p>
+<pre><code class="language-javascript">const DAYS = [&quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;];
+</code></pre>
+<p>Ta có thể viết một hàm <code>day_to_num()</code> để chuyển đổi giữa giá trị ngày sang số để tiện cho việc tính toán:</p>
+<pre><code class="language-javascript">const day_to_num = day =&gt; DAYS.findIndex(i =&gt; i === day);
+</code></pre>
+<p>Nếu $i$ tiếp tục tăng, thì với việc đối chiếu thông thường, $i = 7$ tương ứng với $\texttt{DAYS}[7]$, là một giá trị không tồn tại. Để $i$ tiếp tục tăng nhưng giá trị tham chiếu phải xoay vòng, ta có thể thay $i$ bằng một giá trị $i_2$ với:</p>
+<pre class='math'>$$
+i_2 = i \mod 7
+$$</pre>
+<p>Ví dụ, với $i = 12$ ta có $i_2 = 12 \mod 7 = 5$ tương đương với $\texttt{DAYS}[5] = \texttt{Sat}$.</p>
+<p>Dựa vào đây ta có thể viết hàm <code>num_to_day()</code> để chuyển một giá trị số thành ngày tương ứng:</p>
+<pre><code class="language-javascript">const num_to_day = num =&gt; DAYS[num % DAYS.length];
+</code></pre>
+<p>Thuật toán xử lý dữ liệu của chúng ta có thể được mô tả thông qua các bước như sau:</p>
+<ul>
+<li><strong>Bước 1:</strong> Tạo ra mảng <code>result</code> có $n$ phần tử, với phần tử đầu tiên cũng là giá trị đầu của mảng $I$.</li>
+<li><strong>Bước 2:</strong> Tạo một vòng lặp với $i = 1 \rightarrow n$.
+<ul>
+<li><strong>Bước 2a:</strong> Ở mỗi lần lặp, tìm ngày tiếp theo tương ứng với vị trí $i$.</li>
+<li><strong>Bước 2b:</strong> Duyệt qua mảng $I$ để tìm giá trị tương đương với giá trị vừa tính được ở bước <strong>2a</strong>.</li>
+<li><strong>Bước 2c:</strong> Nếu tìm được giá trị ở bước <strong>2b</strong> thì đưa giá trị này vào mảng <code>result</code>, nếu không thì đưa giá trị ở bước <strong>2a</strong> vào.</li>
+</ul>
+</li>
+<li><strong>Bước 3:</strong> Trả về kết quả của mảng <code>result</code>.</li>
+</ul>
+<p>Implement thuật toán trên bằng JavaScript:</p>
+<pre><code class="language-javascript">const fill_days = (input, n) =&gt; {
+  let result = [input[0]];
+  for (let i = 1; i &lt; n; i++) {
+    let previous_day = day_to_num(result[i - 1]);
+    let current_day = num_to_day(previous_day + 1);
+    let day_from_input = null;
+    for (let j = 0; j &lt; input.length; j++) {
+      if (current_day == input[j]) {
+        day_from_input  = input[j];
+        break;
+      }
+    }
+    if (day_from_input) {
+      result.push(day_from_input);
+    } else {
+      result.push(current_day);
+    }
+  }
+  return result;
+};
+</code></pre>
+<p>Đừng quên test lại để đảm bảo thuật toán của chúng ta chạy đúng:</p>
+<pre><code class="language-javascript">fill_days([&quot;Mon&quot;], 7); // [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+fill_days([&quot;Mon&quot;], 10); // [Mon, Tue, Wed, Thu, Fri, Sat, Sun, Mon, Tue, Wed]
+fill_days([&quot;Fri&quot;, &quot;Sun&quot;], 5); // [Fri, Sat, Sun, Mon, Tue]
+fill_days([&quot;Mon&quot;, &quot;Thu&quot;, &quot;Sat&quot;], 5); // [Mon, Tue, Wed, Thu, Fri]
+</code></pre>
+<h2><a href="#cải-thiện-thuật-toán" aria-hidden="true" class="anchor" id="cải-thiện-thuật-toán"></a>Cải thiện thuật toán</h2>
+<p>Vậy là hàm <code>fill_days()</code> của chúng ta đã hoạt động và trả về đúng giá trị cần tìm, tuy nhiên chúng ta không thể dừng ở bước này được vì thuật toán trên vẫn còn rất nhiều điểm cần phải cải thiện.</p>
+<p><img src="img/frontend-algorithm-001-code-monkey-2.png" alt="" /></p>
+<p>Cụ thể, chúng ta sẽ thực hiện các thay đổi như là cache lại những chỗ tính toán bị lặp đi lặp lại, tận dụng lại biến <code>current_day</code> để bỏ bớt một khối lệnh <code>if</code> không cần thiết,...</p>
+<p>Hàm <code>day_to_num()</code> cũng có thể được tối ưu bằng cách không dùng hàm <code>findIndex()</code> có sẵn nữa mà <a href="https://jsperf.com/day2num-performance-test/1">tự viết vòng lặp for riêng</a>.</p>
+<pre><code class="language-javascript">const day_to_num = day =&gt; {
+  for (let i = 0, len = DAYS.length; i &lt; len; i++) {
+    if (DAYS[i] == day) return i;
+  }
+  return -1;
+};
+
+const fill_days = (input, n) =&gt; {
+  let result = [input[0]];
+  for (let i = 1; i &lt; n; i++) {
+    let previous_day = day_to_num(result[i - 1]);
+    let current_day = num_to_day(previous_day + 1);
+    for (let j = 0, len = input.length; j &lt; len; j++) {
+      if (current_day == input[j]) {
+        current_day = input[j];
+        break;
+      }
+    }
+    result.push(current_day);
+  }
+  return result;
+};
+</code></pre>
+<p>Chúng ta có thể chạy test lại, kết quả vẫn chính xác.</p>
+<pre><code class="language-javascript">fill_days([&quot;Mon&quot;], 7); // [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+fill_days([&quot;Mon&quot;], 10); // [Mon, Tue, Wed, Thu, Fri, Sat, Sun, Mon, Tue, Wed]
+fill_days([&quot;Fri&quot;, &quot;Sun&quot;], 5); // [Fri, Sat, Sun, Mon, Tue]
+fill_days([&quot;Mon&quot;, &quot;Thu&quot;, &quot;Sat&quot;], 5); // [Mon, Tue, Wed, Thu, Fri]
+</code></pre>
+<p>Các bạn cũng có thể so sánh thử performance của 2 thuật toán <a href="https://jsperf.com/day-filling-algorithm-compare/1">trước và sau khi tối ưu tại đây</a>.</p>
+<h2><a href="#ứng-dụng-thuật-toán-vào-thực-tế" aria-hidden="true" class="anchor" id="ứng-dụng-thuật-toán-vào-thực-tế"></a>Ứng dụng thuật toán vào thực tế</h2>
+<p>Vậy là chúng ta đã xây dựng thành công thuật toán xử lý lấp đầy dữ liệu cho trước bằng những ngày bị thiếu và vẫn đảm bảo được số lượng record, và thứ tự xuất hiện của các record.</p>
+<p>Việc tiếp theo là ứng dụng thuật toán này vào với dữ liệu thực tế.</p>
+<p>Quay lại với API request ở đầu bài:</p>
+<pre><code>GET /api/v0/tracker?from=14-09-2017&amp;to=08-09-2017
+</code></pre>
+<p>Dữ liệu trả về sẽ có dạng:</p>
+<pre><code class="language-javascript">let input = [
+  {
+    date: '2017-09-08T00:00:00.000Z',
+    steps: 5123,
+  },
+  {
+    date: '2017-09-11T00:00:00.000Z',
+    steps: 1734,
+  },
+  {
+    date: '2017-09-12T00:00:00.000Z',
+    steps: 5000,
+  },
+  {
+    date: '2017-09-13T00:00:00.000Z',
+    steps: 4985,
+  },
+  {
+    date: '2017-09-14T00:00:00.000Z',
+    steps: 3220,
+  }
+]
+</code></pre>
+<p>Mỗi một record ở đây là một Object có dạng như sau, không đơn thuần là một chuỗi nữa.</p>
+<pre><code class="language-javascript">{
+  date: '&lt;date&gt;',
+  steps: '&lt;step&gt;'
+}
+</code></pre>
+<p>Vì vậy chúng ta phải sửa phần code logic ở thuật toán bên trên một tí để có thể làm việc được với kiểu dữ liệu thực tế:</p>
+<pre><code class="language-javascript">const fill_days_with_data = (input, n) =&gt; {
+  let result = [input[0]];
+  for (let i = 1; i &lt; n; i++) {
+    let next_day = new Date(result[i - 1].date);
+    next_day.setDate(next_day.getDate() + 1);
+    let next_date = {
+      date: next_day,
+      steps: 0
+    };
+    for (let j = 0, len = input.length; j &lt; len; j++) {
+      let date = new Date(input[j].date);
+      if (next_day.getDay() == date.getDay()) {
+        next_date = input[j];
+        break;
+      }
+    }
+    result.push(next_date);
+  }
+  return result;
+};
+</code></pre>
+<p>Và đây là kết quả sau khi test:</p>
+<pre><code class="language-javascript">fill_days_with_data(input, 7);
+
+[
+  {
+    date: '2017-09-08T00:00:00.000Z',
+    steps: 5123
+  },
+  {
+    date: '2017-09-09T00:00:00.000Z',
+    steps: 0
+  },
+  {
+    date: '2017-09-10T00:00:00.000Z',
+    steps: 0
+  },
+  {
+    date: '2017-09-11T00:00:00.000Z',
+    steps: 1734
+  },
+  {
+    date: '2017-09-12T00:00:00.000Z',
+    steps: 5000
+  },
+  {
+    date: '2017-09-13T00:00:00.000Z',
+    steps: 4985
+  },
+  {
+    date: '2017-09-14T00:00:00.000Z',
+    steps: 3220
+  }
+]
+</code></pre>
+<p>Hoàn toàn đúng với yêu cầu đặt ra từ ban đầu.</p>
+<hr />
+<p>Qua bài viết này, chúng ta đã cùng đi qua các bước: Tiếp cận vấn đề thực tế, phân tích bài toán, xây dựng thuật toán, cải thiện thuật toán để chạy tốt hơn, và cuối cùng là ứng dụng thuật toán đó để giải quyết các yêu cầu kĩ thuật từ phía frontend.</p>
+<p>Mình biết cảm giác bây giờ của các bạn là gì, các bạn đang nghĩ là cái quần què này thì có gì đâu, đây vẫn là thứ mà các bạn vẫn làm mỗi ngày mà. Đúng là như vậy, chúng ta đã và đang áp dụng thuật toán vào cho công việc frontend mỗi ngày.</p>
+<p>Có thể thấy, việc áp dụng, xây dựng, sử dụng thuật toán là một vấn đề chung không chỉ giới hạn trong bất kì một lĩnh vực nào của lập trình. Hy vọng bài viết này có thể giúp bạn nhận ra tầm quan trọng của thuật toán, nhất là đối với các bạn frontend developers.</p>
+<p>Cảm ơn các bạn đã kiên nhẫn đọc đến tận đây. Hẹn gặp lại các bạn ở các phần sau của sê-ri <strong>Algorithm in Frontend</strong>.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/code.html'>code</a><a class='topic-tag' href='../tags/algorithm.html'>algorithm</a><a class='topic-tag' href='../tags/frontend.html'>frontend</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+ <script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/frontend-algorithm-001.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/frontend-algorithm-001.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:02 GMT -->
+</html>

@@ -1,0 +1,327 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/ripgrep-emacs.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Helm, Ripgrep và Emacs dùng... helm-ag | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Helm, Ripgrep và Emacs dùng... helm-ag</span></h1>
+<p>Có một thủ thuật khá là tiện dụng khi dùng <code>helm</code> trong Emacs đó là lệnh <code>helm-resume</code> giúp khôi phục lại lệnh đã chạy trước đó, lệnh này đặc biệt hữu dụng khi đang search trong toàn project.</p>
+<p>Lại nói về search, thường chúng ta hay xài <code>ag</code> (hay còn gọi là <code>the_silver_searcher</code>) vì nó có performance rất tốt, nhưng còn có một công cụ xịn hơn cả <code>ag</code> đó là <code>rg</code> (gọi là <code>ripgrep</code>, build bằng Rust, tất nhiên <i class='em em-joy'></i>). Để tích hợp <code>ag</code> vào Emacs/Helm chúng ta có gói <code>helm-ag</code>, với <code>rg</code> thì chúng ta có <code>helm-rg</code>.</p>
+<p>Nhưng <code>helm-rg</code> không play nice lắm với lệnh <code>helm-resume</code>, nó thường xảy ra lỗi đại loại là <code>helm-rg--make-process should run a process</code> sau khi resume, dẫn tới việc không jump tới buffer trong kết quả search được. Anh tác giả không chịu fix vì cho rằng đó là lỗi của <code>helm</code> hay <code>helm-projectile</code> gì đó, nói chung là đổ thừa, mà mình thì rất ghét dev có tính đổ thừa. Trong khi sự thật rõ rành rành, <code>helm-ag</code> vẫn chạy tốt khi resume! <i class='em em-angry'></i></p>
+<p>Mà ghét rồi thì sao? Không lẽ bỏ không xài <code>rg</code> nữa, về xài <code>ag</code>? Đời nào lại thế?</p>
+<p>Hóa ra, tác giả của <code>helm-ag</code> đã rất tinh ý khi hướng dẫn cả cách xài <code>rg</code> thay thế cho <code>ag</code>, documented ngay trong code của <code>helm-ag</code>! Đó là:</p>
+<ol>
+<li>Vào màn hình tùy biến giá trị <code>M-x customize-set-variable</code></li>
+<li>Chọn giá trị <code>helm-ag-base-command</code></li>
+<li>Đặt giá trị mới thành: <code>rg --vimgrep --no-heading --smart-case</code></li>
+</ol>
+<p>Ba bước trên thì ai cũng biết rồi, không có gì đáng nói.</p>
+<p>Cái đáng nói là khi kết hợp với <code>helm-projectile</code> (ai xài <code>projectile</code> thì sẽ gặp liền), <code>rg</code> sẽ phun ra một đống lỗi:</p>
+<pre><code>.#*: No such file or directory (os error 2)
+*.o: No such file or directory (os error 2)
+*~: No such file or directory (os error 2)
+*.bin: No such file or directory (os error 2)
+*.lbin: No such file or directory (os error 2)
+*.so: No such file or directory (os error 2)
+*.a: No such file or directory (os error 2)
+*.ln: No such file or directory (os error 2)
+*.blg: No such file or directory (os error 2)
+*.bbl: No such file or directory (os error 2)
+*.elc: No such file or directory (os error 2)
+*.lof: No such file or directory (os error 2)
+*.glo: No such file or directory (os error 2)
+*.idx: No such file or directory (os error 2)
+*.lot: No such file or directory (os error 2)
+*.fmt: No such file or directory (os error 2)
+*.tfm: No such file or directory (os error 2)
+...
+</code></pre>
+<p>Nguyên nhân là vì <code>helm-projectile</code> quá thông minh và nhiệt tình, tới mức nhanh nhẩu, tự add thêm vài cái option kiểu <code>--ignore *.o ...</code> vô khi chạy <code>helm-projectile-ag</code>, và tất nhiên <code>rg</code> không có option này, nên nó hiểu nhầm các giá trị kia là đường dẫn cần search.</p>
+<p>Đến đây có hai cách để giải quyết:</p>
+<ol>
+<li>Là sửa code của <code>helm-projectile</code> để nó khỏi thêm vào các option &quot;lạ&quot; nữa</li>
+<li>Là wrap cái lệnh <code>rg</code> trong máy lại thành một lệnh khác để loại bỏ thuộc tính &quot;lạ&quot; kia đi</li>
+</ol>
+<p>Cách thứ 1 nếu làm theo thì sẽ ngầu hơn, nhưng khó maintain về sau, nếu không ngại việc tự xài một bản fork riêng cho mọi thứ mình dùng thì cứ chơi.</p>
+<p>An toàn nhất là chọn cách 2. Wrap lệnh <code>rg</code> lại tức là tạo ra một lệnh mới, đặt ở, ví dụ <code>/usr/local/bin/rgemacs</code>, với nội dung như sau:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+newargs=&quot;$(echo &quot;<a href="../cdn-cgi/l/email-protection.html" class="__cf_email__" data-cfemail="f8dcb8">[email&#160;protected]</a>&quot; | sed 's/\-\-ignore .* //')&quot;
+rg $newargs
+</code></pre>
+<p>Đừng quên cấp quyền execute cho nó:</p>
+<pre><code class="language-bash">$ chmod +x /usr/local/bin/rgemacs
+</code></pre>
+<p>Rồi thay giá trị của <code>helm-ag-base-command</code> thành <code>rgemacs --vimgrep --no-heading --smart-case</code>, thế là xong.</p>
+<p><strong>Update 19/11/2018:</strong> Cách trên gây ra một vấn đề đó là khi trong search query có nhiều từ và khoảng trắng, thì chỉ có một từ duy nhất ở cuối query được ghi nhận, ví dụ, search với query: <strong>&quot;day la con ga&quot;</strong> thì chỉ có chữ <strong>&quot;ga&quot;</strong> là được search.</p>
+<p>Cách tốt hơn đó là vẫn xài <code>rg</code> thay cho <code>rgemacs</code> trong <code>helm-ag-base-command</code> và ghi đè hàm <code>helm-projectile-ag</code> bằng cách chèn đoạn code sau vào Emacs config của bạn, tất nhiên là sau khi load <code>helm-ag</code> và <code>projectile</code>:</p>
+<pre><code class="language-lisp">(defun helm-projectile-ag (&amp;optional options)
+  &quot;Helm version of projectile-ag.&quot;
+  (interactive (if current-prefix-arg (list (read-string &quot;option: &quot; &quot;&quot; 'helm-ag--extra-options-history))))
+  (if (require 'helm-ag nil  'noerror)
+      (if (projectile-project-p)
+          (let ((helm-ag-command-option options)
+                (current-prefix-arg nil))
+            (helm-do-ag (projectile-project-root) (car (projectile-parse-dirconfig-file))))
+        (error &quot;You're not in a project&quot;))
+    (error &quot;helm-ag not available&quot;)))
+</code></pre>
+<p>Biên lại dựa trên kinh nghiệm và hướng dẫn đọc được từ <a href="https://gist.github.com/pesterhazy/fabd629fbb89a6cd3d3b92246ff29779">một cái gist</a>.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/emacs.html'>emacs</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/ripgrep-emacs.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/ripgrep-emacs.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:23 GMT -->
+</html>

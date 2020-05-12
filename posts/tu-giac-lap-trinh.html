@@ -1,0 +1,290 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/tu-giac-lap-trinh.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:29 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Tản mạn về nghề đi code thuê | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Tản mạn về nghề đi code thuê</span></h1>
+<p>Cũng lâu rồi mình chưa viết bài mới, dạo này toàn draft mấy bài kĩ thuật dài dòng lê thê thành ra viết nửa chừng toàn tụt hết cảm xúc, thôi thì hôm nay tranh thủ ngồi viết tí <a href="../tags/random.html"><code>random</code></a> vậy.</p>
+<hr />
+<p>Bài này nói về những chuyện thường gặp khi làm nghề <strong>gõ code thuê</strong>. Trong đây có một vài từ ngữ không hợp với thuần phong mỹ tục, cân nhắc kĩ trước khi đọc.</p>
+<p><em>Gõ code thuê tức là code bạn viết ra không thuộc về bạn, mà thuộc về công ty, khách hàng, chủ dự án, người trả tiền cho bạn để bạn code.</em></p>
+<p><strong>Gõ code thuê</strong> xuất hiện ở mọi nơi, mọi lúc và đối với mọi người. Nói như vậy để các bạn không có cãi, vì dù bạn là nhân viên của một công ty outsourcing, offshore hay công ty làm product, thì chừng nào người ta vẫn trả tiền cho bạn để bạn code, thì đó là <strong>bạn đi code thuê</strong>.</p>
+<p>Và đây là khúc mà vấn đề xuất hiện. Suy nghĩ của số đông những người đi code thuê là: Vì đi code thuê, nên không việc gì chúng ta phải dồn hết tâm huyết, trách nhiệm vào cho nó hết.</p>
+<p>Nó xuất hiện dưới 1001 hình dạng khác nhau:</p>
+<ul>
+<li><strong>Viết code kiểu hack đại cho xong, tạm bợ, overwrite lại code của người khác,...</strong>: Code kiểu này thường là fix được bug rất nhanh, qua mặt được QA và không màn tới ngày mai, vì kiểu gì ngày mai nó cũng sẽ phòi ra bug, hoặc fix xong bug của mình rồi đó, nhưng tự nhiên hôm sau sẽ có thằng nào đó trong team ngồi chửi thề, đơn giản vì cái chỗ fix này làm hỏng phần khác của nó. Kệmẹnóđi, việc của nó mà, đ' phải việc của mình là được rồi. Ví dụ: xài <code>!important</code> =)))</li>
+<li><strong>Hard code</strong>: Code kiểu này cũng rất nhanh, giải quyết vấn đề một cách cực kì chính xác, khỏe quá mà, nhưng nếu ngày mai business logic có thay đổi thì việc update là gần như không thể. Kiểu code 1 giây cho thằng khác maintain mất 1 tháng.</li>
+<li><strong>Không review code</strong>: Đây là việc mà hầu như team nào cũng có trong quy trình làm việc của mình, nhưng số người làm tốt việc này là rất ít, nếu bạn thường review code một cách nghiêm túc thì xin chúc mừng bạn, và cũng chúc bạn may mắn luôn khi review code của đồng nghiệp, bảo trọng! Nếu bạn có một thằng khó tính chuyên bắt lỗi mình ở khâu review trong team, xin chúc mừng bạn, đó là người bạn tốt, đừng gây sự với người ta. Nếu bạn thường xuyên review code theo kiểu scroll 1 phát từ đầu trang tới cuối trang rồi bấm nút Approve, merge code, thì xin phép được chửi vào mặt bạn 1 phát, hai cái tính xấu nêu ở trên đều dễ dàng lọt qua được vòng review vì những thằng cẩu thả như bạn. Mình thề là 10 năm đi review code bạn sẽ chẳng học thêm được cái gì từ đồng nghiệp, đừng nói đến chuyện truyền thụ lại được gì cho đàn em.</li>
+<li><strong>Đổ thừa, không fix những thứ không phải của mình</strong>: Việc bạn thường làm khi bị giao một con bug đó là bật <code>git blame</code> để truy xem thằng nào viết cái đoạn code bị lỗi đó, và nếu không phải là bạn thì bạn nhất quyết không fix, cố cãi cho bằng được để cái thằng sinh ra bug dù đang bận cắm đầu ra cũng phải quay lại fix con bug đó. Tưởng tượng bạn đánh DotA và bạn đi top, thằng kia đi bot, và dưới bot đang bị 1vs4, bạn từ chối xuống cứu bot chỉ vì top lane đang không có hero địch nào, farm xả láng và def bot là nhiệm vụ của thằng kia, hay lắm $!&amp; #^ #@&amp;...</li>
+<li><strong>Chỉ làm đúng requirement, không hơn không kém</strong>: Bạn vào một dự án outsource, anh PM dặn trước với bạn là chỉ làm những gì trong scope, không chiều lòng khách hàng mà làm những thứ ngoài phạm vi những gì mà họ đã thỏa thuận với công ty. Và bạn được giao làm một user story về thanh toán online, trong đó bạn PO có ghi là: user nhập thông tin thẻ tín dụng vào form -&gt; frontend gửi thông tin đó về cho backend để tiến hành thanh toán, không có đề cập tới chuyện có mã hóa hay không, nên bạn không làm dù bạn thừa biết là phải mã hóa thì mới đảm bảo về mặt security, và cũng vì nó ngoài scope, bạn cũng không việc gì phải raise vấn đề này lên trong team hoặc với PO để họ sửa sai, đơn giản vì việc đó nằm ngoài scope, hay lắm $!&amp; #^ #@&amp;...</li>
+<li>... <em>còn nhiều lắm</em> ...</li>
+</ul>
+<p>Và khi tất cả những việc trên xảy ra, thì khách hàng sẽ phàn nàn, thậm chí là mắng chửi, rồi sẽ bắt bạn và cả team đi làm OT vào cuối tuần, rồi các bạn sẽ vừa làm vừa chửi: <em>&quot;Đ!&amp; #^ bọn tây, bóc lột vcl&quot;</em>, hoặc chửi bạn PM không biết cách quản lý dự án để cả team phải đi nhận tiền OT như thế này =)))</p>
+<p>OK, giờ nhìn lại vấn đề theo một hướng khác:</p>
+<p>Tèo là nhân viên của một tiệm bán bánh mì nổi tiếng trong thành phố, vì vậy Tèo cũng là thằng <strong>làm bánh thuê</strong>, vì đi làm thuê nên Tèo không việc gì phải dồn hết tâm huyết vào mỗi ổ bánh mì mà mình làm ra, Tèo có thể cầm điện thoại vào nhà vệ sinh để ngồi làm chuyện đại sự trong 30 phút sau đó không cần rửa tay và đi ra quầy bánh bốc từng mảng patê trét vào ổ bánh mì thịt chả mà bạn đang chờ mua trên đường đi làm mỗi sáng. Bạn nhận lấy ổ bánh mì được gói trong tờ giấy báo Tèo mua lại từ mấy bà bán ve chai, và nhai ngấu nghiến một cách đầy biết ơn, mì hơi dở, nhưng được cái nó rẻ, kệ. Đến trưa thì bạn bị đau bụng (hiển nhiên rồi =))) bạn bực mình chạy tới tiệm và chửi, đơn giản vì bạn bỏ tiền ra mua bánh mì. Tèo bị chửi thì bực tức suốt từ trưa đến tối. Sau vài tháng thì tiệm bánh mì phải đóng cửa vì quá dở và không đảm bảo vệ sinh, Tèo cũng vì thế mà thất nghiệp vì dính phốt &quot;đi ra&quot; từ cái tiệm mất vệ sinh nhất thành phố, không ai dám nhận Tèo vào làm nữa. ¯\_(ツ)_/¯</p>
+<p>Trích một đoạn trong cuốn <strong>The Pragmatic Programmer</strong>:</p>
+<blockquote>
+<p>When you do accept the responsibility for an outcome, you should expect to be held accountable for it. When you make a mistake (as we all do) or an error in judgment, admit it honestly and try to offer options.</p>
+</blockquote>
+<blockquote>
+<p>Don't blame someone or something else, or make up an execuse. Don't blame all the problems on a vendor, a programming language, management, or your coworkers. Any and all of these may play a role, but it is up to you to provide solutions, not execuses.</p>
+</blockquote>
+<p>Kêt bài: vì là <a href="../topics/random.html"><code>random</code></a> nên chả có kết bài gì đâu :)) các bạn đọc cho vui thôi nha.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/random.html'>random</a><a class='topic-tag' href='../tags/opinion.html'>opinion</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/tu-giac-lap-trinh.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/tu-giac-lap-trinh.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:29 GMT -->
+</html>

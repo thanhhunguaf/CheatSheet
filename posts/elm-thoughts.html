@@ -1,0 +1,416 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/elm-thoughts.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:54 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Đôi điều về Elm | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Đôi điều về Elm</span></h1>
+<p>Dịp cuối tuần vừa rồi thì mình cũng bắt đầu học Elm và làm thử 1 <a href="https://github.com/huytd/kanelm">project nho nhỏ</a>, mục đích là clone lại Trello chơi.</p>
+<p><img src="img/kanban-elm.gif" alt="" /></p>
+<p>Trong quá trình làm thì cũng nhận thấy có nhiều thứ cần phải note lại.</p>
+<p><a href="https://elm-lang.org/">Elm</a> là một ngôn ngữ lập trình hàm (functional programming language) khá thú vị, chịu ảnh hưởng khá nhiều từ Haskell, và được biên dịch trực tiếp ra JavaScript.</p>
+<p>Ngoài việc giống Haskell ra thì điểm nổi bật nhất của Elm chính là <a href="https://guide.elm-lang.org/architecture/">kiến trúc</a> của nó (Elm Architecture) , giúp cho việc phát triển web apps với các ngôn ngữ functional programming trở nên dễ dàng hơn. Redux của hội React cũng chịu ảnh hưởng lớn từ kiến trúc này.</p>
+<h2><a href="#records" aria-hidden="true" class="anchor" id="records"></a>Records</h2>
+<p>Records trong Elm là một khái niệm tương đồng với Objects trong JavaScript, tuy nhiên có vài điểm khác:</p>
+<ul>
+<li>Không thể truy xuất một field không tồn tại: Compiler sẽ báo lỗi chứ ko trả về <code>undefined</code> như JS.</li>
+<li>Không có field nào được mang giá trị <code>undefined</code> hay <code>null</code> cả.</li>
+<li>Không được khai báo object lồng nhau với từ khóa <code>this</code> hoặc <code>self</code></li>
+</ul>
+<p>Để khai báo một record thì khá đơn giản, giống với JS:</p>
+<pre><code>hero : { name : String, level : Int }
+hero = {
+  name  = &quot;Shadow Fiend&quot;,
+  level = 1
+}
+</code></pre>
+<p>Điểm khác biệt là khi chúng ta update một record, thì Elm sẽ trả về một record mới, vì một record là immutable:</p>
+<pre><code>hero = { hero | level = 25 }
+</code></pre>
+<p>Để tìm hiểu thêm, bạn có thể đọc <a href="https://elm-lang.org/docs/records">tài liệu về Records</a> của Elm.</p>
+<h2><a href="#data-driven" aria-hidden="true" class="anchor" id="data-driven"></a>Data Driven</h2>
+<p>Với Elm Architecture, chúng ta không cần phải (và không thể) tương tác trực tiếp với một DOM element nào cả, thay vào đó, chúng ta tương tác với dữ liệu (data) biểu diễn element đó. Mọi thao tác mà người dùng thực hiện trên web app của bạn, đều là việc tương tác (cập nhật) với các dữ liệu này.</p>
+<p><em>Nếu bạn đã biết khái niệm data binding trong các framework khác như React hay Angular, thì đây chính là nó đó.</em></p>
+<p>Ví dụ trong project của mình, các <code>task</code> hiển thị trên màn hình được biểu diễn bằng một <code>List</code> trong Model, như sau:</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>type alias Task = {
+  name: String,
+  status: String
+}
+
+type alias Model = {
+  tasks: List Task,
+  ...
+}
+</code></pre>
+<p>Để hiển thị các task ra màn hình, việc chúng ta cần làm chỉ là hiển thị từng item có trong <code>List</code> đó, thông qua sự hỗ trợ của <code>Html</code> helper:</p>
+<p><strong>src/Views.elm</strong></p>
+<pre><code>taskItemView : Int -&gt; Task -&gt; Html Msg
+taskItemView index task =
+  li [ class &quot;task-item&quot; ] [ text task.name ]
+</code></pre>
+<p>Khi user muốn thêm một task mới, việc chúng ta làm là tương tác với Model để add thêm một task:</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>addNewTask : Model -&gt; ( Model, Cmd Msg )
+addNewTask model =
+  let
+     newModel = { model | tasks = model.tasks ++ [ newTask ] }
+  in
+    ( newModel, Cmd.none )
+</code></pre>
+<p>Elm sẽ tự thực hiện phần việc bên dưới, bao gồm: kiểm tra sự thay đổi của Model, update lại DOM (như là thêm, xóa, update các element,...) tương ứng.</p>
+<h2><a href="#tương-tác" -với-dom-element" aria-hidden="true" class="anchor" id="tương-tác" -với-dom-element"></a>&quot;Tương tác&quot; với DOM element</h2>
+<p>Như đã nói ở phần vừa rồi, chúng ta không thể tương tác với bất kì một DOM element nào, vậy khi cần... tương tác thì phải làm sao?</p>
+<p>Ví dụ chúng ta có một textbox và muốn lấy nội dung của nó (thuộc tính <code>value</code>).</p>
+<p>Việc đầu tiên chúng ta cần làm chính là định nghĩa phần dữ liệu để biểu diễn nó, mà ở đây chúng ta tạo một trường mới trong Model:</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>type alias Model = {
+  ...
+  taskInput: String,
+  ...
+}
+</code></pre>
+<p>Tiếp theo, chúng ta sẽ thực hiện &quot;binding&quot; phần data này với textbox:</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>type Msg = ... | TextInput String
+</code></pre>
+<p><strong>src/Main.elm</strong></p>
+<pre><code>view : Model -&gt; Html Msg
+view model =
+  ...
+  input [ type_ &quot;text&quot;, 
+          placeholder &quot;What's on your mind right now?&quot;,
+          onInput TextInput,
+          value model.taskInput
+        ] []
+  ...
+</code></pre>
+<p>Khi người dùng gõ vào textbox, sự kiện <code>onInput</code> được trigger, chúng ta sẽ phát đi một Message tạm gọi là <code>TextInput</code> kèm theo một tham số kiểu <code>String</code> để update giá trị của <code>Model.textInput</code>.</p>
+<p><strong>src/Main.elm</strong></p>
+<pre><code>update : Msg -&gt; Model -&gt; ( Model, Cmd Msg )
+update msg model =
+  case msg of
+    ...
+    TextInput content -&gt; 
+      ( { model | taskInput = content }, Cmd.none )
+</code></pre>
+<p>Như vậy, tại bất kì thời điểm nào, chúng ta cũng có thể lấy được nội dung của textbox thông qua giá trị <code>Model.textInput</code>, hoặc thay đổi nó thành một giá trị khác.</p>
+<h2><a href="#side-effects" aria-hidden="true" class="anchor" id="side-effects"></a>Side effects</h2>
+<p>Một đặc điểm của functional programming đó là việc hạn chế side effect, mỗi một hàm được viết ra đều chỉ thực hiện một việc duy nhất (pure function). Nghe qua thấy khà là mâu thuẫn đối với việc làm web, vì side effects là một phần tất yếu của các web apps (HTTP calls, Web socket,...).</p>
+<p>Elm có một loại effect gọi là <strong>managed effects</strong>. Và cũng tương tự như khi làm việc với DOM, đối với managed effects, chúng ta khai báo data để biểu diễn thao tác mà chúng ta muốn thực hiện, Elm sẽ lo phần còn lại.</p>
+<p>Có 2 kiểu managed effects chúng ta có thể dùng trong <code>Commands</code> và <code>Subscriptions</code>.</p>
+<p><img src="img/elm-architecture.svg" alt="" /></p>
+<ul>
+<li><strong>Commands</strong> là các thao tác mà chúng ta muốn thực hiện (ví dụ: HTTP call, &quot;bắn&quot; một message khác,...)</li>
+<li><strong>Subscriptions</strong> là thao tác listen một message hay một event nào đó, ví dụ nhận tín hiệu từ web socket,...</li>
+</ul>
+<p>Trong project mà mình giới thiệu, khi muốn gọi một hàm <code>setStorage</code> để lưu dữ liệu vào <em>localStorage</em> sau khi add một task mới, ta có thể gọi nó dưới dạng một command, ở đây là <code>setStorage</code>:</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>addNewTask : Model -&gt; ( Model, Cmd Msg )
+addNewTask model =
+  ( newModel, setStorage newModel )
+</code></pre>
+<h2><a href="#kết-nối-với-javascript-thông-qua-ports" aria-hidden="true" class="anchor" id="kết-nối-với-javascript-thông-qua-ports"></a>Kết nối với JavaScript thông qua Ports</h2>
+<p>Để tương tác được với JavaScript (ví dụ sử dụng thư viện, sử dụng các hàm JS đã được viết trước đó,...), chúng ta có thể kết nối thông qua <a href="https://guide.elm-lang.org/interop/javascript.html">Ports</a>.</p>
+<p><img src="img/elm-ports.jpg" alt="" /></p>
+<div class="center copyright">Nguồn: https://twitter.com/pragmaticstudio/status/847919629821517827</div>
+<p>Việc khai báo một <code>port</code> từ phía Elm khá đơn giản, ví dụ đây là đoạn code khai báo hàm <code>setStorage</code>, hàm này trả về một Command, và sẽ được gọi từ phía JavaScript.</p>
+<p><strong>src/Models.elm</strong></p>
+<pre><code>port setStorage : Model -&gt; Cmd msg
+</code></pre>
+<p>Từ khóa <code>port</code> đóng vai trò tương tự như <code>extern</code> trong C.</p>
+<p>Ở phía JavaScript, ta viết:</p>
+<p><strong>main.js</strong></p>
+<pre><code class="language-javascript">app.ports.setStorage.subscribe(function(model) {
+  // Do something
+});
+</code></pre>
+<p>Như vậy, khi command <code>setStorage</code> được gọi từ phía Elm, phía JavaScript sẽ nhận được message này kèm với dữ liệu đi kèm (là Model) và thực hiện việc xử lý trong hàm callback của lệnh <code>subscribe</code>.</p>
+<h2><a href="#pattern-matching" aria-hidden="true" class="anchor" id="pattern-matching"></a>Pattern Matching</h2>
+<p>Pattern Matching là một phương pháp khá là hữu ích, xuất hiện trong nhiều ngôn ngữ lập trình, trong đó có cả Rust và Elm.</p>
+<p>Việc sử dụng pattern matching trong Elm phụ thuộc nhiều vào cú pháp <code>case .. of</code>, ví dụ sau đây là một hàm kiểm tra một <code>List</code> có rỗng hay không:</p>
+<pre><code>isEmpty : List a -&gt; Bool
+isEmpty xs =
+    case xs of
+        [] -&gt;
+            True
+
+        _ -&gt;
+            False
+</code></pre>
+<p>Nếu <code>a</code> là một List rỗng <code>[]</code> thì trả về True, ngược lại nếu nó match với một giá trị bất kì thì trả về False.</p>
+<p>Hoặc ta có thể sử dụng pattern matching để viết hàm tính số Fibonacci:</p>
+<pre><code>fibo : Int -&gt; Int
+fibo n =
+  case n of
+    0 -&gt; 1
+    1 -&gt; 1
+    _ -&gt; fibo (n-1) + fibo (n-2)
+</code></pre>
+<p>Đối với dân Haskell thì sẽ thấy cách viết này hơi khó chịu một tí, vì đã quen với cách viết của bên đó là:</p>
+<pre><code>fibo : Int -&gt; Int
+fibo 0 = 1
+fibo 1 = 1
+fibo n = fibo (n-1) + fibo (n-2)
+</code></pre>
+<p>Tuy như vầy có &quot;đẹp&quot; hơn, nhưng anh bạn tác giả của Elm lại <a href="https://github.com/elm-lang/elm-compiler/issues/973">không thích</a>, nên anh ấy quyết định không đưa chức năng này vào <i class='em em-joy'></i>.</p>
+<p>Ngoài ra thì pattern matching còn làm được rất nhiều việc khác, rất là hữu dụng trong quá trình viết code Elm, các bạn có thể tham khảo ở gist <a href="https://gist.github.com/yang-wei/4f563fbf81ff843e8b1e">Elm Destructuring cheatsheet</a>.</p>
+<hr />
+<p>Nhìn chung, Elm là một ngôn ngữ đáng để học, nhất là nếu bạn đã có sẵn background về lập trình (thường là imperative programming) và đang muốn dòm ngó sang functional programming thì Elm thực sự là điểm khởi đầu khá tốt.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/opinion.html'>opinion</a><a class='topic-tag' href='../tags/elm.html'>elm</a><a class='topic-tag' href='../tags/functional-programming.html'>functional-programming</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/elm-thoughts.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/elm-thoughts.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:56 GMT -->
+</html>

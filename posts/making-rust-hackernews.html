@@ -1,0 +1,725 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/making-rust-hackernews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:04 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Viết ứng dụng đọc tin HackerNews bằng Rust | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Viết ứng dụng đọc tin HackerNews bằng Rust</span></h1>
+<p>Dạo này mình toàn viết bài linh tinh, lâu rồi chưa thấy viết bài kĩ thuật nào mới nên hôm nay mình viết trở lại, mất công các bạn lại bảo mình không biết code =)))</p>
+<p>Chủ đề lần này sẽ là: <strong>Viết ứng dụng đọc tin trên HackerNews</strong>, và chúng ta sẽ sử dụng <strong>Rust</strong>.</p>
+<p>Qua bài này, các bạn sẽ được làm quen với rất nhiều kĩ thuật trong Rust như:</p>
+<ul>
+<li>Làm web với framework <a href="https://rocket.rs/">rocket.rs</a></li>
+<li>Tạo và sử dụng module</li>
+<li>Parse nội dung RSS dùng crate <a href="https://crates.io/crates/rss">rss</a></li>
+<li>Chuyển đổi giữa các cấu trúc dữ liệu khác nhau</li>
+<li>Kiểm soát lỗi với kiểu dữ liệu <code>Result</code></li>
+<li>Viết và chạy Unit Test với <code>cargo</code></li>
+</ul>
+<p>Giới thiệu vậy đủ rồi, giờ vô nội dung chính.</p>
+<h2><a href="#cụ-thể-là-làm-cái-gì-đây" aria-hidden="true" class="anchor" id="cụ-thể-là-làm-cái-gì-đây"></a>Cụ thể là làm cái gì đây?</h2>
+<p>Chúng ta sẽ viết một ứng dụng đọc tin RSS từ feed của HackerNews tại địa chỉ <a href="https://news.ycombinator.com/rss">https://news.ycombinator.com/rss</a>. Việc đọc và parse nội dung RSS chúng ta sẽ sử dụng crate có tên là <a href="https://crates.io/crates/rss">rss</a>.</p>
+<p>Sau đó, chúng ta sẽ viết một giao diện web đơn giản để hiển thị danh sách các mẫu tin đã parse được. Chúng ta sẽ sử dụng framework có tên là <a href="https://rocket.rs/">rocket.rs</a> cho phần này.</p>
+<p>Lý do vì sao à? Tại vì HackerNews, như các bạn đã biết, thì giao diện của nó quá xấu. Tự nhận thấy mình có thể làm xấu hơn nên mình quyết định làm thôi.</p>
+<h2><a href="#rồi-giờ-code-luôn-được-chưa?" aria-hidden="true" class="anchor" id="rồi-giờ-code-luôn-được-chưa?"></a>Rồi, giờ code luôn được chưa?</h2>
+<p>Được luôn. Lưu ý, nếu bạn chưa biết Rust là gì và chưa nắm được cách cài đặt, thì có thể tham khảo các bài viết sau trước khi chúng ta bắt đầu:</p>
+<ul>
+<li><a href="rust-intro.html">Rust là gì? có ăn được không</a></li>
+<li><a href="rust-linux.html">Cách cài đặt Rust</a></li>
+</ul>
+<h3><a href="#zeroend-khởi-tạo-project" aria-hidden="true" class="anchor" id="zeroend-khởi-tạo-project"></a>Zeroend: Khởi tạo project</h3>
+<p>Vâng, mọi dự án luôn bắt đầu bằng cái bước setup project, không trật đi đâu được:</p>
+<pre><code>$ cargo new --bin hackernews-rs
+</code></pre>
+<p>Lệnh trên sử dụng <code>cargo</code> để tạo một binary project (nôm na là project chạy được - executable) có tên là <code>hackernews-rs</code>.</p>
+<h3><a href="#backend-thu-thập-nội-dung-từ-rss" aria-hidden="true" class="anchor" id="backend-thu-thập-nội-dung-từ-rss"></a>Backend: Thu thập nội dung từ RSS</h3>
+<p>Chúng ta đi vào phần khó trước, phần dễ để dành tráng miệng lúc sau. Ông bà ta vẫn có câu <strong>vạn sự khởi đầu nan</strong> mà.</p>
+<p>Nhưng mà đâu đó giữa trong giang hồ cũng tồn tại câu nói <strong>gian nan bắt đầu nản</strong>...</p>
+<p>Mà mình thì không muốn các bạn nản, vì như vậy các bạn sẽ không đọc bài mình viết nữa :)) cho nên ở phần này, thay vì tự viết bộ parser, chúng ta sẽ sử dụng một crate có sẵn, là <code>rss</code>.</p>
+<div class="box-orange padding-15"><b>Crate</b> là tên gọi của các gois thư viện mở rộng dùng trong Rust. Giống như gem trong Ruby hoặc npm packages trong Node.js
+</div>
+<h4><a href="#cài-đặt-crate-rss" aria-hidden="true" class="anchor" id="cài-đặt-crate-rss"></a>Cài đặt crate <code>rss</code></h4>
+<p>Để cài đặt crate này, chúng ta mở file <code>Cargo.toml</code> của project, tại đây bạn sẽ thấy phần khai báo <code>[dependencies]</code> đang bỏ trống. Add thêm một dòng vào ngay bên dưới, như sau:</p>
+<p><strong>Cargo.toml</strong></p>
+<pre><code class="language-rust">[dependencies]
+rss = { version = &quot;*&quot;, features = [&quot;from_url&quot;] }
+</code></pre>
+<p>Như vậy chúng ta đã cho <code>cargo</code> biết rằng chúng ta sẽ add một crate tên là <code>rss</code> với phiên bản mới nhất (ký hiệu dấu <code>*</code>) vào project. Phần <code>features</code> là tùy chọn để sử dụng thêm chức năng <code>from_url</code> của crate này. Đối với các loại crate khác thì bạn không nhất thiết phải có phần này.</p>
+<p>Trong thực tế, bạn nên chỉ định phiên bản cụ thể của crate khi muốn cài, để tránh việc các crate update thường xuyên kéo theo nhiều thay đổi, và bạn sẽ gặp bug phát sinh.</p>
+<p>Trong file <code>main.rs</code>, chúng ta dùng từ khóa <code>extern crate</code> để import:</p>
+<p><strong>main.rs</strong></p>
+<pre><code class="language-rust">extern crate rss;
+
+fn main() {
+  // Make it happen, or it will never happen.
+}
+</code></pre>
+<h4><a href="#tạo-module-đọc-tin" aria-hidden="true" class="anchor" id="tạo-module-đọc-tin"></a>Tạo module đọc tin</h4>
+<p>Chúng ta sẽ tạo ra một module tên là <strong>fetch</strong>, làm nhiệm vụ đọc và parse file RSS từ bên ngoài, trả về một mảng (hoặc một vector), có các phần tử là từng bản tin.</p>
+<p>Đầu tiên, tạo một file mới trong thư mục <code>src</code> (cùng thư mục với <code>main.rs</code>), đặt tên là <code>fetch.rs</code>.</p>
+<pre><code>$ cd hackernews-rs
+$ touch src/fetch.rs
+</code></pre>
+<p>Và gõ vào đoạn code sau:</p>
+<p><strong>fetch.rs</strong></p>
+<pre><code class="language-rust">use super::rss;
+use rss::{Channel, Item};
+
+pub type FetchResult&lt;T&gt; = Result&lt;T, rss::Error&gt;;
+
+pub fn fetch_from(url: &amp;str) -&gt; FetchResult&lt;Vec&lt;Item&gt;&gt; {
+  Ok(Channel::from_url(url)?.items().to_vec())
+}
+</code></pre>
+<p>Và khai báo <code>mod</code> ở trong <code>main.rs</code>:</p>
+<p><strong>main.rs</strong></p>
+<pre><code class="language-rust">extern crate rss;
+
+mod fetch;
+use fetch::*;
+
+fn main() {
+  ...
+</code></pre>
+<p>Trong đoạn code trên, chúng ta sử dụng hàm <code>rss::Channel::from_url</code> của crate <code>rss</code>, hàm này có chức năng download gói tin RSS từ một URL bên ngoài, parse nó và trả về một đối tượng kiểu <a href="https://docs.rs/rss/0.7.0/rss/struct.Channel.html"><code>rss::Channel</code></a>.</p>
+<p>Mục đích của chúng ta là lấy ra danh sách các mẫu tin. Trong một đối tượng kiểu <code>rss::Channel</code>, chúng ta có hàm <a href="https://docs.rs/rss/0.7.0/rss/struct.Channel.html#method.items"><code>items()</code></a> để lấy các mẫu tin, hàm này trả về một <code>slice</code> (có thể hiểu là mảng), và chúng ta cần chuyển nó về dạng vector với hàm <code>to_vec()</code>.</p>
+<div class="box-orange padding-15"><b>Vector</b> là một mảng (array) không cần xác định trước kích thước, và có thể tăng giảm số lượng các phần tử tùy ý.
+</div>
+<p>Kiểu <code>FetchResult&lt;T&gt;</code> ở đây là cách khai báo nhằm rút gọn cho cú pháp <code>Result&lt;T, E&gt;</code>.</p>
+<p>Một đối tượng kiểu <code>Result&lt;T, E&gt;</code> sẽ trả về một trong 2 giá trị tùy vào từng trường hợp:</p>
+<ul>
+<li>Giá trị kiểu <code>T</code>: Trong trường hợp lệnh thực hiện thành công</li>
+<li>Giá trị lỗi kiểu <code>E</code>: Trong trường hợp xảy ra lỗi</li>
+</ul>
+<p>Trong trường hợp này, <code>T</code> là một <code>Vec&lt;Item&gt;</code> như đã nói ở trên, <code>E</code> là <code>rss::Error</code>, là kiểu báo lỗi từ phía crate <code>rss</code>.</p>
+<div class="box-orange padding-15">
+Các bạn có thể đọc thêm bài <a href="https://kipalog.com/posts/Ban-ve-cach-xu-ly-loi-cua-Rust">Bàn về cách xử lý lỗi của Rust</a> để hiểu thêm về kiểu dữ liệu này.
+</div>
+<p>Bạn đã viết xong module <strong>fetch</strong>, giờ làm sao biết được nó có chạy hay không? Phải test!</p>
+<h4><a href="#test-kiểu-chày-cối" aria-hidden="true" class="anchor" id="test-kiểu-chày-cối"></a>Test kiểu chày cối</h4>
+<p>Với nhiều người, họ sẽ đơn giản là vào trong <code>main.rs</code> và gõ đoạn code kiểu như thế này:</p>
+<p><strong>main.rs</strong></p>
+<pre><code class="language-rust">extern crate rss;
+
+mod fetch;
+use fetch::*;
+
+fn main() {
+  let result = fetch_from(&quot;https://thefullsnack.com/rss.xml&quot;);
+  if result.is_ok() {
+    println!(&quot;Yay! It's worked!&quot;);
+  }
+}
+</code></pre>
+<p>Chạy thử thấy màn hình in ra dòng chữ:</p>
+<pre><code>Yay! It's worked!
+</code></pre>
+<p>Vậy là yên tâm nó chạy được.</p>
+<p>Nếu bạn định test như cách trên thì <a href="http://www.nhaccuatui.com/bai-hat/xin-anh-dung-emily-ft-lil-knight-ft-justatee.wcDv6N6l4k.html">xin đừng</a>! Đây không phải là Unit Test, mà đây cũng không phải là cách để test, vì giờ nó chạy được, ai biết được ít hôm nữa bạn sửa code thì nó có còn chạy được không? Vì hàm <code>main</code> đâu phải là nơi để giữ đoạn code test này của bạn mãi mãi? Đúng hêm?</p>
+<h4><a href="#viết-test-cases" aria-hidden="true" class="anchor" id="viết-test-cases"></a>Viết test cases</h4>
+<p>Nếu bạn chưa biết viết test trong Rust như thế nào, có thể tham khảo bài <a href="rust-testing.html">Cách viết test trong Rust the idiomatic way</a>.</p>
+<p>Đối với hàm <code>fetch_from</code> ở trên, chúng ta sẽ có tầm 3 đến 4 test cases, cụ thể là:</p>
+<ul>
+<li><strong>Fetch từ một link RSS hợp lệ có trả về kết quả hợp lệ hay không?</strong> Để test case này, ta gọi hàm <code>fetch_from</code> với tham số là một liên kết RSS hợp lệ.</li>
+<li><strong>Fetch từ một link không tồn tại có trả về thông báo lỗi hay không?</strong> Để test case này, ta truyền vào một URL không caa thật.</li>
+<li><strong>Fetch từ một link không phải là RSS thì có trả về thông báo lỗi hay không?</strong> Để test case này, ta truyền vào một URL chứa nội dung không phải RSS, ví dụ như là một nội dung JSON.</li>
+</ul>
+<p>Ở cuối file <code>fetch.rs</code>, ta thêm vào 3 hàm test từ 3 case ở trên:</p>
+<p><strong>fetch.rs</strong></p>
+<pre><code class="language-rust">...
+
+#[test]
+fn test_fetch_from_valid_url() {
+  let result = fetch_from(&quot;https://thefullsnack.com/rss.xml&quot;);
+  assert!(result.is_ok());
+  assert!(result.unwrap().len() &gt; 0);
+}
+
+#[test]
+fn test_fetch_from_invalid_url() {
+  let result = fetch_from(&quot;https://where-superman-meet-wonderwoman.com/and-they-got-married.xml&quot;);
+  assert!(result.is_err());
+}
+
+#[test]
+fn test_fetch_from_invalid_rss_url() {
+  let result = fetch_from(&quot;https://xkcd.com/info.0.json&quot;);
+  assert!(result.is_err());
+}
+</code></pre>
+<p>Chạy test với lệnh:</p>
+<pre><code>cargo test
+</code></pre>
+<p>Kết quả sẽ như thế này, cả 3 test case đều pass hết, chứng tỏ người code rất xịn:</p>
+<pre><code class="language-cpp">running 3 tests
+test fetch::test_fetch_from_invalid_url ... ok
+test fetch::test_fetch_from_invalid_rss_url ... ok
+test fetch::test_fetch_from_valid_url ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre>
+<p>Giờ thì chúng ta có thể đảm bảo module <strong>fetch</strong> hoạt động chính xác rồi.</p>
+<h4><a href="#chuyển-danh-sách-bản-tin-thành-json" aria-hidden="true" class="anchor" id="chuyển-danh-sách-bản-tin-thành-json"></a>Chuyển danh sách bản tin thành JSON</h4>
+<p>Để lấy danh sách các tin mới nhất từ <strong>HackerNews</strong>, chúng ta gọi hàm <code>fetch_from</code> với tham số là bản tin RSS của trang này:</p>
+<pre><code>let result = fetch_from(&quot;https://news.ycombinator.com/rss&quot;);
+</code></pre>
+<p>Việc tiếp theo, chúng ta sẽ viết phần frontend để hiển thị nội dung này ra trên nền web. Nhưng trước tiên, ta cần chuyển danh sách bản tin dạng <code>Vec&lt;Item&gt;</code> này thành nội dung định dạng JSON.</p>
+<p>Việc chuyển đổi, chúng ta sẽ dùng một crate tên là <code>serde</code>. Để cài crate này, mở file <code>Cargo.toml</code> và thêm vào phần <code>[dependencies]</code>:</p>
+<p><strong>Cargo.toml</strong></p>
+<pre><code>...
+
+serde = &quot;1.0.11&quot;
+serde_derive = &quot;1.0.11&quot;
+serde_json = &quot;1.0.2&quot;
+</code></pre>
+<p>Trong <code>main.rs</code>, dùng từ khóa <code>extern crate</code> để import các package của <code>serde</code> vào:</p>
+<pre><code class="language-rust">extern crate serde;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate serde_json;
+</code></pre>
+<p><code>#[macro_use]</code> ở đây gọi là <code>attribute</code>, và attribute này cho <code>cargo</code> biết chúng ta muốn sử dụng các <code>macro</code> được khai báo bên trong crate này.</p>
+<div class="box-orange padding-15"><b>Macro</b> là một chức năng của Rust cho phép bạn tạo ra các loại cú pháp tự chọn, giúp code tiện lợi hơn, có thể xem chi tiết <a href="https://doc.rust-lang.org/1.7.0/book/macros.html">tại đây</a>.
+</div>
+<p>Kiểu <a href="https://docs.rs/rss/0.5.1/rss/struct.Item.html">rss::Item</a> chứa rất nhiều trường mà chúng ta không cần dùng tới, trên thực tế, chúng ta chỉ cần các thông tin như <code>title</code>, <code>link</code>, <code>description</code> của một <code>Item</code>, vì thế, chúng ta nên tạo một kiểu dữ liệu khác để chức các thông tin cần trích xuất.</p>
+<p>Cụ thể ở đây ta tạo một struct mới tên là <code>RSSItem</code>. Thêm đoạn code sau vào <code>fetch.rs</code>:</p>
+<p><strong>fetch.rs</strong></p>
+<pre><code class="language-rust">#[derive(Serialize)]
+pub struct RSSItem {
+    pub title: String,
+    pub link: String,
+    pub description: String,
+    pub pub_date: String,
+}
+
+impl From&lt;Item&gt; for RSSItem {
+    fn from(item: Item) -&gt; Self {
+        RSSItem {
+            title: item.title().unwrap_or_default().to_owned(),
+            link: item.link().unwrap_or_default().to_owned(),
+            description: item.description().unwrap_or_default().to_owned(),
+            pub_date: item.pub_date().unwrap_or_default().to_owned(),
+        }
+    }
+}
+</code></pre>
+<p>Trong đoạn code trên, ta tạo ra một struct tên là <code>RSSItem</code>, kế thừa thuộc tính <code>Serialize</code> của <code>serde</code>, để thư viện này dễ dàng chuyển đổi (convert) nó về định dạng JSON sau này.</p>
+<p>Từ khóa <code>impl</code> dùng để implement một <code>trait</code> cho một kiểu dữ liệu bất kỳ, ở đây là chúng ta implement trait có tên là <code>From&lt;T&gt;</code> cho <code>RSSItem</code>.</p>
+<div class="box-orange padding-15">
+<b>Trait</b> là một tập hợp các methods được định nghĩa sẵn. Có thể được impl (implement) cho một kiểu dữ liệu bất kỳ. Sau khi implement, kiểu dữ liệu này sẽ mang toàn bộ các methods của trait đó. Xem ví dụ chi tiết <a href="https://rustbyexample.com/trait.html">tại RustByExample</a>.
+</div>
+<p>Trait <code>From&lt;T&gt;</code> thực hiện việc ép kiểu (casting) từ kiểu dữ liệu <code>T</code> sang kiểu dữ liệu được implement, mà ở đây chính là <code>RSSItem</code>.</p>
+<p>Tiếp theo, chúng ta thay đổi hàm <code>fetch_from</code> một tí, để trả về một vector kiểu <code>RSSItem</code> thay vì <code>rss::Item</code>:</p>
+<p><strong>fetch.rs</strong></p>
+<pre><code class="language-rust">pub fn fetch_from(url: &amp;str) -&gt; FetchResult&lt;Vec&lt;RSSItem&gt;&gt; {
+    Ok(Channel::from_url(url)?
+                .items()
+                .into_iter()
+                .map(|item| RSSItem::from(item.clone()))
+                .collect())
+}
+</code></pre>
+<p>Ở đây chúng ta dùng hàm <code>into_iter()</code> để chuyển vector <code>rss::Item</code> về dạng có thể duyệt qua được. Sau đó dùng hàm <code>map()</code> để xử lý chuyển đổi từng phần tử kiểu <code>rss::Item</code> sang kiểu <code>RSSItem</code>, nhờ vào trait <code>From&lt;T&gt;</code> mà chúng ta đã implement ở trên.</p>
+<p>Và cuối cùng, để đảm bảo rằng sau khi thay đổi, hàm <code>fetch_from</code> vẫn hoạt động bình thường, và cho kết quả đúng, ta thêm vào một test case mới:</p>
+<p><strong>fetch.rs</strong></p>
+<pre><code class="language-rust">...
+
+#[test]
+fn test_fetch_is_convertable_to_json() {
+    let items = fetch_from(&quot;https://thefullsnack.com/rss.xml&quot;);
+    assert!(items.is_ok());
+    let json_data = json!({ &quot;items&quot;: items.unwrap() });
+    assert!(json_data[&quot;items&quot;].is_array());
+    assert!(json_data[&quot;items&quot;][0].is_object());
+    assert!(json_data[&quot;items&quot;][0][&quot;title&quot;].is_string());
+}
+</code></pre>
+<p>Ở đây chúng ta sử dụng macro <code>json!()</code> của crate <code>serde_json</code> để chuyển một đối tượng thành một nội dung kiểu <code>serde_json::value::Value</code>. Các bạn thử đọc <a href="https://docs.serde.rs/serde_json/value/enum.Value.html">document</a> của đối tượng này và tự suy luận xem vì sao lại viết hàm test ở trên như thế nhé.</p>
+<p>Giờ chạy test thôi:</p>
+<pre><code class="language-cpp">running 4 tests
+test fetch::test_fetch_invalid_url ... ok
+test fetch::test_fetch_invalid_rss_feed ... ok
+test fetch::test_fetch_is_convertable_to_json ... ok
+test fetch::test_fetch_valid_rss_url ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+</code></pre>
+<p>Như vậy có nghĩa là hàm <code>fetch_from</code> vẫn hoạt động tốt sau khi bị thay đổi, và đến đây thì có thể yên tâm bước qua giai đoạn tiếp theo được rồi.</p>
+<h3><a href="#frontend-hiển-thị-bảng-tin" aria-hidden="true" class="anchor" id="frontend-hiển-thị-bảng-tin"></a>Frontend: Hiển thị bảng tin</h3>
+<p>Nào, bây giờ chúng ta bắt tay vào phần frontend thôi.</p>
+<p>Chúng ta sẽ sử dụng một framework có tên là <a href="https://rocket.rs/">rocker.rs</a>, đây là một framework gọn nhẹ, với chức năng chính là routing, tuy nhiên có thể mở rộng ra với <em>&quot;rất nhiều chức năng phụ thêm, mà nếu không cần dùng thì bạn có thể không cần cài&quot;</em>, đoạn in nghiên cũng là nguyên văn lời dụ dỗ của anh Sergio, tác giả Rocket.rs, nói với mình khi mình lên IRC hỏi tìm một web framework gọn nhẹ cho Rust.</p>
+<div class="box-orange padding-15">
+Cộng đồng Rust quốc tế hoạt động rất mạnh trên các <a href="https://www.rust-lang.org/en-US/community.html#irc-channels">IRC channels</a>, với một lượng thành viên online thường trực rất đông đảo. Ngoài ra còn có hẳn một team từ Mozilla được trả lương để online và chat trên đó. Nên bất kì câu hỏi gì cũng được giải đáp ngay lập tức trong vòng chưa đầy 1 phút.
+</div>
+<h4><a href="#cài-đặt-rocketrs" aria-hidden="true" class="anchor" id="cài-đặt-rocketrs"></a>Cài đặt rocket.rs</h4>
+<p>Để cài đặt <code>rocket.rs</code>, chúng ta cài như khi cài một crate mới ở các bước trên.</p>
+<p><strong>Cargo.toml</strong></p>
+<pre><code>[dependencies]
+...
+
+rocket = &quot;0.3.0&quot;
+rocket_codegen = &quot;0.3.0&quot;
+
+[dependencies.rocket_contrib]
+default-features = false
+features = [&quot;handlebars_templates&quot;]
+</code></pre>
+<p>Các crate cần cài cho framework này gồm có: <code>rocket</code>, <code>rocket_codegen</code> và <code>rocket_contrib</code>. Riêng gói <code>rocket_contrib</code> chúng ta chỉ dùng chức năng <code>handlebars_templates</code>.</p>
+<h4><a href="#làm-quen-với-rocketrs" aria-hidden="true" class="anchor" id="làm-quen-với-rocketrs"></a>Làm quen với rocket.rs</h4>
+<p>Tiếp theo, mở file <code>main.rs</code> và gõ vào đoạn code như sau:</p>
+<p><strong>main.rs</strong></p>
+<pre><code class="language-rust">#![feature(plugin)]
+#![plugin(rocket_codegen)]
+extern crate rocket;
+extern crate rocket_contrib;
+
+#[get(&quot;/&quot;)]
+fn index() -&gt; &amp;'static str {
+    &quot;Wheresoever you go, go with all your heart.&quot;
+}
+
+fn main() {
+    rocket::ignite()
+        .mount(&quot;/&quot;, routes![index])
+        .launch();
+}
+</code></pre>
+<p>Đoạn code trên tạo ra một web server đơn giản, có 1 route là <code>/</code>, được thiết lập bằng thuộc tính <code>#[get(&quot;/&quot;)]</code>, chính là trang chủ, và được handle bằng hàm <code>index()</code>, hàm này trả về một chuỗi <code>&amp;str</code>.</p>
+<div class="box-orange padding-15">
+Từ khóa <code>'static</code> đặt trong dòng khai báo <code>&'static str</code> được gọi là <b>lifetime</b> của một biến. Biểu diễn phạm vi tồn tại của một biến đó trong hàm. Trong trường hợp này biến đó mang kiểu <code>&str</code>.
+<p>Trong Rust, <code>'static</code> là lifetime dài nhất, và tồn tại cho đến khi chương trình kết thúc.</p>
+</div>
+<p>Bây giờ chúngta thử chạy server này bằng lệnh:</p>
+<pre><code>cargo run
+</code></pre>
+<p>Output hiện ra trên màn hình sẽ như thế này:</p>
+<pre><code>  Configured for development.
+    =&gt; address: localhost
+    =&gt; port: 8000
+    =&gt; log: normal
+    =&gt; workers: 8
+    =&gt; secret key: generated
+    =&gt; limits: forms = 32KiB
+    =&gt; tls: disabled
+  Mounting '/':
+    =&gt; GET /
+  Rocket has launched from http://localhost:8000
+</code></pre>
+<p>Khi truy cập vào địa chỉ <code>http://localhost:8000</code> bạn sẽ thấy in ra trên màn hình dòng chữ:</p>
+<pre><code class="language-text">Wheresoever you go, go with all your heart.
+</code></pre>
+<p>Vậy là chúng ta đã làm được một trang web đơn giản bằng <code>rocket.rs</code> rồi. Bây giờ chúng ta tiếp tục build ứng dụng HackerNews thôi.</p>
+<h4><a href="#build-hackernews-frontend" aria-hidden="true" class="anchor" id="build-hackernews-frontend"></a>Build HackerNews Frontend</h4>
+<p>Để cho đơn giản, thì ứng dụng của chúng ta chỉ cần 1 route duy nhất, đó là <code>/</code>, và ngay khi truy cập vào trang chủ thì chúng ta sẽ hiển thị danh sách các bản tin luôn.</p>
+<p>Đầu tiên, chúng ta thay đổi hàm <code>main</code> một chút như sau:</p>
+<p><strong>main.rs</strong></p>
+<pre><code class="language-rust">#![feature(plugin)]
+#![plugin(rocket_codegen)]
+extern crate rss;
+extern crate rocket;
+extern crate rocket_contrib;
+extern crate serde;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate serde_json;
+
+mod fetch;
+
+use fetch::*;
+use rocket_contrib::Template;
+
+const RSS_URL: &amp;str = &quot;https://news.ycombinator.com/rss&quot;;
+
+#[get(&quot;/&quot;)]
+fn index() -&gt; Template {
+    let news = fetch_from(RSS_URL).ok().expect(&quot;Could not read RSS&quot;);
+    Template::render(&quot;index&quot;, &amp;news)
+}
+
+fn main() {
+    rocket::ignite()
+        .mount(&quot;/&quot;, routes![index])
+        .attach(Template::fairing())
+        .launch();
+}
+</code></pre>
+<p>Trong đoạn code trên, ta khai báo một hằng <code>RSS_URL</code> để lưu địa chỉ RSS cần parse. Và sử dụng hàm <code>fetch_from</code> đã tạo ra trong module <code>fetch</code> để lấy về danh sách các mẫu tin.</p>
+<p>Ta cũng sử dụng một cấu trúc dữ liệu mới là <code>rocket_contrib::Template</code>, khi một handler function trả về kiểu dữ liệu này, thì <code>rocket.rs</code> sẽ tự động render file template tương ứng ra màn hình.</p>
+<p>Tiếp đến ta tạo file template. Ở trong thư mục <code>hackernews-rs</code>, tạo một thư mục tên <code>templates</code></p>
+<pre><code>$ mkdir templates
+$ cd templates
+</code></pre>
+<p>Trong thư mục này, ta tạo một file <code>.html.hbs</code>, là file template của <code>Handlerbars</code>:</p>
+<pre><code>$ touch index.html.hbs
+</code></pre>
+<p>Nội dung file <code>index.html.hbs</code> như sau:</p>
+<p><strong>index.html.hbs</strong></p>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Make HackerNews Great Again!&lt;/title&gt;
+    &lt;style&gt;
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;ul&gt;
+      {{#each this }}
+      &lt;li class=&quot;item&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;&lt;a href=&quot;{{ link }}&quot;&gt;{{ title }}&lt;/a&gt;&lt;/div&gt;
+        &lt;div class=&quot;description&quot;&gt;{{{ description }}}&lt;/div&gt;
+        &lt;div class=&quot;metadata&quot;&gt;{{ pub_date }}&lt;/div&gt;
+      &lt;/li&gt;
+      {{/each}}
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Hàm <code>Template:render</code> thực hiện việc đọc file template (ở đây là <code>index.html.hbs</code>) đồng thời truyền vào một biến, gọi là <strong>context</strong>, từ đó ta có thể truy xuất biến nào thông qua đối tượng <code>this</code> trong file template.</p>
+<p>Ở trong file <code>index.html.hbs</code> trên, ta có <strong>context</strong> chính là đối tượng <strong>news</strong>, là một Vector các bản tin <code>RSSItem</code>, truy xuất thông qua đối tượng <code>this</code>. Hàm <code>#each</code> có tác dụng duyệt qua từng phần tử của vector này và với mỗi phần tử, thì in đoạn nội dung bên trong (thẻ <code>&lt;li&gt;</code>) ra màn hình.</p>
+<p>Đến đay bạn có thể chạy thử để xem kết quả, bằng lệnh:</p>
+<pre><code>cargo run
+</code></pre>
+<p>Khi truy cap vào địa chỉ <code>http://localhost:8000</code>, danh sách các mẫu tin từ HackerNews sẽ hiện ra. Tuy nhiên giao diện lúc này vẫn còn khá xấu. Ta có thể thay đổi file <code>index.html.hbs</code> để chỉnh sửa giao diện lại một tí:</p>
+<p><strong>index.html.hbs</strong></p>
+<pre><code class="language-html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Make HackerNews Great Again!&lt;/title&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css?family=PT+Sans&quot; rel=&quot;stylesheet&quot;&gt; 
+    &lt;style&gt;
+    html {
+      padding: 0; margin: 0;
+    }
+    body {
+      font-family: 'PT Sans', sans-serif;
+      font-size: 16px;
+      line-height: 22px;
+      display: flex;
+      flex-direction: row;
+      padding: 0; margin: 0;
+    }
+
+    ul {
+      margin: 0; padding: 10px;
+      list-style: none;
+      counter-reset: news-item-counter;
+      flex-basis: 400px;
+    }
+    
+    ul li {
+      padding: 10px 10px 10px 30px;
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    ul li:before {
+      content: counter(news-item-counter);
+      counter-increment: news-item-counter;
+      position: absolute;
+      top: 10px; left: 0;
+      font-size: 0.8em;
+      text-align: center;
+      line-height: 24px;
+      width: 24px; height: 24px;
+      background: #27ae60;
+      color: #FFF;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+
+    ul li a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    .metadata {
+      font-size: 0.8em;
+    }
+
+    #frame {
+      flex: 1;
+      border: none;
+      border-left: 1px solid #27ae60;
+    }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;script&gt;
+  const loadPage = (url) =&gt; {
+    let frame = document.getElementById(&quot;frame&quot;);
+    frame.src = url;
+  }
+  &lt;/script&gt;
+  &lt;body&gt;
+    &lt;ul&gt;
+      {{#each this }}
+      &lt;li class=&quot;item&quot; onclick=&quot;loadPage('{{ link }}')&quot;&gt;
+        &lt;div class=&quot;title&quot;&gt;&lt;a href=&quot;{{ link }}&quot;&gt;{{ title }}&lt;/a&gt;&lt;/div&gt;
+        &lt;div class=&quot;metadata&quot;&gt;{{ pub_date }} - {{{ description }}}&lt;/div&gt;
+      &lt;/li&gt;
+      {{/each}}
+    &lt;/ul&gt;
+    &lt;iframe id=&quot;frame&quot;&gt;&lt;/iframe&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Ở đoạn HTML trên, chúng ta chia màn hình ra thành 2 phần, một phần bên trái hiển thị danh sách các mẫu tin và một phần bên phải hiển thị nội dung của mẫu tin đó (sử dụng <code>iframe</code>). Giao diện sẽ như thế này:</p>
+<p><img src="img/rust-hackernews.png" alt="" /></p>
+<p>Vậy là chúng ta đã hoàn thành ứng dụng đọc tin HackerNews rồi :D</p>
+<hr />
+<p>Giải pháp dùng <code>iframe</code> này chưa thực sự tối ưu, và vẫn còn khá nhiều việc cần phải làm như là loading bar hay handle lỗi khi không thể load được nội dung bài báo vào <code>iframe</code>.</p>
+<p>Tuy nhiên sứ mạng của bài viết này - đó là hướng dẫn làm một ứng dụng web từ A-Z bằng Rust - thì đã kết thúc, cho nên mình sẽ phủi tay và việc fix bug, tối ưu hóa mình sẽ không viết tiếp nữa (dài quá lười thôi, không có gì đâu).</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/rust.html'>rust</a><a class='topic-tag' href='../tags/code.html'>code</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/making-rust-hackernews.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/making-rust-hackernews.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:05 GMT -->
+</html>

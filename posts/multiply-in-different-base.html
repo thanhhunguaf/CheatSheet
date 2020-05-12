@@ -1,0 +1,450 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/multiply-in-different-base.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Tăng tốc tính toán bằng cách chuyển hệ cơ số | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Tăng tốc tính toán bằng cách chuyển hệ cơ số</span></h1>
+<p>Cách đây mấy hôm mình có đọc trên một nhóm học thuật toán của mấy bạn chuyên tin bàn về chuyện dùng phương pháp <em>nhân nhóm số</em> để tính toán hiệu quả hơn với các số lớn, đọc không hiểu mô tê gì vì mấy bạn ấy chỉ share code <i class='em em-sob'></i></p>
+<p>Chạy về hỏi mấy ông semen (í nhầm, senpai) trong nhóm <a href="https://github.com/ruby-vietnam/hardcore-rule/tree/master/algorithms">ruby-vietnam</a> thì đc suggest nhiều cách khác nhau, nhưng nói chung là đổi về hệ cơ số khác lớn hơn hệ thập phân.</p>
+<p>Trước khi bắt đầu, mình xin lưu ý, đây chỉ là một bài toán lớp 2, không hơn không kém, có thể hồi đi học bạn rất chăm học nên đọc vô đã nhớ ngay, riêng mình hồi đó học ko giỏi lắm nên quên hết, cho nên bây giờ càng viết càng thấy nó mới và lạ <i class='em em-joy'></i>. Hãy độ lượng với kẻ quên toán lớp 2 này, và nhiệt tình thảo luận ở phần comment cuối bài nếu phát hiện ra mình nói nhăng nói cuội gì trong bài nhé <i class='em em-wink'></i>.</p>
+<h2><a href="#phương-pháp-tính" aria-hidden="true" class="anchor" id="phương-pháp-tính"></a>Phương pháp tính</h2>
+<p>Giả sử ta muốn nhân hai số <code>A = 2561</code> và <code>B = 3123</code>.</p>
+<p>Mình tạm kết luận là không có ai quên cách nhân chia đã học từ hồi lớp 2, vậy thì chúng ta sẽ tiếp tục với kết quả là:</p>
+<pre class='math'>$$
+\begin{align}
+& 2561 \\
+\times \ & \underline{3123} \\
+& 7683 \\
+5&122 \\
+25&61 \\
+768&3 \\
+\overline{799}&\overline{8003}
+\end{align}
+$$</pre>
+<p>Với cách tính bằng tay như trên, việc ghi số và &quot;nhớ&quot; số khi nhân một cột, được thực hiện trên nguyên tắc, số ghi vào sẽ là kết quả của phép chia lấy dư <code>n mod 10</code>, số được &quot;nhớ&quot; sẽ là phần nguyên của phép chia <code>n / 10</code>.</p>
+<p>Giới hạn cho từng giá trị ở đây không lớn hơn 10, cũng chính là số chữ số có trong hệ cơ số mà chúng ta đang sử dụng (hệ thập phân - decimal).</p>
+<p>Bây giờ chúng ta thử chuyển sang dùng hệ cơ số khác, lớn hơn hệ thập phân, mà cụ thể ở đây mình sẽ dùng hệ cơ số 100 (<code>b = 100</code>).</p>
+<p>Mỗi số <code>A</code> và <code>B</code> được biểu diễn trong hệ thập phân bằng 4 chữ số (4 words), lần lượt là <code>(2, 5, 6, 1)</code> và <code>(3, 1, 2, 3)</code>, còn trong hệ 100 thì được biểu diễn bằng một cặp số (2 words), lần lượt là <code>(25, 61)</code> và <code>(31, 23)</code>.</p>
+<p>Cách thực hiện phép nhân trên hệ cơ số 100 không khác gì so với hệ thập phân, nhưng lưu ý phần giới hạn của mỗi cột khi thực hiện phép nhân không lớn hơn 100, nên giá trị được ghi vào mỗi cột phải là <code>n mod 100</code>, và phần số được &quot;nhớ&quot; sẽ là phần nguyên của phép chia <code>n / 100</code>.</p>
+<pre class='math'>$$
+\begin{align}
+& 25 \ 61 \\
+\times \ & \underline{31 \ 23} \\
+\phantom{0}5 \ & 89 \ 03 \\
+\phantom{0}7 \ 93 \ & 91 \\
+\overline{7\ 99\ }& \overline{80 \ 03}
+\end{align}
+$$</pre>
+<p>Có thể thấy, trên hệ thập phân, chúng ta cần tới 16 phép nhân trước khi tìm ra được kết quả, còn với hệ 100, chỉ cần 4 phép nhân <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
+<p>Trên thực tế, nếu lựa chọn hệ cơ số càng lớn, thì tổng số phép nhân cần dùng càng ít. Tuy nhiên khi implement, bạn cũng cần phải cân nhắc đến yếu tố giới hạn của kiểu dữ liệu mà mình đang sử dụng nữa.</p>
+<h2><a href="#chọn-hệ-cơ-số" aria-hidden="true" class="anchor" id="chọn-hệ-cơ-số"></a>Chọn hệ cơ số</h2>
+<p>Vậy câu hỏi đặt ra là nên chọn hệ cơ số bao nhiêu để vừa tăng được tốc độ tính toán, vừa không vượt quá phạm vi cho phép của các kiểu dữ liệu?</p>
+<p>Lưu ý là dù ta chuyển hệ cơ số của các số cần nhân, phép nhân giữa các chữ số (words) mà chúng ta thực hiện trong mỗi bước tính toán vẫn là phép nhân hai số trong hệ thập phân.</p>
+<p>Một số $( a_{n} \cdots a_0 )$ có n chữ số sẽ được biểu diễn trong hệ thập phân dưới dạng:</p>
+<pre class='math'>$$
+( a_n \cdots a_0 ) = a_n \times 10^n + \cdots + a_0 \times 10^0
+$$</pre>
+<p>Nếu ta nhân hai số có n chữ số, thì ta có:</p>
+<pre class='math'>$$
+\begin{align}
+( a_n \cdots a_0 ) \times ( b_n \cdots b_0 ) & = ( a_n \times 10^n + \cdots + a_0 \times 10^0 ) \times ( b_n \times 10^n + \cdots + b_0 \times 10^0 ) \\
+& = a_n \times b_n \times 10^{2n} + \cdots + a_0 \times b_0 \times 10^0
+\end{align}
+$$</pre>
+<p>Như vậy kết quả của phép nhân sẽ là một số có ít nhất 2n chữ số, hay nói cách khác, nếu hai words có kích thước n chữ số trong hệ cơ số $10^n$ nhân với nhau, thi khả năng nó sẽ tạo thành một word mới có kích thước gấp đôi kích thước của mỗi word ban đầu.</p>
+<p>Và trên máy tính, việc thay đổi kích thước word này quyết định việc chúng ta phải chọn kiểu dữ liệu nào cho các word.</p>
+<p>Vậy thì khi lựa chọn hệ cơ số thích hợp cho phép nhân, ta cân nhắc các yếu tố sau:</p>
+<ol>
+<li>Hệ cơ số càng lớn thì số phép tính cần dùng sẽ càng ít, tính toán sẽ nhanh hơn</li>
+<li>Việc chuyển đổi từ hệ cơ số này về hệ thập phân phải ít phức tạp nhất có thể</li>
+<li>Kết quả của phép nhân hai số trên hệ cơ số này phải đảm bảo nằm trong phạm vi xử lý của máy tính.</li>
+</ol>
+<p>Trong số các kiểu dữ liệu mà chúng ta có thể dùng trong việc tính toán số nguyên, thì có hai kiểu khả dụng trong trường hợp này là <code>Int 32-bit</code> và <code>Int 64-bit</code> <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>. Và tất nhiên ta sẽ chọn 64-bit <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> cho kết quả tính toán.</p>
+<p>Kiểu số nguyên 64-bit có giá trị lớn nhất là <code>9,223,372,036,854,775,807</code>, tức là nằm trong phạm vi $10^{18} \leq \texttt{MAX_I64} \leq 10^{19}$, như vậy con số 2n của chúng ta sẽ là 18, vậy hệ cơ số lớn nhất mà chúng ta có thể chọn ở đây là $b = 10^9$.</p>
+<h2><a href="#thuật-toán-và-implementation" aria-hidden="true" class="anchor" id="thuật-toán-và-implementation"></a>Thuật toán và Implementation</h2>
+<p>Thuật toán chuyển đổi một giá trị từ hệ thập phân sang một hệ cơ số $10^n$ có thể được mô tả như sau:</p>
+<div class="box-green skip" style="padding-left: 10px; padding-right: 10px">
+<p><b>Input:</b> chuỗi s chứa số cần chuyển, và số n, là số mũ của hệ cơ số $10^n$</p>
+<p>
+<b>1:</b> Khởi tạo mảng r chứa dãy số kết quả</br>
+<b>2:</b> Chừng nào chuỗi s chưa rỗng:</br>
+<b>3:</b> &emsp;Lấy n kí tự tính từ cuối chuỗi s, chuyển thành một số m</br>
+<b>4:</b> &emsp;Chèn số m vào mảng r</br>
+<b>5:</b> &emsp;Cắt bỏ phần kí tự đã chuyển đổi thành m trong s
+</p>
+<p><b>Output:</b> Mảng r biểu diễn số s trong hệ cơ số $10^n$</p>
+</div>
+<p>Implement bằng Rust:</p>
+<pre><code class="language-rust">fn base_conv(a: &amp;str, n: usize) -&gt; Vec&lt;u64&gt; {
+    let mut result = vec![];
+    let mut s = a.to_owned();
+    let mut len = s.len();
+    while len &gt; 0 {
+        let mut pos = 0;
+        if n &lt;= len {
+            pos = len - n;
+        }
+        let n = s[pos..].to_string().parse::&lt;u64&gt;().unwrap();
+        result.push(n);
+        s = s[..pos].to_string();
+        len = s.len();
+    }
+    return result;
+}
+</code></pre>
+<p>Đối với thuật toán trên, các thành phần của một số sau khi chuyển đổi sẽ có thứ tự ngược so với số đầu vào, chúng ta không cần thay đổi gì vì trước sau gì chúng ta cũng sẽ thực hiện phép nhân theo thứ tự như vậy luôn.</p>
+<pre><code class="language-rust">1234 -&gt; [34, 21]
+</code></pre>
+<p>Thuật toán nhân hai số sau khi chuyển đổi hệ cơ số được mô tả như sau:</p>
+<div class="box-green skip" style="padding-left: 10px; padding-right: 10px">
+<p><b>Input:</b> Giá trị n và hai mảng a, b chứa các bộ số biểu diễn hai số cần nhân ở hệ cơ số $10^n$</p>
+<p>
+<b>1:</b> Khởi tạo mảng r chứa kết quả, kích thước bằng tổng độ dài hai mảng a và b</br>
+<b>2:</b> Duyệt qua từng phần tử thứ i của mảng b:</br>
+<b>3:</b> &emsp;Duyệt qua từng phần tử thứ j của mảng a:</br>
+<b>4:</b> &emsp;&emsp;Thực hiện phép nhân hai số a[j] và b[i] tương ứng cho từng cột của r</br>
+<b>5:</b> &emsp;&emsp;Nếu giá trị của phép nhân lớn hơn $10^n$ thì thực hiện tách số dư giống khi nhân bằng tay để cộng vào cột kế tiếp</br>
+</p>
+<p><b>Output:</b> Mảng r biểu diễn kết quả nhân hai số a và b trong hệ cơ số $10^n$</p>
+</div>
+<p>Implementation:</p>
+<pre><code class="language-rust">fn multiply_base(a: Vec&lt;u64&gt;, b: Vec&lt;u64&gt;, n: u32) -&gt; Vec&lt;u64&gt; {
+    let mut result = vec![];
+    result.resize(a.len() + b.len(), 0u64);
+    let mut bot = 0; let mut up = 0;
+    let mut flag = 0u64; let base = 10u64.pow(n);
+    for i in 0..b.len() {
+        for j in 0..a.len() {
+            let mut t = (a[j] * b[i]) as u64 + flag + result[up];
+            flag = 0;
+            if t &gt;= base {
+                flag = t / base;
+                t = t % base;
+            }
+            result[up] = t;
+            if j &gt;= a.len()-1 {
+                result[up+1] = flag;
+                flag = 0;
+            }
+            up += 1;
+        }
+        bot += 1;
+        up = bot;
+    }
+    result
+}
+</code></pre>
+<p>Và cuối cùng là chuyển đổi kết quả về dạng số được biểu diễn trong hệ thập phân. Không có gì đáng nói trong hàm này ngoại trừ trong một số trường hợp, mảng kết quả sẽ có dạng <code>[2, 13]</code> nhưng thực chất lại biểu diễn giá trị <code>1302</code>, số <code>0</code> ở đầu đương nhiên bị bỏ đi, ta xử lý các trường hợp này bằng cách chèn thêm các số <code>0</code> này cho đủ.</p>
+<pre><code class="language-rust">fn convert_back(num: Vec&lt;u64&gt;, base: usize) -&gt; String {
+    let mut result = String::new();
+    let filtered: Vec&lt;u64&gt; = num.into_iter().filter(|x| *x &gt; 0u64).collect();
+    for i in 0..filtered.len() {
+        let n = filtered[i];
+        if n != 0 {
+            if i &gt;= filtered.len()-1 {
+                result = format!(&quot;{}{}&quot;, n, result);
+            } else {
+                result = format!(&quot;{}{}&quot;, format!(&quot;{num:&gt;0width$}&quot;, num=n, width=base), result);
+            }
+        }
+    }
+    result
+}
+</code></pre>
+<p>Đến đây thì chúng ta đã hoàn thành rồi. Bạn có thể tham khảo chương trình đầy đủ viết bằng Rust <a href="https://gist.github.com/huytd/6d5ba5926b56bfba0ab1f80cb106d695">tại đây</a> hoặc chạy trực tiếp <a href="https://play.rust-lang.org/?gist=50e4da80a076623ba5de3b04410c1739&amp;version=stable">tại đây</a>.</p>
+<p>Chúng ta có thể thử thực hiện phép nhân hai số bự bự kiểu như:</p>
+<pre class='math'>$$
+29123841234812351239412 \times 3496123842341123491234123
+$$</pre>
+<p>Kết quả sẽ là:</p>
+<pre class='math'>$$
+101820555721585007964354044327028370336516855676
+$$</pre>
+<p>Ở trên chúng ta thực hiện phép nhân một số dài 23 chữ số với một số dài 25 chữ số, tất nhiên là đều vượt ra khỏi phạm vi tính toán trực tiếp của kiểu số nguyên lớn nhất mà các CPU thông thường có thể xử lý được (64-bit). Nếu chúng ta dùng phương pháp nhân từng chữ số giống với cách tính toán trên giấy, chúng ta sẽ cần <code>23 * 25 = 575</code> phép nhân trước khi ra được kết quả.</p>
+<p>Bằng kĩ thuật chuyển đổi hệ cơ số, mà cụ thể là cơ số $10^9$, chúng ta đã tách hai số đầu vào thành 2 bộ số chỉ gồm 3 words cho mỗi bộ:</p>
+<pre class='math'>$$
+(29123, 841234812, 351239412) \times (3496123, 842341123, 491234123)
+$$</pre>
+<p>Và chỉ cần dùng <code>3 * 3 = 9</code> phép nhân để có được kết quả. Độ phức tạp của thuật toán giảm đi (xấp xỉ) 64 lần. Một sự tối ưu không hề nhẹ.</p>
+<p>Tối ưu hóa các phép tính là một đề tài khá là thú vị, thậm chí đến bây giờ, việc tìm ra thuật toán nhanh nhất để nhân hai số vẫn còn là một câu hỏi chưa có lời giải đáp của ngành khoa học máy tính <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>. Nếu quan tâm tới chủ đề này, Wikipedia có lẽ là điểm bắt đầu để các bạn có thể tìm hiểu thêm về các thuật toán nhân hiện có <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup>.</p>
+<p>Riêng cá nhân mình giờ chỉ có một sự quan tâm duy nhất: đến bao giờ thi tài khoản Coinbase, Poloniex và ngân hàng của mình mới có cơ hội để xử lý với những con số lớn đến như thế? <i class='em em-joy'></i></p>
+<p>Lời cuối, xin chân thành cảm ơn các anh <a href="https://github.com/linxGnu">@linxGnu</a>, <a href="https://github.com/unrealhoang">@unrealhoang</a> cùng nhiều anh em khác trong nhóm <a href="https://github.com/ruby-vietnam/hardcore-rule/tree/master/algorithms">ruby-vietnam/algorithms</a> đã tích cực khai sáng, thảo luận và hỗ trợ mình hoàn thành bài viết này.</p>
+<hr />
+<p><strong>Notes</strong></p>
+<section class="footnotes">
+<ol>
+<li id="fn1">
+<p>Nếu bạn implement một thuật toán thực hiện nhân hai số lớn bằng phương pháp tính tay như trên, thì mỗi một phép nhân chỉ tính là một instruction, không cần biết hai số được nhân có bao nhiêu chữ số. <a href="#fnref1" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn2">
+<p>Vậy tại sao không chọn các kiểu dữ liệu lớn hơn nữa, ví dụ như <code>Int 128-bit</code>? hay các kiểu không phải số nguyên? Lý do là vì số nguyên là kiểu dữ liệu có thể tính toán hiệu quả nhất trên máy tính, và hiện tại vẫn chưa có nhiều CPU natively support các kiểu số nguyên lớn hơn 64-bit. <a href="#fnref2" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn3">
+<p>Trừ JavaScript ra, vì chỉ có thể xử lý các số nguyên có giá trị lớn nhất là 53-bit. Xem thêm: <a href="http://speakingjs.com/es5/ch11.html#_ranges_of_integers">http://speakingjs.com/es5/ch11.html#_ranges_of_integers</a> <a href="#fnref3" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn4">
+<p>List of unsolved problems in computer science, Wikipedia (<a href="https://en.wikipedia.org/wiki/List_of_unsolved_problems_in_computer_science#Other_algorithmic_problems">https://en.wikipedia.org/wiki/List_of_unsolved_problems_in_computer_science#Other_algorithmic_problems</a>) <a href="#fnref4" class="footnote-backref">↩</a></p>
+</li>
+<li id="fn5">
+<p>Multiplication algorithm, Wikipedia (<a href="https://en.wikipedia.org/wiki/Multiplication_algorithm">https://en.wikipedia.org/wiki/Multiplication_algorithm</a>) <a href="#fnref5" class="footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/algorithm.html'>algorithm</a><a class='topic-tag' href='../tags/math.html'>math</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+ <script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/multiply-in-different-base.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/multiply-in-different-base.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:50 GMT -->
+</html>

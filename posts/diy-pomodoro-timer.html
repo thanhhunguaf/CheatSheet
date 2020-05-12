@@ -1,0 +1,450 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/diy-pomodoro-timer.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:11 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Tự làm đồng hồ Pomodoro để bàn | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Tự làm đồng hồ Pomodoro để bàn</span></h1>
+<p><strong>Pomodoro</strong> là phương pháp phân chia thời gian làm việc thành từng task, sao cho mỗi task chiếm một quãng thời gian ngắn, thường là từ <strong>20 đến 25 phút</strong> cho một cycle, tiếp theo sau đó là <strong>3 đến 5 phút</strong> giải lao. Sau khoảng <strong>4 cycles</strong> thì có một lần nghỉ dài <strong>10 đến 15 phút</strong>.</p>
+<p>Bạn có thể tự do làm bất cứ việc gì mình thích trong các quãng nghỉ xả hơi (check Facebook, Twitter, Slack,...) nhưng trong các quãng 20-25 phút thì bạn phải hoàn toàn tập trung giải quyết các task đã chọn.</p>
+<p><img src="img/pomodoro-explain.png" alt="" /></p>
+<p>Về tính hiệu quả của phương pháp này thì các bạn có thể tự mình trải nghiệm và nhận xét, đối với cá nhân mình thì nó rất hiệu quả.</p>
+<p>Hiện có rất nhiều phần mềm Pomodoro Timer trên máy tính, tuy nhiên cá nhân mình không thích chúng lắm, lý do thì đơn giản tại vì mình không thích thôi :v thế nên mình quyết định tìm một cái đồng hồ Pomodoro để bàn, nhỏ gọn để có thể đặt bên cạnh máy tính mỗi lúc làm việc.</p>
+<p>Tuy nhiên sau khi xem một hồi thì cảm thấy mấy cái đồng hồ này nó khá là đơn giản, tại sao không thử build một cái mà phải đi mua, thế là bắt tay vào làm luôn :D</p>
+<h2><a href="#ý-tưởng" aria-hidden="true" class="anchor" id="ý-tưởng"></a>Ý tưởng</h2>
+<p>Chúng ta sẽ thiết kế một chiếc đồng hồ hình hộp vuông, có dạng như thế này:</p>
+<p><img src="img/pomodoro-idea.png" alt="" /></p>
+<p>Theo đó, chiếc đồng hồ gồm có 4 chiếc đèn báo màu đỏ, thể hiện quá trình làm việc (working time), và 1 đèn báo màu xanh lá cây thể hiện quá trình nghỉ xả hơi (relax time). Sử dụng nguồn từ cổng USB (vì chúng ta thường dùng khi ngồi cạnh laptop mà :D) hoặc sử dụng pin.</p>
+<p>Các đèn sẽ tự động chuyển lần lượt sau mỗi 5 phút để chúng ta dễ theo dõi thời gian. Và toàn bộ có <strong>20 phút</strong> working time, <strong>5 phút</strong> relax time.</p>
+<h2><a href="#chuẩn-bị" aria-hidden="true" class="anchor" id="chuẩn-bị"></a>Chuẩn bị</h2>
+<p>Đầu tiên, thì có rất nhiều cách để làm được một mạch điện có chức năng như đã mô tả ở trên, ta có thể dùng các microcontroller như Arduino, tuy nhiên với một thiết bị nhỏ này, việc dùng Arduino là hơi bị overkill.</p>
+<p>Ở các bài sau, có thể mình sẽ giới thiệu cách làm đồng hồ Pomodoro dùng Arduino hoặc ATTiny với các chức năng phức tạp hơn, như có thể điều chỉnh thời gian, tích hợp màn hình,...</p>
+<p>Đối với chiếc đồng hồ Pomodoro mà chúng ta sẽ build, thì nó chỉ cần sử dụng một IC tạo xung là <strong>NE555</strong>, và một IC đếm xung <strong>CD4017</strong>.</p>
+<p>Bạn cần chuẩn bị trước các linh kiện sau:</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">Linh kiện</th>
+<th align="center">Số lượng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img src="img/pomodoro-part-ic-555.png" alt="" /></td>
+<td align="center">IC NE555</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-ic-4017b.png" alt="" /></td>
+<td align="center">IC 4017b</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-capacitor.png" alt="" /></td>
+<td align="center">Tụ $4700$ $mu$ $F$</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-resistor.png" alt="" /></td>
+<td align="center">Điện trở $39k$ $Omega$</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-resistor.png" alt="" /></td>
+<td align="center">Điện trở $12k$ $Omega$</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-resistor.png" alt="" /></td>
+<td align="center">Điện trở $330$ $Omega$</td>
+<td align="center">1</td>
+</tr>
+<tr>
+<td align="center"><img src="img/pomodoro-part-leds.png" alt="" /></td>
+<td align="center">Đèn LED</td>
+<td align="center">5</td>
+</tr></tbody></table>
+<p>Bạn cũng cần chuẩn bị thêm breadboard và dây nối (jump wire), hoặc board đục lỗ sẵn (stripboard, prototype board) và mỏ hàn.</p>
+<p>Trước khi bắt đầu, chúng ta hãy cùng tìm hiểu sơ qua về 2 con IC này trước. Bạn nào đã biết thì có thể bỏ qua phần này :D</p>
+<h3><a href="#ic-timer-ne555" aria-hidden="true" class="anchor" id="ic-timer-ne555"></a>IC Timer NE555</h3>
+<p>IC 555 là IC tạo xung được dùng rất nhiều trong các thiết bị điện tử. Để tìm hiểu sâu hơn về cấu tạo cũng như nguyên lý hoạt động, các bạn có thể tìm đọc thêm các tài liệu khác. Trong bài này mình sẽ chỉ giới thiệu sơ đồ pin out và các chân mà chúng ta sẽ dùng.</p>
+<p><img src="img/pomodoro-555-pinout.png" alt="" /></p>
+<p>Các chân được đánh số từ 1 đến 8 theo sơ đồ trên, trên thân IC sẽ có một lỗ khuyết để giúp chúng ta xác định chân dễ hơn.</p>
+<p>IC 555 có 3 chế độ hoạt động là Astable, Monostable và Bistable. Chúng ta sẽ sử dụng chế độ Astable. Với mạch như hình sau:</p>
+<p><img src="img/pomodoro-555-astable.png" alt="" /></p>
+<p>Mạch điện dùng IC 555 chạy ở chế độ Astable sẽ cho ra output là một chuỗi các xung vuông liên tục ở một tần số $f$ nhất đinh.</p>
+<p>Tần số này thay đổi khi ta thay đổi các giá trị của điện trở $R_1$, $R_2$ và tụ điện $C$. Mối liên hệ này được thể hiện qua công thức:</p>
+<pre class='math'>$$
+f = \displaystyle\frac{1}{\ln(2) \cdot C \cdot (R_1 + 2R_2)} \tag{1}
+$$</pre>
+<p>Thời gian $t_1$ của các xung cao được tính bằng công thức:</p>
+<pre class='math'>$$
+t_1 = \ln(2) \cdot C \cdot (R_1 + R_2)
+$$</pre>
+<p>Thời gian $t_2$ của các xung thấp được tính bằng:</p>
+<pre class='math'>$$
+t_2 = \ln(2) \cdot C \cdot R_2
+$$</pre>
+<p>Từ đó ta có thể suy ra tổng thời gian $T$ của 1 chu kỳ dao động sẽ là:</p>
+<pre class='math'>$$
+T = \displaystyle\frac{1}{f} = t_1 + t_2 \tag{2}
+$$</pre>
+<p>Đơn vị của $R_1$, $R_2$ là Ohm ($\Omega$), và của $C$ là Farad ($F$).</p>
+<p>Chúng ta sẽ sử dụng các công thức trên để tính ra giá trị của các linh kiện cần dùng khi bắt đầu phần sau.</p>
+<h3><a href="#ic-decade-counter-cd4017b" aria-hidden="true" class="anchor" id="ic-decade-counter-cd4017b"></a>IC Decade Counter CD4017B</h3>
+<p>IC CD4017B là loại IC có khả năng thay đổi điện áp output ở mỗi chân lần lượt, dựa theo số lượng xung input. Có sơ đồ như sau:</p>
+<p><img src="img/pomodoro-4017-pinout.png" alt="" /></p>
+<p>Các chân được đánh số theo thứ tự giống như IC 555, nhưng IC này có 16 chân. Các chân số $1, 2, 3, 4, 5, 6, 7$ và $9, 10, 11$ là các chân output. Tuy nhiên thứ tự sắp xếp của các output thì được bố trí như hình bên trái.</p>
+<p>Khi chân số $14$ (CLOCK) nhận được tín hiệu điện áp cao (HIGH), thì bộ đếm trong IC sẽ tăng lên, và tín hiệu đầu ra ở vị trí tương đương sẽ trở thành HIGH. Cứ thế tiếp tục tăng dần từ $0$ đến $9$ và các pin out sẽ lần lượt trở thành HIGH.</p>
+<p><img src="img/pomodoro-4017-timing.png" alt="" /></p>
+<p>Hình trên minh họa thứ tự bật sáng của các đèn $L_0, L_1, L_2, L_3, L_4$ tương ứng với chu kỳ dao động truyền vào chân CLOCK.</p>
+<p>Bộ đếm trở về vị trí số $0$ khi chân số $15$ (RESET) nhận được tín hiệu HIGH.</p>
+<p>Đối với con này thì chỉ cần nhớ mấy thứ &quot;ngắn gọn&quot; vậy thôi, không có công thức gì cả, khỏe, hề hề :D</p>
+<h2><a href="#prototyping" aria-hidden="true" class="anchor" id="prototyping"></a>Prototyping</h2>
+<div class="box-white padding-15">
+Vì quá trình prototyping cần rất nhiều lần thay đổi cả về thiết kế lẫn linh kiện, cho nên chúng ta có thể sử dụng máy tính để làm việc này trước, rồi sau đó hiện thực hóa nó trên breadboard sau.
+<p class="center">
+<img src="img/pomodoro-you-should-simulate.png" />
+</p>
+<p>Bạn có thể dùng một phần mềm mô phỏng mạch điện bất kỳ cho bước này. Nếu có điều kiện, hãy xài <strong>Proteus</strong> hoặc <strong>Circuit Wizard</strong>. Tiếc là trên Mac và Linux vẫn chưa thấy có phần mềm mô phỏng nào xịn, tuy nhiên nếu chạy bằng Wine thì <strong>Circuit Wizard</strong> hoạt động rất tốt.
+<br />
+<br />
+<em>Ngoài ra, còn có một tool mô phỏng online đó là <a href="https://circuits.io/lab">Autodesk Circuits</a>, mô phỏng được cả Arduino (tất nhiên là lập trình được luôn), nhưng lại thiếu nhiều loại IC cơ bản như 4017b. Cho nên ở bài này chúng ta sẽ ko dùng.</em></p>
+</div>
+<p>Có thể bạn sẽ nhận ra là chức năng của chiếc đồng hồ Pomodoro đã nêu ở đầu bài về bản chất nó hoàn toàn giống với một mạch đèn LED &quot;chạy đuổi&quot;.</p>
+<p>Vậy nên thứ chúng ta sẽ prototype chính là một mạch đèn chạy đuổi đơn giản, dùng IC 555 để tạo xung và dùng IC 4017b để hiển thị lần lượt từng đèn LED để báo thời gian.</p>
+<p>Ở phần trên chúng ta đã nắm được cách sử dụng 2 loại IC này, vậy làm sao để phối hợp chúng với nhau?</p>
+<p>Mạch điện của chúng ta sẽ gồm 2 module: <strong>Tạo xung</strong> và <strong>Chạy đuổi</strong>.</p>
+<h3><a href="#module-tạo-xung" aria-hidden="true" class="anchor" id="module-tạo-xung"></a>Module tạo xung</h3>
+<p>Module tạo xung như đã nói ở phần trước, thực chất chỉ là một mạch dao động xài IC 555 hoạt động ở chế độ Astable:</p>
+<p><img src="img/pomodoro-pulse-generator.png" alt="" /></p>
+<p>Lưu ý, như sơ đồ trên, thì đối với IC 555, chân số 4 sẽ nối với chân sô 8, và chân số 2 sẽ nối với chân số 6.</p>
+<p>Giả sử với điện trở $R_1 = 10k \Omega$, điện trở $R_2 = 47k \Omega$ và tụ điện $C = 10 \mu F$, dựa vào công thức $(1)$ ta có thể tính được tần số dao động là:</p>
+<pre class='math'>$$
+f = \displaystyle\frac{1}{\ln(2) \cdot 10^{-5} \cdot (10000 + 2 \cdot 47000)} \approx 1.388 Hz
+$$</pre>
+<p>Như vậy thời gian của một chu kỳ dao động sẽ vào khoảng $T = \displaystyle\frac{1}{f} = 0.72$ giây.</p>
+<p><img src="img/pomodoro-signal-length.png" alt="" /></p>
+<p>Mục đích của chúng ta là tạo ra mạch với chu kỳ dao động vào khoảng $5$ phút, tức là $T = 300$ giây.</p>
+<p>Dựa theo phần lý thuyết ở trên, việc ta cần làm là thay đổi thông số của các linh kiện trong mạch, mà cụ thể ở đây là $R_1$, $R_2$ và $C$. Có rất nhiều cách thay đổi để chúng ta đạt được con số $T$ như đã nói ở trên. Ví dụ:</p>
+<table>
+<thead>
+<tr>
+<th align="center">$R_1$</th>
+<th align="center">$R_2$</th>
+<th align="center">$C$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">10k $Omega$</td>
+<td align="center">39k $Omega$</td>
+<td align="center">5000 $mu$ $F$</td>
+</tr>
+<tr>
+<td align="center">12k $Omega$</td>
+<td align="center">39k $Omega$</td>
+<td align="center">4700 $mu$ $F$</td>
+</tr>
+<tr>
+<td align="center">15k $Omega$</td>
+<td align="center">47k $Omega$</td>
+<td align="center">3900 $mu$ $F$</td>
+</tr>
+<tr>
+<td align="center">330k $Omega$</td>
+<td align="center">487k $Omega$</td>
+<td align="center">330 $mu$ $F$</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">...</td>
+<td align="center"></td>
+</tr></tbody></table>
+<p>Bạn có thể chọn 2 linh kiện bất kì và tính toán thông số của linh kiện còn lại dựa theo các công thức $(1)$, $(2)$.</p>
+<p>Việc lựa chọn tùy thuộc vào ý đồ thiết kế và khả năng bạn kiếm được loại linh kiện như thế nào. Tại Việt Nam thì các bạn có thể đặt mua linh kiện online tại <a href="https://iotmaker.vn/in-tr-1-4w.html">IoT Maker</a>. Hồi mình còn ở Đà Nẵng thì mình hay tìm mua ở mấy cửa hàng bên hông chợ Cồn, phía đường Ông Ích Khiêm, hoặc cửa hàng <a href="http://chipviet.vn/">ChipViet</a> đường Đoàn Thị Điểm.</p>
+<p>Để dễ hình dung, thì đây là hình so sánh kích thước giữa 2 loại tụ điện $4700\mu F$ và $330\mu F$, so với kích thước của một chiếc đèn LED.</p>
+<p><img src="img/pomodoro-capacitor-size-compare.png" alt="" /></p>
+<p>Các linh kiện mình chọn có thông số như sau: $R_1 = 12k\Omega$, $R_2 = 39k\Omega$ và $C = 4700\mu F$. Lý do thì đơn giản là vì lúc đi mua chỉ tìm ra những loại đó =)))</p>
+<h3><a href="#module-led-chạy-đuổi" aria-hidden="true" class="anchor" id="module-led-chạy-đuổi"></a>Module LED chạy đuổi</h3>
+<p>Tiếp theo, ta thiết kế mạch đèn LED chạy đuổi sử dụng IC 4017b, tiép nhận tín hiệu đầu vào là từ Output của <strong>module tạo xung</strong> ở trên.</p>
+<p><img src="img/pomodoro-chasing-module.png" alt="" /></p>
+<p>Chúng ta chỉ sử dụng 5 đèn, nên chỉ cần các chân số $2, 3, 4, 7$ và $10$. Ở vị trí đèn thứ 6 (chân số $1$), chúng ta nối nó vào chân <code>RESET</code> để bộ đếm tự động nhảy về $0$ khi chạy đến đèn này.</p>
+<h3><a href="#lắp-ráp" aria-hidden="true" class="anchor" id="lắp-ráp"></a>Lắp ráp</h3>
+<p>Cuối cùng ta lắp 2 module này lại với nhau để được một mạch hoàn chỉnh:</p>
+<p><img src="img/pomodoro-full-circuit.png" alt="" />
+<img src="img/pomodoro-full-wiring.png" alt="" /></p>
+<p>Bạn có thể bố trí các LED như thế nào tùy ý. Trên hình minh họa thì mình bố trí theo 1 đường thẳng để dễ hình dung cách đi dây. Trên thực tế, để đúng như bản thiết kế ban đầu, ta có thể bố trí các LED theo hình vòng tròn, như sau:</p>
+<p><img src="img/pomodoro-led-circle.png" alt="" /></p>
+<p>Đây là hình hình ảnh demo mạch trên, sử dụng tụ $10 \mu F$ cho thời gian của một chu kỳ đèn sáng là $0.72$ giây.</p>
+<p><img src="img/pomodoro-prototype-10uF.gif" alt="" /></p>
+<div class="copyright center">Hình hơi bự (5MB) nên load hơi lâu :D</div>
+<p>Đèn xanh báo trạng thái nghỉ xả hơi, đèn đỏ báo trạng thái khi làm việc.</p>
+<p>Còn đây là khi dùng tuj $4700 \mu F$, cho chu kỳ đèn sáng ~5 phút:</p>
+<p><img src="img/pomodoro-prototype-4700uF.png" alt="" /></p>
+<p>Và tất nhiên là prototype nên chưa có gì hấp dẫn cả...</p>
+<h2><a href="#tiếp-theo-thì-làm-gì" aria-hidden="true" class="anchor" id="tiếp-theo-thì-làm-gì"></a>Tiếp theo thì làm gì?</h2>
+<p>Bây giờ bạn đã có bản prototype hoạt động được. Với đầy đủ thông số linh kiện cần thiết.</p>
+<p>Sau đó, bạn có thể chuyển bản prototype này thành mạch in và thiết kế vỏ hộp để tăng tính thẫm mỹ cho sản phẩm.</p>
+<p><img src="img/pomodoro-boards.png" alt="" /></p>
+<div class="copyright center">Cái này vẫn là prototype thôi =)))</div>
+<p>Tiếp theo có thể đem cất đi, hoặc tặng cho bạn gái, hoặc đem bán, kêu gọi đầu tư, rồi thì startup các kiểu... :v tùy bạn.</p>
+<p>Bước tiếp theo bạn có thể thêm vào các chức năng phụ thêm để làm cho chiếc đồng hồ trở nên hữu ích hơn, ví dụ như: thêm loa hú (hú mỗi 5 phút 1 lần, chứ ko phải hú 1 lần 5 phút nhé :))), thêm kim đồng hồ xoay, thêm màn hình hiện thông tin (thực ra để làm được như này thì phải đụng tới MCU rồi),... ở các bài sau mình sẽ giới thiệu các mạch Pomodoro với nhiều chức năng phụ đa dạng hơn.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/hacking.html'>hacking</a><a class='topic-tag' href='../tags/hardware.html'>hardware</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+ </div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/diy-pomodoro-timer.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/diy-pomodoro-timer.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:20:17 GMT -->
+</html>

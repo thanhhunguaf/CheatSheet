@@ -1,0 +1,358 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/tail-call-optimization-javascript.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:16 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Tail Call Optimization là gì? Và tại sao bạn không cần quan tâm đến nó? | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='../img/default.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Tail Call Optimization là gì? Và tại sao bạn không cần quan tâm đến nó?</span></h1>
+<p><em>Chỉ nếu như bạn sử dụng JavaScript...</em></p>
+<p><strong>Tail call</strong> là từ được cấu thành từ hai chữ, chữ <em>tail</em> và chữ <em>call</em>.</p>
+<blockquote>
+<p><strong>tail</strong> /teɪl/<br />
+<strong>call</strong> /kɔːl/ (in UK) or /kɑl/ (in US)</p>
+</blockquote>
+<p>Chữ <em>tail</em> <span class="mute sidenote">Hài hước tí, nếu các bạn không thấy zui thì nên tự xem lại óc hài hước của mình. À không, ý mình là của các bạn. <i class='em em-smirk'></i></span> có nghĩa là <em>đuôi</em>, còn chữ <em>call</em> có nghĩa là <em>gọi</em>, hợp lại ta có chữ <em>gọi đuôi</em>, hay <em>gọi đằng đuôi</em>. Trong môn khoa học máy tính, <em>gọi đằng đuôi</em> có nghĩa là <strong>lời gọi tới một hàm con <u>tại vị trí cuối cùng</u> trong một hàm cha nào đó</strong>, đằng sau lời gọi này, hàm cha không còn làm bất cứ một việc gì khác nữa.</p>
+<p>Kiểu như này:</p>
+<pre><code>function sum(a, b) {
+    return a + b;
+}
+
+// Ví dụ 1
+function add(a, b) {
+    return sum(10, 20); // đây là tail call
+}
+
+// Ví dụ 2
+function add(a, b) {
+    return 10 + sum(10, 20); // đây không phải là tail call
+}
+
+// Ví dụ 3
+function add(a, b) {
+    let result = sum(10, 20); // đây không phải là tail call
+    return result;
+}
+</code></pre>
+<p>Như trên ta thấy, chỉ có lời gọi hàm <code>sum()</code> ở ví dụ 1 là tail call, còn hai ví dụ còn lại thì không.</p>
+<hr />
+<p>Trước khi nói tiếp về <strong>tail call optimization</strong>, chúng ta hãy nói qua một chút về <strong>call stack</strong>.</p>
+<p>Call stack là một cấu trúc dữ liệu kiểu ngăn xếp (stack) được sử dụng để lưu vị trí hoạt động của một chương trình, khi có một lời gọi hàm (call) xảy ra, thì stack sẽ được đẩy thêm vào (push) một phần tử, sau khi hàm đó xử lý xong thì nó sẽ bị gỡ ra (pop). Việc này giúp cho máy tính biết được nó đang đứng ở đâu trước khi một lời gọi hàm xảy ra, và có thể quay về sau khi hàm đó kết thúc.</p>
+<p>Ở ví dụ 3, đầu tiên, khi chương trình thực hiện, thì call stack của chúng ta sẽ biến đổi như sau:</p>
+<p>Đầu tiên, hàm <code>add(a, b)</code> sẽ được push vào call stack, vì đây là hàm vừa được gọi:</p>
+<img src="img/add-callstack/add-callstack-step-001.png" style="max-width: 750px; margin-left: -100px" />
+<p>Khi đi vào hàm này, chúng ta bắt gặp lời gọi đến hàm <code>sum()</code>, lúc này trong call stack sẽ được push vào một frame mới cho hàm <code>sum</code>, việc call stack được push thêm frame mới gọi là <strong>call stack growth</strong>:</p>
+<img src="img/add-callstack/add-callstack-step-002.png" style="max-width: 750px; margin-left: -100px" />
+<p>Đi vào hàm <code>sum</code>, giá trị của biểu thức <code>10 + 20</code> sẽ được tính và trả về:</p>
+<img src="img/add-callstack/add-callstack-step-003.png" style="max-width: 750px; margin-left: -100px" />
+<p>Sau khi hàm <code>sum()</code> trả về kết quả, nó sẽ bị pop khỏi call stack, chương trình lúc này tiếp tục sau khi đã tính toán được giá trị của biến <code>result</code>:</p>
+<img src="img/add-callstack/add-callstack-step-004.png" style="max-width: 750px; margin-left: -100px" />
+<p>Sau khi lệnh <code>return result</code> được hoàn thành, thì hàm <code>add</code> cũng đã được thực hiện xong, nó cũng sẽ được pop ra khỏi call stack, và call stack lúc này không còn gì nữa:</p>
+<img src="img/add-callstack/add-callstack-step-005.png" style="max-width: 750px; margin-left: -100px" />
+<hr />
+<p><strong>Tail Call Optimization</strong> là một kĩ thuật tối ưu mà compiler sẽ làm cho <span class="sidenote mute">Compiler làm điều này như thế nào thì các bạn có thể xem thêm ở cuối bài.</span> việc thực thi code không xảy ra <em>call stack growth</em>.</p>
+<p>Cụ thể, với tail call optimization, thì call stack của chúng ta sẽ biến đổi như sau khi thực thi code ở ví dụ 1:</p>
+<p>Đầu tiên chúng ta cũng bắt đầu với hàm <code>add()</code> nằm trong call stack:</p>
+<img src="img/add-callstack/add-tail-callstack-step-001.png" style="max-width: 750px; margin-left: -100px" />
+<p>Và khi gặp lời gọi hàm <code>sum()</code> thì chuyện gì sẽ xảy ra? Lưu ý lúc này, hàm <code>sum()</code> được gọi khi chúng ta <code>return</code> về giá trị của nó, có nghĩa là hàm <code>add()</code> đã xong nhiệm vụ:</p>
+<img src="img/add-callstack/add-tail-callstack-step-002.png" style="max-width: 750px; margin-left: -100px" />
+<p>Chính vì thế, <code>add()</code> sẽ bị loại khỏi call stack, và <code>sum()</code> sẽ được đưa vào thay thế. Lưu ý là, stack frame trước đó dành cho <code>add()</code> có thể sẽ được sử dụng lại cho <code>sum()</code> luôn. Nói chung là không xảy ra <em>call stack growth</em>.</p>
+<img src="img/add-callstack/add-tail-callstack-step-003.png" style="max-width: 750px; margin-left: -100px" />
+<p>Tiếp tục thực thi, chúng ta tính toán biểu thức <code>10 + 20</code>:</p>
+<img src="img/add-callstack/add-tail-callstack-step-004.png" style="max-width: 750px; margin-left: -100px" />
+<p>Rồi <code>return</code> luôn, hàm <code>sum()</code> lúc này sẽ bị pop khỏi call stack, và chương trình kết thúc tại đây:</p>
+<img src="img/add-callstack/add-tail-callstack-step-005.png" style="max-width: 750px; margin-left: -100px" />
+<p>Việc thực thi mà không làm call stack phình ra, chúng ta gọi đó là <em>zero stack growth</em>.</p>
+<hr />
+<p>Vậy compiler đã làm gì để khi thực thi chúng ta có <em>zero stack growth</em>? Chúng ta đều biết, compiler sẽ biên dịch chương trình về mã máy, có thể biểu diễn bằng code Assembly, điều này đúng với cả JavaScript mặc dù để giải thích thì dài dòng lắm, nên mình sẽ để dành cho một bài viết sau.</p>
+<p>Các bạn đừng lo khi thấy phần này bắt đầu nói về Assembly, mình cũng đâu có biết Assembly đâu <i class='em em-joy'></i>. Chúng ta chỉ cần biết rằng, khi máy tính thực thi code Assembly, nó sẽ có một con trỏ, gọi là <code>program counter</code>, chạy từ đầu tới cuối của chương trình đó, đụng lệnh nào thì thực thi lệnh đó (giống khi ta đọc sách mà lấy tay chỉ vào từng dòng để đánh vần vậy).</p>
+<p>Và để tìm hiểu về kĩ thuật <strong>tail call optimization</strong> của compiler, chúng ta chỉ cần biết 2 lệnh, đó là:</p>
+<ul>
+<li>
+<p><code>call</code>: lệnh điều khiển cho <code>program counter</code> tạm thời nhảy đến một vị trí nào đó trong chương trình để xử lý, sau khi xử lý xong thì nó sẽ quay về, và tiếp tục xử lý lệnh kế tiếp, nghe như ném boomerang nhỉ. Ví dụ đoạn code sau có lệnh <code>call</code>, sẽ được thực thi theo thứ tự từ trên xuống, và nhảy tứa lưa như mấy mũi tên trong hình:</p>
+<p><img src="img/add-callstack/call-asm-demo.png" alt="" /></p>
+</li>
+<li>
+<p><code>jmp</code>: là <code>jump</code>, lệnh điều khiển <code>program counter</code> nhảy từ vị trí hiện tại sang một vị trí được chỉ định, nhảy xong thì đi luôn chứ không quay về nữa.</p>
+<p><img src="img/add-callstack/jmp-asm-demo.png" alt="" /></p>
+</li>
+</ul>
+<p>Như vậy, theo như hiểu biết về call stack ở phần trước, ta cũng có thể hình dung ra rằng, khi <code>call</code> được gọi thì sẽ có <em>call stack growth</em> xảy ra.</p>
+<p>Và khi thực hiện <strong>tail call optimization</strong>, compiler sẽ sinh code đại loại như sau trong trường hợp ví dụ 3, không có tail call:</p>
+<pre><code>fn_add:       # hàm add
+call fn_sum   # call hàm sum
+ret           # rồi quay lại return kết quả
+</code></pre>
+<p>Và trong trường hợp có tail call của ví dụ 1 thì sẽ như sau:</p>
+<pre><code>fn_add:      # hàm add
+jmp fn_sum   # jump tới sum luôn
+</code></pre>
+<p>Quá dễ hiểu, đúng không? <i class='em em-grin'></i></p>
+<hr />
+<p>OK, vậy tại sao đầu bài lại nói là <em>không cần</em> quan tâm đến <strong>tail call optimization</strong> khi dùng JavaScript?</p>
+<p>Đơn giản, là vì <strong>JavaScript không có tail call optimization</strong>!</p>
+<p>Mặc dù trong đặc tả ES6 <a href="https://www.ecma-international.org/ecma-262/6.0/#sec-tail-position-calls">có mô tả về nó</a>, hầu như <a href="https://kangax.github.io/compat-table/es6/#test-proper_tail_calls_(tail_call_optimisation)">không có một JavaScript engine nào implement nó cả, trừ Safari</a> <i class='em em-sob'></i>.</p>
+<p><strong>Đọc thêm</strong></p>
+<ul>
+<li><strong>Tail Calls, Optimization, and ES6</strong>, Gustavo Duarte<br /><a href="https://manybutfinite.com/post/tail-calls-optimization-es6/">https://manybutfinite.com/post/tail-calls-optimization-es6/</a></li>
+<li><strong>Tail call optimization in ECMAScript 6</strong>, Axel Rauschmayer<br /><a href="http://2ality.com/2015/06/tail-call-optimization.html">http://2ality.com/2015/06/tail-call-optimization.html</a></li>
+<li><strong>Tail Call Optimization</strong>, Ward Cunningham<br /><a href="http://wiki.c2.com/?TailCallOptimization">http://wiki.c2.com/?TailCallOptimization</a></li>
+<li><strong>Call vs Jmp: The Stack Connection</strong>, Dr. O. Lawlor<br /><a href="https://www.cs.uaf.edu/2012/fall/cs301/lecture/09_24_call_and_ret.html">https://www.cs.uaf.edu/2012/fall/cs301/lecture/09_24_call_and_ret.html</a></li>
+<li><a href="https://www.chromestatus.com/feature/5516876633341952">https://www.chromestatus.com/feature/5516876633341952</a></li>
+</ul>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/javascript.html'>javascript</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+<span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/tail-call-optimization-javascript.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/tail-call-optimization-javascript.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:20 GMT -->
+</html>

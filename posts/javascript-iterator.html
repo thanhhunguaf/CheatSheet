@@ -1,0 +1,423 @@
+<html>
+
+<!-- Mirrored from thefullsnack.com/posts/javascript-iterator.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:12 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
+<head>
+<title>Vài ghi chép về Iterator trong JavaScript | Huy's Blog</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta property='og:image' content='img/iterator-demo.jpg'>
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="mask-icon" href="../safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
+<link href="../css/theme.dist.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="../emoji/css/emoji.dist.css">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
+<script>
+	       window.dataLayer = window.dataLayer || [];
+	       function gtag(){dataLayer.push(arguments);}
+	       gtag('js', new Date());
+
+	       gtag('config', 'UA-92158965-1');
+	      </script>
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+<a href="../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+<div class="main">
+<h1><span>Vài ghi chép về Iterator trong JavaScript</span></h1>
+<p>Một phút dành cho việc tra từ điển:</p>
+<ul>
+<li><strong>iterate</strong>: make repeated use of a mathematical or computational procedure, applying it each time to the result of the previous application; perform iteration - là từ chỉ một hành động lặp đi lặp lại từng lượt trong một quá trình xử lý/tính toán nào đó.</li>
+<li><strong>iteration</strong>: là từ dùng để nói đến mỗi lần iterate.</li>
+<li><strong>iterable</strong>: là từ dùng để nói đến khả năng iterate của một đối tượng nào đó.</li>
+</ul>
+<p><em>Kể từ sau đây thì mình sẽ dùng những chữ này mà không dịch ra tiếng Việt nữa, lý do là dịch ra thì viết dài dòng, bài đã dài rồi, bớt được gì thì bớt lại chút.</em></p>
+<hr />
+<p>Trong JavaScript, vòng lặp <code>for...of</code> có tác dụng iterate qua nội dung của các đối tượng iterable (iterable objects).</p>
+<pre><code class="language-javascript">const text = &quot;hello&quot;; // String là một iterable object
+for (const c of text) {
+    console.log(c);
+}
+// Output: &quot;h&quot; &quot;e&quot; &quot;l&quot; &quot;l&quot; &quot;o&quot;
+</code></pre>
+<p>Một đối tượng được coi là iterable nếu như nó thõa mãn <a href="#">iterable protocol</a>, theo đó, nó phải được implement phương thức <code>@@iterator</code>, hay còn có thể ghi là <code>Symbol.iterator</code>, như này:</p>
+<pre><code class="language-javascript">a[&quot;@@iterator&quot;] = ...
+// hoặc
+a[Symbol.iterator] = ...
+</code></pre>
+<p>Hồi xưa các cụ phải xài <code>&quot;@@iterator&quot;</code> vì <code>Symbol</code> chưa được support rộng rãi, tuy nhiên đến bây giờ thì hầu như ai cũng đã hỗ trợ <code>Symbol</code>, tất nhiên là trừ IE ra.</p>
+<p><img src="img/iterator-demo.jpg" alt="" /></p>
+<p>Việc implement phương thức <code>[Symbol.iterator]</code> này phải trả về một object thỏa mãn <a href="#">iterator protocol</a>.</p>
+<pre><code class="language-javascript">const obj = ...;
+for (const o of obj) { } // không chạy được vì obj không iterable
+obj[Symbol.iterator] = () =&gt; { ... };
+for (const o ob obj) { } // giờ thì đã iterable rồi
+</code></pre>
+<p>Một object thỏa mãn giao thức <code>iterator protocol</code> nếu nó có một hàm <code>next()</code>, hà này không nhận vào tham số nào, và trả về một kết quả có dạng:</p>
+<pre><code class="language-javascript">next() {
+    return { value: ..., done: false };
+}
+</code></pre>
+<p>Giá trị của <code>value</code> sẽ là giá trị xuất hiện trong mỗi iteration. Vòng lặp sẽ tiếp tục cho đến khi kết quả trả về có <code>done</code> là <code>true</code>.</p>
+<p>Chúng ta có thể dễ dàng tạo ra một object thỏa mãn cả hai giao thức <code>iterable</code> và <code>iterator</code> theo cách sau:</p>
+<pre><code class="language-javascript">let obj = {
+    next: function() {
+        // ...
+    },
+    [Symbol.iterator]: function() { return this; }
+};
+</code></pre>
+<p>Cú pháp như này thì rất ngắn gọn, trông rất ngầu, nhưng mà đọc vô sẽ khó hiểu hơn, nên ở các phần tiếp theo chúng ta sẽ không viết như này nữa, mà viết theo cách khác dễ hiểu hơn (cũng dễ reuse hơn).</p>
+<p>Thêm tí, nếu không lặp bằng <code>for...of</code>, chúng ta cũng có thể lặp thủ công như với <code>generator</code>:</p>
+<pre><code class="language-javascript">let iter;
+while (iter = iterator.next(), !iter.done) {
+    // ...
+}
+</code></pre>
+<hr />
+<p>Có thể thấy, iterator là một công cụ giải quyết vấn đề khá là lợi hại, để hiểu rõ hơn, hãy cùng xem qua một vài ví dụ với nó.</p>
+<p><strong>Ví dụ: Tách chuỗi</strong></p>
+<p><img src="img/iterator-word-split.jpg" alt="" /></p>
+<p>Giả sử chúng ta muốn implement một hàm <code>words()</code> cho kiểu dữ liệu <code>String</code> trong JavaScript, theo đó, hàm này sẽ có nhiệm vụ tách chuỗi hiện tại thành một mảng chứa các từ trong chuỗi.</p>
+<pre><code class="language-javascript">const text = &quot;The quick brown fox jump over a lazy dog&quot;;
+</code></pre>
+<p>Đầu tiên, chúng ta cần phải tạo ra một iterator, đây sẽ là một class tên <code>WordIterator</code>, class này sẽ có constructor làm nhiệm vụ tách chuỗi hiện tại thành nhiều từ, bằng hàm <code>String.prototype.split()</code>. Cuối cùng, ta sẽ implement hàm <code>next()</code>, có nhiệm vụ từng bước trả về mỗi từ đã được tách cho đến khi không còn từ nào nữa thì kết thúc.</p>
+<pre><code class="language-javascript">class WordIterator {
+    constructor(data) {
+        this.data = data.split(/\s/);
+        this.index = -1;
+    }
+
+    next() {
+        this.index++;
+        if (this.index &lt; this.data.length) {
+            return {
+                value: this.data[this.index],
+                done: false
+            }
+        }
+        return { done: true };
+    }
+}
+</code></pre>
+<p>Tiếp theo, chúng ta sẽ implement hàm <code>words()</code> cho kiểu <code>String</code>, trong hàm này, chúng ta sẽ implement phương thức <code>[Symbol.iterator]</code> cho chuỗi đang được xử lý.</p>
+<pre><code class="language-javascript">String.prototype.words = function() {
+    const iterable = this;
+    iterable[Symbol.iterator] = () =&gt; new WordIterator(this);
+    return iterable;
+};
+</code></pre>
+<p>Ở trên, chúng ta tạo một biến trung gian <code>iterable</code> và implement phương thức <code>[Symbol.iterator]</code> cho biến này thay vì implemen trực tiếp vào kiểu <code>String</code>, vì chúng ta không muốn thay đổi behavior mặc định của kiểu <code>String</code>.</p>
+<p>Thế là xong, chạy thử:</p>
+<pre><code class="language-javascript">for (let word of text.words()) {
+    console.log(word);
+}
+
+// Output:
+// &quot;The&quot; &quot;quick&quot; &quot;brown&quot; &quot;fox&quot; &quot;jump&quot; &quot;over&quot; &quot;a&quot; &quot;lazy&quot; &quot;dog&quot;
+</code></pre>
+<p>Quá dễ, phải không nào?</p>
+<p>Oh, và các bạn biết sao không? Trong cách implement trên, chúng ta đã bỏ qua một thực tế là, kiểu <code>Array</code> đã là một iterable object rồi, để rồi phức tạp hóa cái solution lên <i class='em em-joy'></i> trên thực tế, chúng ta chỉ cần implement hàm <code>words()</code> như này:</p>
+<pre><code class="language-javascript">String.prototype.words = function() {
+    return this.split(/\s/);
+}
+</code></pre>
+<hr />
+<p><strong>Ví dụ: Python's range function</strong></p>
+<p>OK, giờ lấy ví dụ khác nhé.</p>
+<p>Hẳn các bạn ai cũng đã từng dùng qua Python, hay cũng từng gặp hàm <code>range()</code> hay <code>xrange()</code> của Python. Nếu như các bạn không biết nó là gì, thì nói đơn giản, hàm này tạo ra <span class="mute sidenote">Đây chỉ là một dạng đơn giản của hàm <code>range()</code>, trên thực tế hàm này còn có nhiều cách sử dụng khác nữa.</span> một dãy số trong phạm vi của hai giá trị đầu vào, ví dụ <code>range(5, 15)</code> sẽ tạo ra dãy số <code>[5, 6, 7,... 14]</code>.</p>
+<p><img src="img/iterator-range.jpg" alt="" /></p>
+<p>Chúng ta sẽ mô phỏng hàm này trong JavaScript bằng iterator.</p>
+<p>Hàm <code>range()</code> của chúng ta sẽ nhận vào hai tham số, <code>from</code> và <code>to</code>. Với mỗi lượt iterate của hàm <code>next()</code>, chúng ta sẽ tăng giá trị <code>from</code> lên một đơn vị cho tới khinào nó đụng giá trị <code>to</code>.</p>
+<pre><code class="language-javascript">const range = (from, to) =&gt; {
+    return {
+        [Symbol.iterator]: function() { return this; },
+        next: function() {
+            if (from &lt; to) {
+                from++;
+                return { value: from - 1, done: false };
+            }
+            return { done: true };
+        }
+    }
+};
+</code></pre>
+<p>Ở đây chúng ta cũng sử dụng cú pháp implement kiểu rút gọn như đã nói ở phần trước chứ không cần tạo class, vì ở ví dụ này cũng không phức tạp gì mấy, và mục đích của chúng ta là sử dụng hàm <code>range()</code> luôn nên cũng không cần quan tâm đến chuyện reuse code làm gì.</p>
+<p>Và đây là cách sử dụng:</p>
+<pre><code class="language-javascript">for (const i of range(0, 100)) {
+    console.log(i);
+}
+</code></pre>
+<p>Nếu để ý kĩ cách implement trên, có thể các bạn sẽ nhận ra là, hàm <code>range()</code> chỉ sinh ra giá trị tiếp theo chỉ khi nào nó được gọi, chứ không phải tạo sẵn ra luôn một dãy các số từ <code>from</code> tới <code>to</code>, đó cũng chính là đặc tính &quot;laziness&quot; của hàm <code>xrange()</code> trong Python.</p>
+<hr />
+<p><strong>Ví dụ: Lazy Evaluation</strong></p>
+<p><strong>Call-by-need</strong> là một đặc điểm của Lazy Evaluation (đối lập với <strong>call-by-name</strong>, đặc tính chỉ các thanh niên nhanh nhẩu, chỉ cần gọi tên là xuất kích) - một khái niệm từ functional programming, giải thích một cách đơn giản không đầy đủ, thì đây là phương pháp xử lý mà khi ta có các biểu thức nối tiếp nhau, chỉ khi nào biểu thức phía sau cần sử dụng kết quả tính toán từ biểu thức phía trước, thì biểu thức trước mới được thực thi.</p>
+<p><img src="img/iterator-lazy-evaluation.jpg" alt="" /></p>
+<p>Giả sử, ta có một hàm <code>evenNumbers()</code> trả về một dãy các số chẵn bắt đầu từ 0, và ta muốn lấy ra <strong>n</strong> giá trị đầu tiên trong dãy số đó.</p>
+<pre><code class="language-javascript">const list = evenNumbers();
+console.log(list.slice(0, n));
+</code></pre>
+<p>Nếu <code>evenNumbers()</code> là một hàm <strong>call-by-name</strong>, thì ngay từ sau câu khai báo <code>list</code>, hàm này sẽ được thực thi ngay, và vì <code>evenNumbers()</code> là một hàm không có điểm dừng, chương trình trên sẽ không bao giờ chạy được đến dòng lệnh thứ 2, và nó sẽ treo.</p>
+<p>Nếu <code>evenNumbers()</code> là một hàm <strong>call-by-need</strong>, thì nó sẽ chưa được gọi chừng nào giá trị trả về của nó vẫn chưa cần thiết được sử dụng, và trong trường hợp này, nó chỉ được sử dụng sau khi chúng ta kết thúc câu lệnh <code>slice()</code>, lúc chúng ta in kết quả ra màn hình. Và mặc cho logic của hàm <code>evenNumbers()</code> chạy không có điểm dừng, vì nó là lazy, nên nó chỉ trả về một lượng dữ liệu vừa đủ dùng, trong trường hợp này là <strong>n</strong> giá trị mà thôi.</p>
+<p>Với iterator, ta có thể mô phỏng lại hoạt động của hàm <code>evenNumbers()</code> call-by-need trong JavaScript kiểu như sau, tất nhiên là không hoàn toàn đúng theo mô tả ở trên:</p>
+<pre><code class="language-javascript">const evenNumbers = () =&gt; {
+    let index = 0;
+    return {
+        [Symbol.iterator]: function() { return this; },
+        next: function() {
+            index+=2;
+            return { value: index, done: false };
+        },
+        take: function(n) {
+            let values = [];
+            for (let i = 0; i &lt; n; i++) {
+                values.push(this.next().value);
+            }
+            return values;
+        }
+    }
+};
+
+console.log(evenNumbers().take(5));
+</code></pre>
+<p>Có thể thấy, ta có thể viết theo cách mà người bình thường không ai điên gì mà làm, đó là code logic của hàm <code>next()</code> không cần có điểm dừng.</p>
+<p>Để nói kĩ hơn về Lazy Evaluation, sẽ có một bài viết khác <del>vào một ngày nào đó</del>.</p>
+<hr />
+<p>Mặc dù khá là hữu ích, nhưng iterator hiện nay vẫn còn một nhược điểm đó là không thể thực hiện các thao tác bất đồng bộ (asynchronous) được, ví dụ, bạn muốn thực hiện HTTP request trong mỗi iteration, hoặc bạn muốn implement một iterator làm nhiệm vụ đọc một file và trả về từng byte hoặc từng line của file đó. Giải pháp thay thế thì hiện đã có proposal, đó là <a href="https://github.com/tc39/proposal-async-iteration">Async Iteration</a>, và nó đã <a href="https://github.com/rwaldron/tc39-notes/blob/master/es8/2018-01/jan-25.md#13iih-async-iteration-for-stage-4">ở stage 4</a>.</p>
+<div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='../tags/javascript.html'>javascript</a></div>
+<div class="related-posts" style="margin-top: 15px; border-bottom: 1px solid #eee;">
+<p><i class="em em-sun_with_face"></i> Cảm ơn bạn đã theo dõi bài viết! các bạn có thể <a href="https://facebook.com/thefullsnackblog" target="_blank">follow mình trên Facebook</a> để đặt câu hỏi, hoặc nhận thông tin về các bài viết mới.</p>
+</div>
+<div class="comments">
+<ul id="comment-list" class="comment-list"></ul>
+<div id="login-box" class="login">
+Bạn nghĩ như thế nào về bài viết này?<br /><button onclick="login()">Tham gia bình luận</button>
+<div class="copyright">Chức năng này cần liên kết với tài khoản Google<br />Nếu không thích thì có thể comment <button onclick="goninja()">Nặc danh</button></div>
+</div>
+<div id="comment-box" class="comment-input">
+<div class="avatar">
+<img id="user-avatar" src="#" width="32" height="32" />
+</div>
+<div class="input">
+<textarea id="comment-content" onkeydown="submitComment(event)" placeholder="Comment gõ vào đây :D"></textarea>
+ <span>Gõ xong nhấn <kbd>Ctrl</kbd> + <kbd>Enter</kbd> để gửi. Bạn không thể xóa comment sau khi gửi.</span>
+<button id="comment-button" onclick="submitData()">Gửi</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer lightweight-theme">
+<p>you're free to use the content on this blog for whatever you want</p>
+<p>Created with <i class="em em-coffee"></i> <a href="https://github.com/huytd/ristretto-rs">ristretto.rs</a></p>
+</div>
+<script src="../js/highlight.pack.js"></script>
+<script>
+        </script>
+<script type="text/javascript" async src="../../cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJaxb198.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+             tex2jax: {
+                 inlineMath: [['$','$'], ['\\(','\\)']],
+                 skipTags: ["script","noscript","style","textarea", "code"],
+                 ignoreClass: "tex2jax_ignore|comment|comment-list|content"
+             }
+         });
+        </script>
+<script src="../js/toc.js"></script>
+<script src="../../www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+<script>
+         let postCommentURL = '../api/post/javascript-iterator.json';
+         // Initialize Firebase
+         var config = {
+             apiKey: "AIzaSyA1PnIAlJJ-U6iQJMNnCOknBuziBqGMYcY",
+             authDomain: "huys-blog-comment.firebaseapp.com",
+             databaseURL: "https://huys-blog-comment.firebaseio.com",
+             projectId: "huys-blog-comment",
+             storageBucket: "huys-blog-comment.appspot.com",
+             messagingSenderId: "317330376829"
+         };
+
+         var login = function() {
+             window.auth.signInWithPopup(provider)
+                   .then(function(result) {
+                   }).catch(function(err) {
+                   });
+         };
+
+         var goninja = function() {
+             updateAuth({
+                 displayName: "Không Tên",
+                 photoURL: "https://thefullsnack.com/img/kaonashi.jpg"
+             });
+         };
+
+         var updateAuth = function(user) {
+             if (user) {
+                 currentUser = user;
+                 // Logged in
+                 document.getElementById("login-box").style.display = "none";
+                 document.getElementById("comment-box").style.display = "flex";
+                 document.getElementById("user-avatar").setAttribute("src", user.photoURL + "?sz=32");
+             } else {
+                 // Not login yet
+                 document.getElementById("comment-box").style.display = "none";
+                 document.getElementById("login-box").style.display = "block";
+             }
+         };
+
+         var encodeHTML = function(s) {
+             return s.replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+         };
+
+         var saveNewComment = function(comment) {
+             if (!currentUser) {
+                 return;
+             }
+             var commentData = {
+                 username: currentUser.displayName,
+                 avatar: currentUser.photoURL,
+                 post_time: ~~((new Date()).getTime() / 1000),
+                 message: encodeHTML(comment)
+             };
+
+             fetch(postCommentURL, {
+                 method: 'post',
+                 headers: {
+                     "Content-Type": "application/json"
+                 },
+                 body: JSON.stringify(commentData)
+             }).then((result) => {
+                 if (result.status === 200) {
+                     addNewComment(commentData.username, commentData.avatar, commentData.post_time, commentData.message);
+                 }
+             });
+
+             document.getElementById("comment-content").value = "";
+         };
+
+         function debounce(func, wait, immediate) {
+             var timeout;
+             return function() {
+                 var context = this, args = arguments;
+                 var later = function() {
+                     timeout = null;
+                     if (!immediate) func.apply(context, args);
+                 };
+                 var callNow = immediate && !timeout;
+                 clearTimeout(timeout);
+                 timeout = setTimeout(later, wait);
+                 if (callNow) func.apply(context, args);
+             };
+         };
+
+         var submitData = debounce(function() {
+             var comment = document.getElementById("comment-content").value;
+             if (comment.length) {
+                 saveNewComment(comment);
+             }
+         }, 250);
+
+         var submitComment = function(e) {
+             var keyCode = e.which || e.keyCode;
+             var ctrlCode = e.ctrlKey || e.metaKey;
+             if (keyCode === 13 && ctrlCode) {
+                 submitData();
+             }
+         };
+
+         var filterNewlineInComment = function(t) {
+             return t.replace(/\n/g, "<br/>");
+         };
+
+         var filterURLinComment = function(comment) {
+             return comment.replace(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})/g, "<a target='_blank' rel='noopener noreferrer' href='$1'>$1</a>");
+         };
+
+         var addNewComment = function(user, avatar, time, comment, first) {
+             var commentFiltered = encodeHTML(comment);
+             commentFiltered = filterNewlineInComment(filterURLinComment(commentFiltered));
+             commentFiltered = commentFiltered.replace(/```/g, '');
+             var d = new Date(time * 1000);
+             var commentTime = d.toLocaleTimeString() + ' ' + d.toLocaleDateString();
+             var anoNameClass = (avatar.indexOf('thefullsnack.com') !== -1) ? "grey" : "";
+             var html = '<div class="avatar">' +
+                        '   <img src="' + avatar + '?sz=32" width="32" height="32"/>' +
+                        ' </div>' +
+                        '<div class="comment">' +
+                        '  <div class="metadata"><b class="' + anoNameClass + '">' + encodeHTML(user) + '</b> lúc <span>' + commentTime + '</span></div>' +
+                        '  <div class="content tex2jax_ignore">' + commentFiltered
+             '  </div>' +
+                        '</div>';
+             var li = document.createElement('li');
+             li.innerHTML = html;
+             if (!first) {
+                 document.getElementById("comment-list").append(li);
+             } else {
+                 let elm = document.getElementById("comment-list");
+                 elm.insertBefore(li, elm.firstChild);
+             }
+         };
+
+
+
+         window.onload = function() {
+
+             document.querySelectorAll("pre code").forEach(el => {
+                 hljs.highlightBlock(el);
+             });
+
+             start_toc_module();
+
+             firebase.initializeApp(config);
+             window.provider = new firebase.auth.GoogleAuthProvider();
+             window.auth = firebase.auth();
+             window.currentUser = null;
+
+             window.auth.onAuthStateChanged(function(user) {
+                 updateAuth(user);
+             });
+
+
+             // Fetch comment and put to posts
+             fetch(postCommentURL)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.comments) {
+                         let comments = data.comments;
+                         comments.sort((a, b) => a.post_time - b.post_time);
+                         for (let i = 0; i < comments.length; i++) {
+                             let cmt = comments[i];
+                             addNewComment(cmt.username, cmt.avatar, cmt.post_time, cmt.message);
+                         }
+                     }
+                 });
+         };
+
+         var toggle_wordwise = function(status) {
+             var book = document.querySelector("book");
+             var on = document.querySelector("#ww_on");
+             var off = document.querySelector("#ww_off");
+             if (!status) {
+                 book.className = "off";
+                 on.className = "btn-toggle";
+                 off.className = "btn-toggle active";
+             } else {
+                 book.className = "";
+                 on.className = "btn-toggle active";
+                 off.className = "btn-toggle";
+             }
+         };
+        </script>
+</body>
+
+<!-- Mirrored from thefullsnack.com/posts/javascript-iterator.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:19:14 GMT -->
+</html>
