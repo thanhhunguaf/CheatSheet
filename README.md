@@ -3,7 +3,7 @@
 <!-- Mirrored from thefullsnack.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:18:20 GMT -->
 <!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
 <head>
-<title>Huy's Blog</title>
+<title>Kun's Blog</title>
 <meta charset="utf-8">
 <meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
 <link href="css/theme.dist.css" rel="stylesheet" type="text/css">
