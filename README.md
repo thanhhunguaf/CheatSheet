@@ -12,12 +12,10 @@
     <link rel="stylesheet" href="emoji/css/emoji.dist.css">
     <link rel="authorization_endpoint" href="https://indieauth.com/auth">
     <link rel="token_endpoint" href="https://tokens.indieauth.com/token">
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-92158965-1"></script>
 <body class="index">
 <header id="user_top" class="cf ">
-    <figure id="user_logo" class="active"><a href="index.html"></a></figure>
-    <h2><a href="index.html">Developer</a></h2>
+    <figure id="user_logo" class="active"><a href="MySQL/CheatSheet.md"></a></figure>
+    <h2><a href="MySQL/CheatSheet.md">Developer</a></h2>
     <h4><span class="name_head">by</span> Kun</h4>
     <h3>Description</h3>
     <div class="header-top">
