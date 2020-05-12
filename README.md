@@ -1,17 +1,10 @@
 <html>
-
-<!-- Mirrored from thefullsnack.com/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 12 May 2020 03:18:20 GMT -->
-<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf8" /><!-- /Added by HTTrack -->
 <head>
 <title>Kun's Blog</title>
 <meta charset="utf-8">
-<meta http-equiv="content-type" content="text/html;"><meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+<meta http-equiv="content-type" content="text/html;">
 <link href="css/theme.dist.css" rel="stylesheet" type="text/css">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="manifest" href="manifest.json">
-<link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#ffffff">
 <meta name="google-site-verification" content="2UztdyK-8o2KwpOlEejP13eGlvLjHYOFJu9u2RLA1dA" />
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese" rel="stylesheet">
