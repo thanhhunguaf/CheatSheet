@@ -14,8 +14,8 @@
     <link rel="token_endpoint" href="https://tokens.indieauth.com/token">
 <body class="index">
 <header id="user_top" class="cf ">
-    <figure id="user_logo" class="active"><a href="MySQL/CheatSheet.md"></a></figure>
-    <h2><a href="MySQL/CheatSheet.md">Developer</a></h2>
+    <figure id="user_logo" class="active"><a href="format.html"></a></figure>
+    <h2><a href="format.html">Developer</a></h2>
     <h4><span class="name_head">by</span> Kun</h4>
     <h3>Description</h3>
     <div class="header-top">
