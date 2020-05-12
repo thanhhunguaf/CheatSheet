@@ -4,7 +4,7 @@
     <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/format.html" beforeDir="false" afterPath="$PROJECT_DIR$/format.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +94,7 @@
       <workItem from="1571890877432" duration="1609000" />
       <workItem from="1587960067411" duration="821000" />
       <workItem from="1589255741151" duration="26000" />
-      <workItem from="1589255867242" duration="7771000" />
+      <workItem from="1589255867242" duration="8611000" />
     </task>
     <servers />
   </component>
@@ -117,9 +117,13 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="-1253" y="246" width="585" height="558" key="find.popup" timestamp="1589268078282">
+    <state x="-1151" y="439" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1589271364100">
       <screen x="-1920" y="0" width="1920" height="1050" />
     </state>
-    <state x="-1253" y="246" width="585" height="558" key="find.popup/0.0.1920.1050/-1920.0.1920.1050@-1920.0.1920.1050" timestamp="1589268078282" />
+    <state x="-1151" y="439" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1050/-1920.0.1920.1050@-1920.0.1920.1050" timestamp="1589271364100" />
+    <state x="-1253" y="246" width="585" height="558" key="find.popup" timestamp="1589270703830">
+      <screen x="-1920" y="0" width="1920" height="1050" />
+    </state>
+    <state x="-1253" y="246" width="585" height="558" key="find.popup/0.0.1920.1050/-1920.0.1920.1050@-1920.0.1920.1050" timestamp="1589270703830" />
   </component>
 </project>
