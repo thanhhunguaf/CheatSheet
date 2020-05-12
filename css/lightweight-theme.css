@@ -1,0 +1,64 @@
+.header.lightweight-theme {
+    background: transparent;
+}
+
+.footer.lightweight-theme {
+    border-top: 1px solid #EEE;
+    background: transparent;
+    padding: 10px 0 20px 0;
+}
+
+.footer.lightweight-theme .social a {
+    color: #888;
+}
+
+.subscribe-widget {
+    border-top: 1px solid #EEE;
+    background: transparent;
+    padding: 20px 0 10px 0;
+}
+
+.subscribe-widget #mc_embed_signup {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.subscribe-widget .subscribe-text {
+    padding: 10px 0 10px 0;
+    font-weight: bold;
+}
+
+.subscribe-widget .subscribe-box {
+    width: 100%;
+}
+
+.subscribe-widget .subscribe-box::after {
+    content: "thefullsnack.com";
+    visibility: hidden;
+    display: block;
+    clear: both;
+}
+
+.subscribe-widget .subscribe-box .email {
+    display: inline-block;
+    border-radius: 3px;
+    width: 400px;
+    border: 1px solid #CCC;
+    padding: 5px 10px 5px 10px;
+}
+
+.subscribe-widget .subscribe-box input[type=submit] {
+    background: #3498db;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 12px;
+    color: #FFF;
+    cursor: pointer;
+    text-transform: none;
+}
+
+.subscribe-widget .desc {
+    font-size: 0.8em;
+    color: #888;
+}
