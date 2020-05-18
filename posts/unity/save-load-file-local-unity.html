@@ -18,80 +18,79 @@
     <div class="main">
         <h1><span>[Code] Save and load file local in Unity</span></h1>
         <p>Để lưu data ở local trong Unity ví dụ: file configs, file setting,...</p>
-        <p>Tất cả các định dạng file có thể chơi được trong Unity gồm: .txt, .html, csv, xml... Đọc thêm trong docs:
-            https://docs.unity3d.com/Manual/class-TextAsset.html</p>
+        <p>Tất cả các định dạng file có thể chơi được trong Unity gồm: txt,html,csv,xml... Đọc thêm trong <a href="https://docs.unity3d.com/Manual/class-TextAsset.html">docs nay ne</a></p>
         <p>Thường thì dùng csv. Lí do: có thể dùng excel để tạo data cho dễ, rồi export ra. Nói chung excel or cái gì đó
             =)) có thể export ra file text theo định mà mà Unity nó đọc được thì chơi tất. Cũng có thể viết tay trên
             notepad nếu sức khỏe tốt...</p>
-        <p>Dùng Application.path:</p>
+        <p><strong>Dùng Application.path</strong></p>
         <pre>
             <code>
-                using UnityEngine;
-                using System.Collections.Generic;
-                using System.Text;
-                using System.IO;
+using UnityEngine;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
 
-                public class ReadWrite : MonoBehaviour
-                {
-                    private List<string[]> rowData = new List<string[]>();
+public class ReadWrite : MonoBehaviour
+{
+    private List<string[]> rowData = new List<string[]>();
 
-                    private void Save()
-                    {
-                        // Creating First row of titles manually..
-                        string[] rowDataTemp = new string[3];
-                        rowDataTemp[0] = "UserName";
-                        rowDataTemp[1] = "UserID";
-                        rowDataTemp[2] = "Status";
-                        rowData.Add(rowDataTemp);
+    private void Save()
+    {
+        // Creating First row of titles manually..
+        string[] rowDataTemp = new string[3];
+        rowDataTemp[0] = "UserName";
+        rowDataTemp[1] = "UserID";
+        rowDataTemp[2] = "Status";
+        rowData.Add(rowDataTemp);
 
-                        // You can add up the values in as many cells as you want.
-                        for (int i = 0; i < 10; i++)
-                        {
-                            rowDataTemp = new string[3];
-                            rowDataTemp[0] = "Kun" + i; // UserName
-                            rowDataTemp[1] = "123" + i; // UserID
-                            rowDataTemp[2] = "Lock"; // Status
-                            rowData.Add(rowDataTemp);
-                        }
+        // You can add up the values in as many cells as you want.
+        for (int i = 0; i < 10; i++)
+        {
+            rowDataTemp = new string[3];
+            rowDataTemp[0] = "Kun" + i; // UserName
+            rowDataTemp[1] = "123" + i; // UserID
+            rowDataTemp[2] = "Lock"; // Status
+            rowData.Add(rowDataTemp);
+        }
 
-                        string[][] output = new string[rowData.Count][];
+        string[][] output = new string[rowData.Count][];
 
-                        for (int i = 0; i < output.Length; i++)
-                        {
-                            output[i] = rowData[i];
-                        }
+        for (int i = 0; i < output.Length; i++)
+        {
+            output[i] = rowData[i];
+        }
 
-                        int length = output.GetLength(0);
-                        string delimiter = ",";
+        int length = output.GetLength(0);
+        string delimiter = ",";
 
-                        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-                        for (int index = 0; index < length; index++)
-                        {
-                            sb.AppendLine(string.Join(delimiter, output[index]));
-                        }
+        for (int index = 0; index < length; index++)
+        {
+            sb.AppendLine(string.Join(delimiter, output[index]));
+        }
 
-                        string filePath = getPath();
+        string filePath = getPath();
 
-                        StreamWriter outStream = System.IO.File.CreateText(filePath);
-                        outStream.WriteLine(sb); // write
-                        outStream.Close(); // remember close
-                    }
+        StreamWriter outStream = System.IO.File.CreateText(filePath);
+        outStream.WriteLine(sb); // write
+        outStream.Close(); // remember close
+    }
 
-                    // Following method is used to retrive the relative path as device platform
-                    private string getPath()
-                    {
-                        #if UNITY_EDITOR
-                                return Application.dataPath + "/CSV/" + "Data.csv";
-                        #elif UNITY_ANDROID
-                                return Application.persistentDataPath+"Data.csv";
-                        #elif UNITY_IPHONE
-                                return Application.persistentDataPath+"/"+"Data.csv";
-                        #else
-                                return Application.dataPath +"/"+"Data.csv";
-                        #endif
-                    }
-                }
+    // Following method is used to retrive the relative path as device platform
+    private string getPath()
+    {
+        #if UNITY_EDITOR
+                return Application.dataPath + "/CSV/" + "Data.csv";
+        #elif UNITY_ANDROID
+                return Application.persistentDataPath+"Data.csv";
+        #elif UNITY_IPHONE
+                return Application.persistentDataPath+"/"+"Data.csv";
+        #else
+                return Application.dataPath +"/"+"Data.csv";
+        #endif
+    }
+}
             </code>
         </pre>
         <p>Còn dataPath nếu native thì lưu ở đâu, editor lưu đâu,... thì vô <a href="https://docs.unity3d.com/ScriptReference/Application-dataPath.html">đây</a> đọc ne

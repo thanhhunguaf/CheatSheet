@@ -1,0 +1,148 @@
+<html lang="en">
+<head>
+    <title>Route tips giúp bạn cải thiện routing</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="../../css/theme.dist.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../emoji/css/emoji.dist.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese"
+          rel="stylesheet">
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+    <a href="../../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+    <div class="main">
+        <h1><span>[Laravel] Route tips giúp bạn cải thiện routing</span></h1>
+        <p>Laravel router có một bộ API rất hữu dụng và hoàn thiện dành cho bạn khi mới bước chân vào Laravel. Những tip
+            dưới đây không phải là quá mới hay bí ẩn, nhưng sẽ giúp ích rất nhiều khi bạn học Laravel 5</p>
+        <p><strong>Custom Namespaces</strong></p>
+        <p>Như đã nói, nếu bạn muốn một nhóm routes sử dụng một namespace như <i>App\Http\Controllers\Admin</i>, bạn có
+            thể xác định namespace bằng cách dùng <a href="https://laravel-news.com/route-improvements">fluent routing
+                API</a> có trong Laravel</p>
+        <pre>
+            <code>
+Route::namespace('Admin')->group(function () {
+    // Controllers Within The "App\Http\Controllers\Admin" Namespace
+});
+            </code>
+        </pre>
+        <p>Đây chính là cách sử dụng trong <strong>RouteServiceProvider</strong> tìm thấy trong mỗi Laravel project:</p>
+        <pre>
+            <code>
+protected function mapWebRoutes()
+{
+    Route::middleware('web')
+         ->namespace($this->namespace)
+         ->group(base_path('routes/web.php'));
+}
+            </code>
+        </pre>
+        <p>Do file <i>routes/web.php</i> có namespace, <strong>Admin</strong> namespace cũng chỉ là tương đối.</p>
+        <p>Bạn có thể chạy console command sau để tạo các controller trên <i>App\Http\Controllers\Admin</i></p>
+        <pre>
+            <code>
+                php artisan make:controller -r Admin/UsersController
+            </code>
+        </pre>
+        <p>Trong ví dụ routing trước, definition của chúng ta trong file <i>routes/web.php</i> trông thế này:</p>
+        <pre>
+            <code>
+Route::namespace('Admin')
+->prefix('admin')
+->group(function () {
+    Route::resource('users', 'UsersController');
+});
+            </code>
+        </pre>
+        <p><strong>Route Macros</strong></p>
+        <p>Router là macroable (Giải thích sơ qua: nó cho phép chúng ta thêm một phương thức hay có thể gọi là một
+            macro, vào một class có sẵn. ), nghĩa là nếu bạn có một nhóm routes mà bạn muốn cung cấp thông qua một
+            package hoặc các nhóm route được cấu hình sẵn có thể tái sử dụng, bạn có thể define một macro trên một
+            service provider.</p>
+        <p>Ví dụ, bạn có các shopping route cho một shop thương mại điện tử mà bạn đóng nó thành một package, và cho
+            phép user override hoặc customize vài thành phần của routes:</p>
+        <pre>
+            <code>
+// Inside a service provider boot()
+public function boot()
+{
+    Route::macro('shopRoutes', function ($prefix) {
+        Route::group([
+            'prefix' => $prefix,
+            'middleware' => ['shopping'],
+        ], function () {
+            Route::get('products/{product}', 'ProductsController@show');
+            // ...
+        });
+    });
+}
+            </code>
+        </pre>
+        <p>Sau đó khách hàng có thể call macro trong app Laravel mới bên trong <i>routes/web.php</i>:</p>
+        <pre>
+            <code>
+collect(config('languages'))->each(function ($language) {
+    Route::shopRoutes($language);
+});
+            </code>
+        </pre>
+        <p>Hoặc một implemention khác tương tự vậy:</p>
+        <pre>
+            <code>
+Route::macro('shopRoutes', function ($languages) {
+    Route::group([
+        'prefix' => '/{language}',
+        'middleware' => ['shopping'],
+        'where' => ['language' => implode('|', $languages)],
+    ], function () {
+        Route::get('products/{product}', 'ProductsController@show');
+        // ...
+    });
+});
+            </code>
+        </pre>
+        <p>Các ví dụ về macro rất đa dạng, nhưng bạn chỉ cần nắm cái ý tưởng là được. Tôi đề xuất rằng bạn chỉ nên sử
+            dụng route macro nếu bạn gặp trường hợp như trên. Bạn sẽ biết khi nào là cần thiết!</p>
+        <p><strong>Debug Routes</strong></p>
+        <p>Nếu bạn đang tìm mọi cách để find route hoặc debug tất cả các route, command <i>artisan route:list</i> rất
+            hữu ích:</p>
+        <p>Command <i>route:list</i> giúp ích trong việc đọc tên route và các middleware đi kèm. Ngay sau đây là tip để
+            đặt tên routes.</p>
+        <p><strong>Đặt tên các Group Routes</strong></p>
+        <p>Một quy tắc phổ biến trong Laravel đó là đặt tên route, cho phép bạn dễ dàng tham khảo tên route và tránh
+            phức tạp hóa việc code các URI liên quan đến root trong các template của bạn. Trong một số app thì các URI
+            khó code vẫn chấp nhận được, còn một số trường hợp khác, các route được đặt tên sẽ cho phép những cái như
+            sau:</p>
+        <pre>
+            <code>
+                {{ route('admin.users.show', ['user' => $user]) }}
+                {{-- /admin/users/2 --}}
+            </code>
+        </pre>
+        <p>Khi bạn đang xác định một nhóm route, ví dụ như về admin, bạn cũng có thể gán một tiền tố (prefix) cho tên của route trong nhóm như sau:</p>
+        <pre>
+            <code>
+Route::namespace('Admin')
+->prefix('admin')
+->name('admin.')
+->group(function () {
+    Route::resource('users', 'UsersController');
+});
+            </code>
+        </pre>
+        <div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='#'>coding</a></div>
+    </div>
+</div>
+<div class="footer lightweight-theme">
+    <p>You think you know all things. Really you don't know everything!</p>
+    <p>Created by <i class="em em-coffee"></i> <a href="https://github.com/thanhhunguaf">Kun</a> <i
+            class="em em-coffee"></i></p>
+    <p>Theme copyright by <i class="em copyright"> </i> <a href="https://thefullsnack.com/">thefullsnack.com</a> <i
+            class="em copyright"></i></p>
+</div>
+</body>
+</html>
