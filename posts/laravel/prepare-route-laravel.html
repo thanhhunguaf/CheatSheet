@@ -45,7 +45,7 @@ protected function mapWebRoutes()
         <p>Bạn có thể chạy console command sau để tạo các controller trên <i>App\Http\Controllers\Admin</i></p>
         <pre>
             <code>
-                php artisan make:controller -r Admin/UsersController
+php artisan make:controller -r Admin/UsersController
             </code>
         </pre>
         <p>Trong ví dụ routing trước, definition của chúng ta trong file <i>routes/web.php</i> trông thế này:</p>
@@ -119,8 +119,8 @@ Route::macro('shopRoutes', function ($languages) {
             sau:</p>
         <pre>
             <code>
-                {{ route('admin.users.show', ['user' => $user]) }}
-                {{-- /admin/users/2 --}}
+{{ route('admin.users.show', ['user' => $user]) }}
+{{-- /admin/users/2 --}}
             </code>
         </pre>
         <p>Khi bạn đang xác định một nhóm route, ví dụ như về admin, bạn cũng có thể gán một tiền tố (prefix) cho tên của route trong nhóm như sau:</p>
