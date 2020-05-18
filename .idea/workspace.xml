@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/share-tamsucuacoder.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/share/share-tamsucuacoder.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/share-tamsucuacoder1.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/share/share-tamsucuacoder1.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/share-tamsucuacoder2.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/share/share-tamsucuacoder2.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/posts/code/code-save&amp;load-file-local-unity.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/code/code-save&amp;load-file-local-unity.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,20 +39,22 @@
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="jdk.selected.JAVA_MODULE" value="1.8" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/posts" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/posts/code" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\MyProject\personal\posts\code" />
+      <recent name="C:\MyProject\personal\posts\share" />
+      <recent name="C:\MyProject\personal\posts" />
+      <recent name="C:\MyProject\personal" />
+      <recent name="C:\MyProject\personal\css" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\MyProject\personal\posts\share" />
       <recent name="C:\MyProject\personal\posts" />
       <recent name="C:\MyProject\personal\img" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\MyProject\personal\posts" />
-      <recent name="C:\MyProject\personal" />
-      <recent name="C:\MyProject\personal\css" />
     </key>
   </component>
   <component name="RunManager">
@@ -101,6 +100,8 @@
       <workItem from="1589255741151" duration="26000" />
       <workItem from="1589255867242" duration="13959000" />
       <workItem from="1589385355561" duration="1526000" />
+      <workItem from="1589768939832" duration="600000" />
+      <workItem from="1589811666523" duration="2321000" />
     </task>
     <servers />
   </component>
@@ -131,5 +132,9 @@
       <screen x="-1920" y="0" width="1920" height="1050" />
     </state>
     <state x="-1253" y="246" width="585" height="558" key="find.popup/0.0.1920.1050/-1920.0.1920.1050@-1920.0.1920.1050" timestamp="1589270703830" />
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup" timestamp="1589813072355">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="623" y="227" width="672" height="678" key="search.everywhere.popup/0.0.1920.1050@0.0.1920.1050" timestamp="1589813072355" />
   </component>
 </project>
