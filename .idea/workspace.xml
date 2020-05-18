@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/posts/laravel/prepare-route-laravel.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/laravel/prepare-route-laravel.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -101,7 +102,7 @@
       <workItem from="1589255867242" duration="13959000" />
       <workItem from="1589385355561" duration="1526000" />
       <workItem from="1589768939832" duration="600000" />
-      <workItem from="1589811666523" duration="3998000" />
+      <workItem from="1589811666523" duration="4963000" />
     </task>
     <servers />
   </component>
