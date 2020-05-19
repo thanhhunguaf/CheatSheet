@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+    <title>Git Notes</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="../../css/theme.dist.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../emoji/css/emoji.dist.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese"
+          rel="stylesheet">
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+    <a href="../../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+    <div class="main">
+        <h1><span>[Noted] Git Notes</span></h1>
+        <p>Rules for work with git or
+            <a target="_blank" href="https://www.getoutline.com/share/30beb3e0-b08d-4a76-bcde-789632fe03a9">
+                reference
+            </a>
+        </p>
+        <pre>
+            <code>
+- Branch <i>master</i> for all
+- Branch <i>dev</i> for development
+- Branch <i>feature</i> (optional)
+- Branch <i>release</i> for release product
+<strong>Dev only one branch dev</strong>
+- <i>After release</i>
+    + With one required feature is the same sub-branch dev. Example start with version v1.0 after that is v1.1, v1.2, etc...
+    + Merge to branch master. Using this branch for build release
+    + The version on branch lease is the same version dev. Aim to save the released versions and can rollback to the previous version in special cases
+- <strong>Particularly important: <i>Don't dev or do anything on branch master and release unless you know what're you doing or you have permission.</i></strong>
+            </code>
+        </pre>
+        <div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='#'>notes</a></div>
+    </div>
+</div>
+<div class="footer lightweight-theme">
+    <p>You think you know all things. Really you don't know everything!</p>
+    <p>Created by <i class="em em-coffee"></i> <a href="https://github.com/thanhhunguaf">Kun</a> <i
+            class="em em-coffee"></i></p>
+    <p>Theme copyright by <i class="em copyright"> </i> <a href="https://thefullsnack.com/">thefullsnack.com</a> <i
+            class="em copyright"></i></p>
+</div>
+</body>
+</html>
