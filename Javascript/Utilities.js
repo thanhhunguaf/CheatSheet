@@ -27,6 +27,66 @@ const colorize = (...args) => ({
     bgWhite: `\x1b[47m${args.join(' ')}\x1b[0m`
 });
 
+const jQueryRegExp = {
+    // RegExp for Numbers
+    intRegex: /[0-9 -()+]+$/, // select integers only
+    ipRegex: 'bd{1,3}.d{1,3}.d{1,3}.d{1,3}b', // match any ip address
+    num0to255Regex: '^([01][0-9][0-9]|2[0-4][0-9]|25[0-5])$', // match number in range 0-255
+    num0to999Regex: '^([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$', // match number in range 0-999
+    floatRegex: '[-+]?([0-9]*.[0-9]+|[0-9]+)', // match ints and floats/decimals
+    number1to50Regex: /(^[1-9]{1}$|^[1-4]{1}[0-9]{1}$|^50$)/gm, // Match Any number from 1 to 50 inclusive
+
+    // RegExp for Validation
+    emailRegex: '^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$', // match email address
+    creditCardRegex: '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$', // match credit card numbers
+    usernameRegex: '/^[a-z0-9_-]{3,16}$/', // match username
+    passwordRegex: '/^[a-z0-9_-]{6,18}$/', // match password
+    passwordStrengthRegex: /((?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,15})/gm, // Match 8 to 15 character string with at least one upper case letter, one lower case letter, and one digit (useful for passwords).
+    phoneNumber: /[0-9-()+]{3,20}/, // match elements that could contain a phone number
+
+    // RegExp for Dates
+    dateRegex: '/(d{1,2}/d{1,2}/d{4})/gm', // MatchDate (e.g. 21/3/2020)
+    dateMMDDYYYRegex: '^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)dd$', // match date in format MM/DD/YYYY
+    dateDDMMYYYRegex: '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$', // match date in format DD/MM/YYYY
+
+    // RegExp for URL's
+    urlRegex: '/^(https?://)?([da-z.-]+).([a-z.]{2,6})([/w .-]*)*/?$/', // match a url
+    urlSlugRegex: '/^[a-z0-9-]+$/', // match a url slug (letters/numbers/hypens)
+    urlRegexExt: '/(https?://)?([da-z.-]+).([a-z.]{2,6})([/w.-=?]*)*/?/', // match a url string (Fixes spaces and querystrings)
+
+    // RegExp for Vowels
+    vowelRegex: /^[aeiou]/, // select vowels only
+
+    // RegExp for Whitespace
+    whiteSpaceRegex: '^[ t]+', // select whitespace
+    whiteSpaceTabsRegex: '^[ t]+|[ t]+$', // select whitespace and tabs
+    whiteSpaceLineBreakRegex: '[ trn]', // whitespace and linebreaks
+    newLineToBr: function (str) {
+        return str.replace(/(rn|[rn])/g, '');
+    }, // replace newline characters with tags
+
+    // RegExp for Domain Names
+    domainHTTPRegex: /(.*?)[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm, // match domain name (with HTTP)
+    domainWWWRegex: /[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm, // match domain name (www. only)
+    domainAlternativeRegex: /(.*?).(com|net|org|info|coop|int|com.au|co.uk|org.uk|ac.uk|)/igm, // match domain name (alternative)
+    subDomainRegex: '/(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?/igm', // match sub domains: www, dev, int, stage, int.travel, stage.travel
+
+    // RegExp for Images
+    imageRegex: /([^s]+(?=.(jpg|gif|png)).2)/gm, // Match jpg, gif or png image
+    imgTagsRegex: '//ig', // match all images
+
+    // Other Useful jQuery RegExp
+    rgbRegex: /^rgb((d+),s*(d+),s*(d+))$/, // match RGB (color) string
+    hexRegex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/, // match hex (color) string
+    hexRegexExt: /(#?([A-Fa-f0-9]){3}(([A-Fa-f0-9]){3})?)/gm, // match Valid hexadecimal colour code
+    htmlTagRegex: '/^(.*)|s+/>)$/', // match a HTML tag (v1)
+    htmlTagRegexExt: '/(]+)>)/gm', // match HTML Tags (v2)
+    productUrlRegex: '(/product/)?+[0-9]+', // match /product/123456789
+    lnhRegex: /([A-Za-z0-9-]+)/gm, // match Letters, numbers and hyphens
+    cssTagsRegex: '/<link .+?href="(.+?.css(?:?v=d)*).+?/>/ig', // match all .css includes
+    jsTagsRegex: '//ig' // match all .js includes
+};
+
 /**
  * @param n
  * @returns {*}
