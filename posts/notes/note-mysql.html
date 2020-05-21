@@ -1,0 +1,49 @@
+<html lang="en">
+<head>
+    <title>MySQL Notes</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="../../css/theme.dist.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../emoji/css/emoji.dist.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese"
+          rel="stylesheet">
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+    <a href="../../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+    <div class="main">
+        <h1><span>[Noted] MySQL Notes</span></h1>
+        <p><strong>Check table on DB locking</strong></p>
+        <pre>
+            <code>
+SHOW OPEN TABLES WHERE `Table` LIKE '%%' AND `Database` LIKE 'casino' AND In_use > 0
+            </code>
+        </pre>
+        <p><strong>Show list proc</strong></p>
+        <pre>
+            <code>
+SHOW PROCESSLIST
+            </code>
+        </pre>
+        <p><strong>Kill proc with id</strong></p>
+        <pre>
+            <code>
+KILL 34317
+            </code>
+        </pre>
+        <div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='#'>notes</a></div>
+    </div>
+</div>
+<div class="footer lightweight-theme">
+    <p>You think you know all things. Really you don't know everything!</p>
+    <p>Created by <i class="em em-coffee"></i> <a href="https://github.com/thanhhunguaf">Kun</a> <i
+            class="em em-coffee"></i></p>
+    <p>Theme copyright by <i class="em copyright"> </i> <a href="https://thefullsnack.com/">thefullsnack.com</a> <i
+            class="em copyright"></i></p>
+</div>
+</body>
+</html>

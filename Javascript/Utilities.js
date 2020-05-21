@@ -156,7 +156,7 @@ function objIs(type, obj) {
 
 /**
  * @param p_arrayObj
- * @returns {any}
+ * @returns {Object}
  */
 function getEmptyObj(p_arrayObj) {
     return Object.create({});
