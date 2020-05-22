@@ -1,0 +1,101 @@
+<html lang="en">
+<head>
+    <title>Promise và lần chém gió với thằng bạn đồng môn là callback function</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="../../css/theme.dist.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../emoji/css/emoji.dist.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese"
+          rel="stylesheet">
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+    <a href="../../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+    <div class="main">
+        <h1><span>[Share] Promise và lần chém gió với thằng bạn đồng môn là callback function</span></h1>
+        <p>Bữa trước thằng bạn đồng môn hỏi mấy câu về cái server viết bằng Nodejs. Mình đứng chém gió như thật luôn.
+            Nay ngẫm nghĩ rồi mò lại mới thấy bữa mình chỉ nó bậy bạ rồi. Hy vọng nó không bị tẩu quả nhập ma. Đi vào
+            con đường tà đạo <i class="em em-slightly_smiling_face"></i></p>
+        <p>Vậy Promise là cái éo gì? Promise translate to vietnamese "Lời hứa, hứa hẹn". Gì chứ ai đã từng cho mượn tiền
+            thì hiểu rõ cái này nhất. Nó hứa ghê lắm: nào là sẽ trả sớm, rồi trả cả vốn lẫn lãi(<strong>pending</strong>),..
+            và khi nó
+            lấy được tiền xong là nó xoay 180 độ ngay(<strong>reject</strong>) vậy là xác định tiền của chúng ta đã ra
+            đi và dĩ nhiên là
+            cũng có đứa trả(<strong>fulfilled</strong>) và đây là trạng thái mà ta mong đợi nhất <i
+                    class="em em-face_with_rolling_eyes"></i></p>
+        <p>Khi nào ta dùng <strong>Promise</strong>?</p>
+        <p>Khi 1 function nợ chúng ta 1 giá trị. Ví dụ như nó mượn ta 5k và nó hứa sẽ trả cho ta vào 1 ngày đẹp trời nào
+            đó. Nhưng ngay bây giờ chúng ta đang cần 5k đó của nó để làm cái gì đó. Khi đó Promise sẽ đóng vai trò là 5k
+            mà chúng ta cần mà không cần phải đợi thằng function kia trả. Đại loại nó là 1 tờ giấy lộn có giá trị thay
+            thế cho 5k kia.</p>
+        <p>Dạng vầy:</p>
+        <pre>
+            <code>
+traTienChoBo() // chỗ func này trả về 1 promise
+    .then(function(tien) {
+        console.log("Đây là tiền được nó trả lại =))", tien)
+    })
+    .catch(function(taiSaoKhongTraTienChoTao){
+        console.log(taiSaoKhongTraTienChoTao);
+    })
+    + traTienChoBo(); nó sẽ không nhả ra xu nào đâu. Nhưng nó sẽ trả về tờ giấy cam kết là tao sẽ trả mày 5k trong ngày đẹp trời !
+    + .then() and .catch() là 2 method của promise.prototype (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then).
+            </code>
+        </pre>
+        <p>Ví dụ:</p>
+        <pre>
+            <code>
+function traTienChoBo() {
+    return new Promise(function(resolve, reject) {
+    // Nếu nó vui thì nó sẽ trả cho mày =))
+    let _taoSeTra5k = true;
+
+    if(!_taoSeTra5k){
+          // Đây là trường hợp ta mong đợi nhất Promise fulfilled
+          // và đếch bao giờ xảy ra trong trường hợp cho thằng bạn mượn 5k :D
+          return resolve(5000);
+     }
+
+     // Mình là người có văn hóa, có học thức nên có quịt tiền cũng nên quịt cho văn minh.
+     // Nên cho người ta biết lí do mình đếch trả
+     let _liDoTaoQuitTienMay = "Vì tao không có tiền lẻ để trả !"
+        reject(_liDoTaoQuitTienMay);
+     });
+}
+            </code>
+        </pre>
+        <p>Ở đây chúng ta có thể có nhiều .then(). Ví dụ:</p>
+        <pre>
+            <code>
+traTienChoBo()
+    .then(function(tien) {
+        return nhauAnMung(tien);
+    })
+    .then(function(tienConLaiCuaTang1) {
+        return nhauAnMungTang2(tienConLaiCuaTang1)
+    })
+    .then(function() {
+        // Chỗ này hết tiền rồi !
+        return hò_ơi(); =)))))))))))))))
+    })
+            </code>
+        </pre>
+        <p>.then() có thể nhận vào 1 function, null hay cái cục shit gì cũng được. Nhưng mà nếu ngoài function ra thì
+            truyền tất cả những cái khác vô .then() nó vẫn nhận nhưng nó sẽ im lặng và xem như ta chưa truyền gì vào cho
+            nó. Ngay cả truyền vào 1 Promise nó cũng quăng cục lơ luôn. Nhớ truyền function()</p>
+        <div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='#'>sharing</a></div>
+    </div>
+</div>
+<div class="footer lightweight-theme">
+    <p>You think you know all things. Really you don't know everything!</p>
+    <p>Created by <i class="em em-coffee"></i> <a href="https://github.com/thanhhunguaf">Kun</a> <i
+            class="em em-coffee"></i></p>
+    <p>Theme copyright by <i class="em copyright"> </i> <a href="https://thefullsnack.com/">thefullsnack.com</a> <i
+            class="em copyright"></i></p>
+</div>
+</body>
+</html>
