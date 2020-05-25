@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+    <title>Một số lệnh Javascript console hữu ích</title>
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <meta name=viewport content="initial-scale=1.0 maximum-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="../../css/theme.dist.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../emoji/css/emoji.dist.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Space+Mono:400,700&amp;display=swap&amp;subset=vietnamese"
+          rel="stylesheet">
+</head>
+<body lang="en" class="post">
+<div class="header lightweight-theme">
+    <a href="../../index.html"><span class="avatar"></span></a>
+</div>
+<div class="container">
+    <div class="main">
+        <h1><span>[JS] Một số lệnh Javascript console hữu ích</span></h1>
+        <p><i>console.log()</i> là câu lệnh huyền thoại dành cho việc debug Javascript. Nhưng còn có nhiều câu lệnh khác
+            giúp
+            bạn có thể debug tốt hơn hoặc trí ít cũng giúp bạn có một trải nghiệm mới mẻ hơn khi debug javascript
+            Trường hợp cơ bản nhất của việc show log trong javascript là hiển thị một chuỗi</p>
+        <pre>
+            <code>
+console.log('Is this log?');
+            </code>
+        </pre>
+        <pre>
+            <code>
+const foo = { id: 1, verified: true, color: 'green' };
+const bar = { id: 2, verified: false, color: 'red' };
+console.log({ foo, bar });
+            </code>
+        </pre>
+        <p>Khi này ta sẽ nhìn được tên biến tương ứng với data của nó và làm giảm số lượng dòng console.log().</p>
+        <p>Ở ví dụ trên, chúng ta có cách còn tốt hơn để hiển thị biến một cách dễ đọc hơn. Khi bạn cần log những biến
+            có cùng thuộc tính hoặc một mảng các đối tượng, thì việc dùng <i>console.table()</i> sẽ thật tuyệt vời</p>
+        <pre>
+            <code>
+console.table({ foo, bar})
+            </code>
+        </pre>
+        <p><i>console.group()</i> sử dụng khi bạn muốn nhóm hoặc lồng các log có liên quan đến nhau để dễ đọc hơn. Nó
+            cũng có thể được sử dụng để thấy rõ phạm vi của từng câu log(). Ví dụ bạn log thông tin một người dùng:</p>
+        <pre>
+            <code>
+console.group('User Details');
+console.log('name: John Doe');
+console.log('job: Software Developer');
+// Nested Group
+console.group('Address');
+console.log('Street: 123 Townsend Street');
+console.log('City: San Francisco');
+console.log('State: CA');
+console.groupEnd();
+console.groupEnd();
+            </code>
+        </pre>
+        <p>Bạn cũng có thể sử dụng <i>console.groupCollapsed()</i> thay thế cho <i>console.group()</i> nếu bạn muốn thu
+            gọn các group.
+            Khi muốn hiển thị đầy đủ chỉ cần click nút mô tả phía bên trái để mở rộng</p>
+        <p>
+            Tùy thuộc vào tình huống, bạn có thể hiển thị log dễ đọc hơn bằng cách sử dụng <i>console.warn()</i> hoặc
+            <i>console.error()</i>
+        </p>
+        <p>Ngoài ra chúng ta cũng có thể tùy chỉnh, để có thể phân biệt nhiều hơn các loại mà bạn muốn log</p>
+        <pre>
+            <code>
+console.log('%c Auth ',
+            'color: white; background-color: #2274A5',
+            'Login page rendered');
+console.log('%c GraphQL ',
+            'color: white; background-color: #95B46A',
+            'Get user details');
+console.log('%c Error ',
+            'color: white; background-color: #D33F49',
+            'Error getting user details');
+            </code>
+        </pre>
+        <p>Bạn có thể thay đổi <i>font-size , font-style</i> và nhiều CSS khác</p>
+        <p>Một điều quan trọng trong lập trình là code cần chạy nhanh. <i>console.time()</i> giúp bạn biết được thời
+            gian chạy của code</p>
+        <pre>
+            <code>
+let i = 0;
+console.time("While loop");
+while (i < 1000000) {
+    i++;
+}
+console.timeEnd("While loop");
+console.time("For loop");
+for (i = 0; i < 1000000; i++) {
+  // For Loop
+}
+console.timeEnd("For loop");
+            </code>
+        </pre>
+        <p>
+            <a href="https://medium.freecodecamp.org/how-to-use-the-javascript-console-going-beyond-console-log-5128af9d573b">Reference</a>
+        </p>
+        <div class='other-tags'><b>Tags:</b> <a class='topic-tag' href='#'>coding</a></div>
+    </div>
+</div>
+<div class="footer lightweight-theme">
+    <p>You think you know all things. Really you don't know everything!</p>
+    <p>Created by <i class="em em-coffee"></i> <a href="https://github.com/thanhhunguaf">Kun</a> <i
+            class="em em-coffee"></i></p>
+    <p>Theme copyright by <i class="em copyright"> </i> <a href="https://thefullsnack.com/">thefullsnack.com</a> <i
+            class="em copyright"></i></p>
+</div>
+</body>
+</html>
