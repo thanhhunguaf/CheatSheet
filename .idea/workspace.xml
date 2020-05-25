@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/posts/laravel/laravel-format.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/laravel/laravel-prepare-route.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/share/tam-su-cua-coder-7.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/share/tam-su-cua-coder-8.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/share/tam-su-cua-coder-format.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts/laravel/prepare-route-laravel.html" beforeDir="false" afterPath="$PROJECT_DIR$/posts/laravel/laravel-migration.html" afterDir="false" />
-    </list>
+    <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -113,7 +104,7 @@
       <workItem from="1589873883767" duration="4122000" />
       <workItem from="1590027670077" duration="9351000" />
       <workItem from="1590113877694" duration="10102000" />
-      <workItem from="1590380052319" duration="11032000" />
+      <workItem from="1590380052319" duration="11365000" />
     </task>
     <servers />
   </component>
