@@ -1,7 +1,9 @@
 /**
  * Created by 142111. O.O
  */
-
+'use strict';
+const crypto = require('crypto');
+const _ = require('lodash');
 /*
     Console log with color
     Using:  - console.log(colorize('Test 1', JSON.stringify({data: 1})).red);
@@ -92,36 +94,36 @@ const jQueryRegExp = {
  * @returns {*}
  * Result = 1,000.0
  */
-function formatNumberOneDec(n) {
+const formatNumberOneDec = n => {
     if (isNaN(n) || n === '' || n === null) {
         return 0;
     }
     return n.toFixed(1).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
-}
+};
 
 /**
  * @param n
  * @returns {*}
  * Result = 1,000
  */
-function formatNumber(n) {
+const formatNumber = n => {
     if (isNaN(n) || n === '' || n === null) {
         return 0;
     }
     return n.toString().replace(/,/g, '');
-}
+};
 
 /**
  * @param n
  * @returns {number}
  * Result from 1,000 to 1000
  */
-function decodeFormatNumber(n) {
+const decodeFormatNumber = n => {
     if (n === '' || n === null || n === undefined) {
         return 0;
     }
     return parseInt(n.toString().replace(/[^0-9-.]/g, ''));
-}
+};
 
 /**
  * @param name, url
@@ -129,7 +131,7 @@ function decodeFormatNumber(n) {
  * @returns {*}
  * Result url/?name=142111 → 142111
  */
-function getParameterByName(name, url) {
+const getParameterByName = (name, url) => {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
     let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -137,16 +139,14 @@ function getParameterByName(name, url) {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+};
 
 /**
  * @param text
  * @returns {string}
  * Result kun → Kun
  */
-function ucFirst(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-}
+const ucFirst = text => text.charAt(0).toUpperCase() + text.slice(1);
 
 /**
  * Format number follow standard K.M.G
@@ -154,7 +154,7 @@ function ucFirst(text) {
  * @returns {*}
  * Result 1000 → 1k
  */
-function formatKMG(num) {
+const formatKMG = num => {
     if (num >= 1000000000) {
         return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'G';
     }
@@ -165,7 +165,7 @@ function formatKMG(num) {
         return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     }
     return num;
-}
+};
 
 /**
  * Revert format number follow standard K.M.G
@@ -173,7 +173,7 @@ function formatKMG(num) {
  * @returns {*}
  * Result 1k → 1000
  */
-function revertFormatKMG(num) {
+const revertFormatKMG = num => {
     if (num.includes('G')) {
         let new_num = num.replace('B', '');
         return parseInt(new_num) * 1000000000;
@@ -187,7 +187,7 @@ function revertFormatKMG(num) {
         return parseInt(new_num) * 1000;
     }
     return num;
-}
+};
 
 /**
  * Passes the first letter of each word in the sentence into uppercase
@@ -195,12 +195,9 @@ function revertFormatKMG(num) {
  * @returns {string}
  * Result mY name kUN → My Name Kun
  */
-function toTitleCase(str) {
-    return str.toLowerCase().split(' ').map(function (word) {
-        return word.replace(word[0], word[0].toUpperCase());
-    }).join(' ');
-
-}
+const toTitleCase = str => str.toLowerCase().split(' ').map(function (word) {
+    return word.replace(word[0], word[0].toUpperCase());
+}).join(' ');
 
 /**
  * Check the data type of an object
@@ -209,24 +206,78 @@ function toTitleCase(str) {
  * @returns {boolean}
  * Example: objIs('String', 'test'); → true, objIs('String', new String('test')); → true
  */
-function objIs(type, obj) {
+const objIs = (type, obj) => {
     let clazz = Object.prototype.toString.call(obj).slice(8, -1);
     return obj !== undefined && obj !== null && clazz === type;
-}
+};
 
 /**
  * @param p_arrayObj
  * @returns {Object}
  */
-function getEmptyObj(p_arrayObj) {
-    return Object.create({});
-}
+const getEmptyObj = p_arrayObj => Object.create({});
 
 /**
  * @param p_obj0
  * @param p_obj1
  * @returns {{}}
  */
-function mergeTwoObj(p_obj0, p_obj1) {
-    return {...p_obj0, ...p_obj1};
-}
+const mergeTwoObj = (p_obj0, p_obj1) => ({...p_obj0, ...p_obj1});
+
+/**
+ * @returns {Promise<string>}
+ */
+const generateAppSecretKey = () => new Promise(resolve => {
+    crypto.randomBytes(16, function (err, buffer) {
+        resolve(buffer.toString('hex'));
+    });
+});
+
+/**
+ * @param length
+ * @returns {string}
+ */
+const randomString = (length = 3) => {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+};
+
+/**
+ * @returns {string}
+ */
+const uuidv4 = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+});
+
+/**
+ * @param errorName
+ * @param errorData
+ */
+const logError = (errorName, errorData) => {
+    _.isObject(errorData) ? errorData = JSON.stringify(errorData) : errorData;
+    console.log(colorize(errorName + "\n Ex:", errorData).red);
+};
+
+/**
+ * @param warningName
+ * @param warningData
+ */
+const logWarning = (warningName, warningData) => {
+    _.isObject(warningData) ? warningData = JSON.stringify(warningData) : warningData;
+    console.log(colorize(warningName + "\n Ex:", warningData).yellow);
+};
+
+/**
+ * @param infoName
+ * @param infoData
+ */
+const logInfo = (infoName, infoData) => {
+    _.isObject(infoData) ? infoData = JSON.stringify(infoData) : infoData;
+    console.log(colorize(infoName + "\n Ex:", infoData).green);
+};
