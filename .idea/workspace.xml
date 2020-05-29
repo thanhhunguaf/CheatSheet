@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/posts/javascript/javascript-console.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/javascript/javascript-format.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/posts/share/tam-su-cua-coder-10.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/posts/share/tam-su-cua-coder-9.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
@@ -41,23 +41,23 @@
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="jdk.selected.JAVA_MODULE" value="1.8" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/posts/javascript" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/posts/share" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\MyProject\personal\posts\javascript" />
-      <recent name="C:\MyProject\personal\posts\laravel" />
-      <recent name="C:\MyProject\personal\posts\share" />
-      <recent name="C:\MyProject\personal\posts" />
-      <recent name="C:\MyProject\personal\posts\notes" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\MyProject\personal\posts\cheat-sheets" />
       <recent name="C:\MyProject\personal\posts\share" />
       <recent name="C:\MyProject\personal\posts" />
       <recent name="C:\MyProject\personal\img" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\MyProject\personal\posts\share" />
+      <recent name="C:\MyProject\personal\posts\javascript" />
+      <recent name="C:\MyProject\personal\posts\laravel" />
+      <recent name="C:\MyProject\personal\posts" />
+      <recent name="C:\MyProject\personal\posts\notes" />
     </key>
   </component>
   <component name="RunManager">
@@ -109,7 +109,9 @@
       <workItem from="1589873883767" duration="4122000" />
       <workItem from="1590027670077" duration="9351000" />
       <workItem from="1590113877694" duration="10102000" />
-      <workItem from="1590380052319" duration="12876000" />
+      <workItem from="1590380052319" duration="13804000" />
+      <workItem from="1590459668651" duration="1626000" />
+      <workItem from="1590745311741" duration="2245000" />
     </task>
     <servers />
   </component>
