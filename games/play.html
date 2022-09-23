@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;">
+    <title>Caro</title>
+    <link rel="stylesheet" type="text/css" href="./font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <link rel="stylesheet" type="text/css" href="./css/playing.css">
+</head>
+<body>
+
+<div id="container">
+    <div id="board-area" class="content-area">
+        <div id="info-board"></div>
+        <div id="board"></div>
+        <div id="board-cpanel">
+            <button class="btn1 btn-med" id="newGame" onclick="ctrl.newGame()">
+                <i class="fa fa-gamepad fa-2x" aria-hidden="true"></i> Ván mới
+            </button>
+
+            <button class="btn1 btn-med" id="resign" onclick="ctrl.resign()">
+                <i class="fa fa-flag-o fa-2x" aria-hidden="true"></i> Chịu thua
+            </button>
+
+            <button class="btn1 btn-med" id="undo" onclick="ctrl.undo()">
+                <i class="fa fa-undo fa-2x" aria-hidden="true"></i> Xin đi lại
+            </button>
+
+            <button class="btn1 btn-med" id="quit" onclick="ctrl.standUp()">
+                <i class="fa fa-sign-out fa-2x" aria-hidden="true"></i> Thoát
+            </button>
+
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="./js/ai.js"></script>
+<script type="text/javascript" src="./js/board.js"></script>
+<script type="text/javascript" src="./js/caro.js"></script>
+<script type="text/javascript" src="./js/boardCtrl.js"></script>
+<script type="text/javascript" src="./js/referee.js"></script>
+</html>

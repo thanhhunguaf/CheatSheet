@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-2.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-3.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-4.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-5.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-6.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/posts/mylife/mylife-7.html" afterDir="false" />
+    <list default="true" id="0bc1ed20-5447-4bb7-bef1-849a9c423a1e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/games/css/font-awesome.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/css/main.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/css/playing.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/js/ai.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/js/board.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/js/boardCtrl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/js/caro.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/js/referee.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/games/play.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/CheatSheet.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
@@ -16,24 +23,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ComposerSettings">
-    <execution />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="JavaScript File" />
-        <option value="HTML File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="1SVYfy7TmV8YO8QUZK2OpRqX1Xa" />
+  <component name="ProjectId" id="2FAgXqnPf1UA2mCSMmrpwGNqVMm" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -43,82 +39,21 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "last_opened_file_path": "/Users/thanhhung.java/private/personal/posts/mylife"
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/Users/thanhhung.java/private/personal"
   }
 }]]></component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/posts/mylife" />
-      <recent name="C:\MyProject\personal\posts\share" />
-      <recent name="C:\MyProject\personal\posts\javascript" />
-      <recent name="C:\MyProject\personal\posts\laravel" />
-      <recent name="C:\MyProject\personal\posts" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\MyProject\personal\posts\cheat-sheets" />
-      <recent name="C:\MyProject\personal\posts\share" />
-      <recent name="C:\MyProject\personal\posts" />
-      <recent name="C:\MyProject\personal\img" />
-    </key>
-  </component>
-  <component name="RunManager">
-    <configuration default="true" type="Application" factoryName="Application">
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JUnit" factoryName="JUnit">
-      <option name="TEST_OBJECT" value="class" />
-      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="TestNG">
-      <option name="TEST_OBJECT" value="CLASS" />
-      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="a96c56e2-f20c-4333-8476-83cadb9de960" name="Default" comment="" />
-      <created>1559978718740</created>
+      <changelist id="0bc1ed20-5447-4bb7-bef1-849a9c423a1e" name="Changes" comment="" />
+      <created>1663940344944</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1559978718740</updated>
-      <workItem from="1559978720364" duration="8084000" />
-      <workItem from="1571650339855" duration="2157000" />
-      <workItem from="1571711842942" duration="12179000" />
-      <workItem from="1571797542151" duration="10390000" />
-      <workItem from="1571890877432" duration="1609000" />
-      <workItem from="1587960067411" duration="821000" />
-      <workItem from="1589255741151" duration="26000" />
-      <workItem from="1589255867242" duration="13959000" />
-      <workItem from="1589385355561" duration="1526000" />
-      <workItem from="1589768939832" duration="600000" />
-      <workItem from="1589811666523" duration="5563000" />
-      <workItem from="1589854849592" duration="1027000" />
-      <workItem from="1589873883767" duration="4122000" />
-      <workItem from="1590027670077" duration="9351000" />
-      <workItem from="1590113877694" duration="10102000" />
-      <workItem from="1590380052319" duration="13804000" />
-      <workItem from="1590459668651" duration="1626000" />
-      <workItem from="1590745311741" duration="2245000" />
+      <updated>1663940344944</updated>
     </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -130,8 +65,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>
